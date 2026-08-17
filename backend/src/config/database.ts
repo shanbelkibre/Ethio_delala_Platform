@@ -1,0 +1,53 @@
+import { PrismaClient } from '@prisma/client';
+import { env } from './env';
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: ['error', 'warn'],
+  });
+
+if (env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
+}
+
+// Wrap any Prisma call with automatic reconnect on P1017/P1001
+export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
+  const RECONNECTABLE = ['P1017', 'P1001'];
+  const MAX_RETRIES = 3;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      lastError = err;
+      if (err?.code && RECONNECTABLE.includes(err.code)) {
+        console.warn([DB] Connection lost (). Reconnecting... attempt /);
+        try { await prisma.(); } catch (_) {}
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        try { await prisma.(); } catch (_) {}
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw lastError;
+}
+
+export async function connectDatabase(): Promise<void> {
+  try {
+    await prisma.();
+    console.log('PostgreSQL database connected successfully via Prisma.');
+  } catch (error) {
+    console.error('Database connection failed:', error);
+  }
+}
+
+export async function disconnectDatabase(): Promise<void> {
+  await prisma.();
+}
