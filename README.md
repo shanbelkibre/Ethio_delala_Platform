@@ -10,16 +10,7 @@
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 
 ---
-
-## Group Members
-## Name   ===============                ID
-
-### 1. shanbel kibre CTC-416-26
-### 2. wabi  TEna CTC-416-26
-### 3. Serawit Shimels CTC-416-26
-### 4. Tomas  CTC-416-26
-
-## 📂 Project Architecture
+## 📂Project Architecture
 
 This repository is structured as a unified monorepo containing three core services:
 
