@@ -3,17 +3,15 @@ export const ROLES = {
   AGENT: 'AGENT',
   OWNER: 'OWNER',
   RENTER: 'RENTER',
-  BUYER: 'BUYER',
 } as const;
 
 export type AppRole = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_DASHBOARD_ROUTES: Record<string, string> = {
-  ADMIN: '/admin/dashboard',
-  AGENT: '/agent/dashboard',
+  ADMIN: '/management/admin/dashboard',
+  AGENT: '/management/agent/dashboard',
   OWNER: '/owner/dashboard',
   RENTER: '/renter/dashboard',
-  BUYER: '/renter/dashboard',
 };
 
 export const ETHIOPIAN_CITIES = [

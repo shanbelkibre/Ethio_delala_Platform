@@ -3,18 +3,61 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Lock, Mail, Phone, User, Building2 } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Phone,
+  User,
+  Image as ImageIcon,
+  CheckCircle2,
+} from 'lucide-react';
 
 type SelectedRole = 'RENTER' | 'OWNER';
 
+const ETHIOPIAN_REGIONS = [
+  'Addis Ababa',
+  'Dire Dawa',
+  'Oromia',
+  'Amhara',
+  'Sidama',
+  'Tigray',
+  'Somali',
+  'Afar',
+  'Benishangul-Gumuz',
+  'Gambella',
+  'Harari',
+  'South West Ethiopia',
+  'Central Ethiopia',
+  'Southern Ethiopia',
+];
+
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
+
+  // Core required fields
+  const [selectedRole, setSelectedRole] = useState<SelectedRole>('RENTER');
+  const [firstName, setFirstName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<SelectedRole>('RENTER');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Profile details
+  const [gender, setGender] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [maritalStatus, setMaritalStatus] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState('');
+  const [region, setRegion] = useState('Addis Ababa');
+  const [zone, setZone] = useState('');
+  const [wereda, setWereda] = useState('');
+  const [kebele, setKebele] = useState('');
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,22 +68,51 @@ export default function RegisterPage() {
   const hasNumber = /\d/.test(password);
   const hasSymbol = /[@$!%*?&#^()_+={}[\]:;"'<>,.?/~`|\\-]/.test(password);
   const isPasswordStrong = hasMinLength && hasLower && hasUpper && hasNumber && hasSymbol;
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!firstName.trim()) {
+      setError('First name is required.');
+      return;
+    }
     if (!isPasswordStrong) {
       setError('Password must satisfy all strength criteria (lowercase, uppercase, number, symbol, 8+ characters).');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match. Please re-enter your confirm password.');
       return;
     }
 
     setLoading(true);
     setError('');
 
+    const fullName = [firstName.trim(), middleName.trim(), lastName.trim()].filter(Boolean).join(' ');
+
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, password, roles: [selectedRole] }),
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          middleName: middleName.trim() || undefined,
+          lastName: lastName.trim() || undefined,
+          name: fullName,
+          email: email.trim(),
+          phone: phone.trim(),
+          password,
+          roles: [selectedRole],
+          // Biographical info is only sent for RENTER per business rules
+          gender: selectedRole === 'RENTER' ? gender || undefined : undefined,
+          dateOfBirth: selectedRole === 'RENTER' ? dateOfBirth || undefined : undefined,
+          maritalStatus: selectedRole === 'RENTER' ? maritalStatus || undefined : undefined,
+          profileImageUrl: profileImageUrl.trim() || undefined,
+          region: region || undefined,
+          zone: zone.trim() || undefined,
+          wereda: wereda.trim() || undefined,
+          kebele: kebele.trim() || undefined,
+        }),
       });
       const data = await res.json();
 
@@ -50,6 +122,7 @@ export default function RegisterPage() {
       }
 
       const { user } = data.data;
+      // Redirect to OTP verification page via email
       router.push(`/auth/verify?target=${encodeURIComponent(user.email)}`);
     } catch {
       setError('Registration failed. Please check your connection and try again.');
@@ -60,21 +133,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-[85vh] items-center justify-center px-4 py-12 bg-slate-50 dark:bg-slate-950 transition-colors">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 sm:p-10">
-        
-        {/* Brand Icon & Heading */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-12 h-12 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 ring-8 ring-emerald-50 dark:ring-emerald-950/40">
-            <Building2 className="w-6 h-6" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-1.5">
-            Create Your Account
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Join Ethiopia's premier property rental and sales platform
-          </p>
-        </div>
-
+      <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 sm:p-10">
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-sm font-semibold text-rose-600 dark:text-rose-400">
             {error}
@@ -82,7 +141,6 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Role Selection */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
               I am registering as:
@@ -91,150 +149,341 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setSelectedRole('RENTER')}
-                className={`p-3.5 rounded-xl border text-center font-bold transition-all ${
+                className={`p-3.5 rounded-2xl border text-center font-bold transition-all ${
                   selectedRole === 'RENTER'
                     ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
                     : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
                 }`}
               >
-                <span className="block text-xl mb-1">🏠</span>
-                <span className="text-sm">Renter / Buyer</span>
+                <span className="text-sm">Renter</span>
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedRole('OWNER')}
-                className={`p-3.5 rounded-xl border text-center font-bold transition-all ${
+                className={`p-3.5 rounded-2xl border text-center font-bold transition-all ${
                   selectedRole === 'OWNER'
                     ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
                     : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
                 }`}
               >
-                <span className="block text-xl mb-1">🔑</span>
                 <span className="text-sm">Property Owner</span>
               </button>
             </div>
           </div>
 
-          {/* Full Name */}
+          {/* Name Fields (First, Middle, Last) */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Full Name
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Full Legal Name
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <User className="w-4 h-4" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  placeholder="First Name"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                />
               </div>
+
               <input
                 type="text"
-                required
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                placeholder="Middle Name"
+                autoComplete="additional-name"
+                value={middleName}
+                onChange={(e) => setMiddleName(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
               />
-            </div>
-          </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Email Address
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-4 h-4" />
-              </div>
               <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                type="text"
+                placeholder="Last Name"
+                autoComplete="family-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
               />
             </div>
           </div>
 
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Phone Number
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Phone className="w-4 h-4" />
+          {/* Email & Phone Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  placeholder="houseplatform@gmail.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                />
               </div>
-              <input
-                type="tel"
-                required
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+251911000000"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Lock className="w-4 h-4" />
-              </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
 
-            {/* Live Password Strength Checklist */}
-            <div className="mt-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 text-xs space-y-1.5">
-              <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">Password requirements:</p>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
-                  <span>{hasMinLength ? '✓' : '•'}</span> 8+ characters
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Phone Number
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Phone className="w-4 h-4" />
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
-                  <span>{hasUpper ? '✓' : '•'}</span> Uppercase (A-Z)
-                </div>
-                <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
-                  <span>{hasLower ? '✓' : '•'}</span> Lowercase (a-z)
-                </div>
-                <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
-                  <span>{hasNumber ? '✓' : '•'}</span> Number (0-9)
-                </div>
-                <div className={`flex items-center gap-1.5 ${hasSymbol ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'} col-span-2`}>
-                  <span>{hasSymbol ? '✓' : '•'}</span> Special symbol (@$!%*?&#...)
-                </div>
+                <input
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+25191 1000 000"
+                  className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                />
               </div>
             </div>
           </div>
 
+          {/* Password & Confirm Password */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Confirm Password</span>
+                {passwordsMatch && (
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Match
+                  </span>
+                )}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`w-full pl-10 pr-11 py-2.5 rounded-xl border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition-all ${
+                    confirmPassword.length > 0 && !passwordsMatch
+                      ? 'border-rose-300 dark:border-rose-700'
+                      : 'border-slate-200 dark:border-slate-700'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  tabIndex={-1}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Password Strength Checklist */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 text-xs space-y-1.5">
+            <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">Password requirements:</p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+              <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span>{hasMinLength ? '✓' : '•'}</span> 8+ characters
+              </div>
+              <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span>{hasUpper ? '✓' : '•'}</span> Uppercase (A-Z)
+              </div>
+              <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span>{hasLower ? '✓' : '•'}</span> Lowercase (a-z)
+              </div>
+              <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span>{hasNumber ? '✓' : '•'}</span> Number (0-9)
+              </div>
+              <div className={`flex items-center gap-1.5 ${hasSymbol ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400 dark:text-slate-500'} col-span-2`}>
+                <span>{hasSymbol ? '✓' : '•'}</span> Special symbol (@$!%*?&#...)
+              </div>
+            </div>
+          </div>
+
+          {/* Personal Bio Data (ONLY SHOWN FOR RENTER) */}
+          {selectedRole === 'RENTER' && (
+            <div className="space-y-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    Gender
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    Marital Status
+                  </label>
+                  <select
+                    value={maritalStatus}
+                    onChange={(e) => setMaritalStatus(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="SINGLE">Single</option>
+                    <option value="MARRIED">Married</option>
+                    <option value="DIVORCED">Divorced</option>
+                    <option value="WIDOWED">Widowed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ethiopian Location Hierarchy */}
+          <div className="space-y-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Region / City Admin
+                </label>
+                <select
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                >
+                  {ETHIOPIAN_REGIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Zone / Sub-city
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Bole, Kirkos, Hawassa"
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Wereda
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Wereda 03"
+                  value={wereda}
+                  onChange={(e) => setWereda(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Kebele
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Kebele 05"
+                  value={kebele}
+                  onChange={(e) => setKebele(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Profile Image URL */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Profile Image URL (Optional)
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <ImageIcon className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={profileImageUrl}
+                  onChange={(e) => setProfileImageUrl(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading || !isPasswordStrong}
-            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center"
+            disabled={loading || !isPasswordStrong || !passwordsMatch}
+            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-2xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center"
           >
             {loading ? (
               <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
-              `Register as ${selectedRole === 'OWNER' ? 'Property Owner' : 'Renter / Buyer'}`
+              `Register as ${selectedRole === 'OWNER' ? 'Property Owner' : 'Renter'}`
             )}
           </button>
         </form>

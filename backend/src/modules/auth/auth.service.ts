@@ -30,9 +30,25 @@ export class AuthService {
       roleRecord = await prisma.role.findUnique({ where: { name: 'RENTER' } });
     }
 
-    const nameParts = dto.name.trim().split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts.slice(1).join(' ') || undefined;
+    // Resolve full name and individual profile fields
+    let firstName = dto.firstName?.trim();
+    let middleName = dto.middleName?.trim() || undefined;
+    let lastName = dto.lastName?.trim() || undefined;
+
+    if (!firstName && dto.name) {
+      const nameParts = dto.name.trim().split(' ');
+      firstName = nameParts[0];
+      if (nameParts.length === 2) {
+        lastName = nameParts[1];
+      } else if (nameParts.length >= 3) {
+        middleName = nameParts[1];
+        lastName = nameParts.slice(2).join(' ');
+      }
+    }
+
+    if (!firstName) {
+      firstName = 'User';
+    }
 
     const user = await prisma.user.create({
       data: {
@@ -43,7 +59,16 @@ export class AuthService {
         profile: {
           create: {
             firstName,
+            middleName,
             lastName,
+            gender: dto.gender || undefined,
+            dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+            maritalStatus: dto.maritalStatus || undefined,
+            profileImageUrl: dto.profileImageUrl || undefined,
+            region: dto.region || undefined,
+            zone: dto.zone || undefined,
+            wereda: dto.wereda || undefined,
+            kebele: dto.kebele || undefined,
           },
         },
         identityVerification: {
