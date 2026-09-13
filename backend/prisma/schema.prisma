@@ -12,6 +12,7 @@ enum Role {
   OWNER
   RENTER
   BUYER
+  AGENT
 }
 
 enum VerificationStatus {

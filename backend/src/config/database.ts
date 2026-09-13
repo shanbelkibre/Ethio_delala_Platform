@@ -27,10 +27,10 @@ export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
     } catch (err: any) {
       lastError = err;
       if (err?.code && RECONNECTABLE.includes(err.code)) {
-        console.warn([DB] Connection lost (). Reconnecting... attempt /);
-        try { await prisma.(); } catch (_) {}
+        console.warn(`[DB] Connection lost (${err.code}). Reconnecting... attempt ${attempt}/${MAX_RETRIES}`);
+        try { await prisma.$disconnect(); } catch (_) {}
         await new Promise((r) => setTimeout(r, attempt * 1000));
-        try { await prisma.(); } catch (_) {}
+        try { await prisma.$connect(); } catch (_) {}
       } else {
         throw err;
       }
@@ -41,7 +41,7 @@ export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
 
 export async function connectDatabase(): Promise<void> {
   try {
-    await prisma.();
+    await prisma.$connect();
     console.log('PostgreSQL database connected successfully via Prisma.');
   } catch (error) {
     console.error('Database connection failed:', error);
@@ -49,5 +49,6 @@ export async function connectDatabase(): Promise<void> {
 }
 
 export async function disconnectDatabase(): Promise<void> {
-  await prisma.();
+  await prisma.$disconnect();
 }
+

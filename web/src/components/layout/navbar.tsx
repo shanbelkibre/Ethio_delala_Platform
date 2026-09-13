@@ -90,6 +90,9 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   if (user?.roles?.includes('ADMIN')) {
     dashboardLink = '/admin/dashboard';
     dashboardLabel = 'Admin Dashboard';
+  } else if (user?.roles?.includes('AGENT')) {
+    dashboardLink = '/agent/dashboard';
+    dashboardLabel = 'Agent Workspace';
   } else if (user?.roles?.includes('OWNER')) {
     dashboardLink = '/owner/dashboard';
     dashboardLabel = 'Owner Control Panel';
