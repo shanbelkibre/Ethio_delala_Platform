@@ -12,7 +12,7 @@ import { Role } from '../../constants/roles';
 export class AuthService {
   static async register(dto: RegisterDTO): Promise<AuthResponse> {
     const normalizedEmail = dto.email.trim().toLowerCase();
-    const normalizedPhone = dto.phone.trim();
+    const normalizedPhone = dto.phone.replace(/[\s\-\(\)]/g, '').trim();
     const existingUser = await withReconnect(() => prisma.user.findFirst({
       where: {
         OR: [{ email: normalizedEmail }, { phone: normalizedPhone }],
