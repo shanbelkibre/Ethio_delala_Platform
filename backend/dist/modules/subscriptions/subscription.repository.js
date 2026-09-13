@@ -5,7 +5,16 @@ const database_1 = require("../../config/database");
 const client_1 = require("@prisma/client");
 class SubscriptionRepository {
     static async createPlan(data) {
-        return database_1.prisma.subscriptionPlan.create({ data });
+        return database_1.prisma.subscriptionPlan.create({
+            data: {
+                name: data.name,
+                price: new client_1.Prisma.Decimal(data.price),
+                durationDays: data.durationDays ?? 30,
+                maxListings: data.maxListings ?? 5,
+                features: data.features ? JSON.parse(data.features) : [],
+                isActive: true,
+            },
+        });
     }
     static async findPlanById(id) {
         return database_1.prisma.subscriptionPlan.findUnique({ where: { id } });

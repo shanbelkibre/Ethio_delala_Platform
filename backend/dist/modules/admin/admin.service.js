@@ -7,10 +7,10 @@ class AdminService {
     static async getDashboardStats() {
         const [totalUsers, totalOwners, totalProperties, pendingProperties, pendingVerifications, activeSubscriptions,] = await Promise.all([
             database_1.prisma.user.count(),
-            database_1.prisma.user.count({ where: { roles: { has: 'OWNER' } } }),
+            database_1.prisma.user.count({ where: { role: { name: 'OWNER' } } }),
             database_1.prisma.property.count(),
-            database_1.prisma.property.count({ where: { status: client_1.PropertyStatus.PENDING_REVIEW } }),
-            database_1.prisma.identityDocument.count({ where: { status: client_1.VerificationStatus.PENDING } }),
+            database_1.prisma.property.count({ where: { status: client_1.PropertyStatus.DRAFT } }),
+            database_1.prisma.identityVerification.count({ where: { status: client_1.VerificationStatus.PENDING } }),
             database_1.prisma.subscription.count({ where: { status: 'ACTIVE' } }),
         ]);
         return {
@@ -23,21 +23,27 @@ class AdminService {
         };
     }
     static async logAdminAction(adminId, action, entityName, entityId, details) {
-        return database_1.prisma.auditLog.create({
+        return database_1.prisma.adminAction.create({
             data: {
                 adminId,
-                action,
-                entityName,
-                entityId,
-                details: details ? JSON.stringify(details) : null,
+                actionType: action || 'UPDATE_SETTINGS',
+                description: `${entityName} [${entityId}] ${details ? JSON.stringify(details) : ''}`.trim(),
             },
         });
     }
     static async getAuditLogs() {
-        return database_1.prisma.auditLog.findMany({
+        return database_1.prisma.adminAction.findMany({
             take: 50,
             orderBy: { createdAt: 'desc' },
-            include: { admin: { select: { id: true, name: true, email: true } } },
+            include: {
+                admin: {
+                    select: {
+                        id: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
+            },
         });
     }
 }

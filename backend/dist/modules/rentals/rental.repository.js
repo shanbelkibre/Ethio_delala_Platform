@@ -5,11 +5,38 @@ const database_1 = require("../../config/database");
 class RentalRepository {
     static async createRequest(data) {
         return database_1.prisma.rentalRequest.create({
-            data,
+            data: {
+                propertyId: data.propertyId,
+                renterId: data.renterId,
+                message: data.message,
+            },
             include: {
-                property: { select: { id: true, title: true, price: true, city: true, areaName: true } },
-                renter: { select: { id: true, name: true, phone: true, email: true } },
-                owner: { select: { id: true, name: true, phone: true, email: true } },
+                property: {
+                    select: {
+                        id: true,
+                        title: true,
+                        price: true,
+                        city: true,
+                        areaName: true,
+                        ownerId: true,
+                        owner: {
+                            select: {
+                                id: true,
+                                phone: true,
+                                email: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
+                renter: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
         });
     }
@@ -17,9 +44,26 @@ class RentalRepository {
         return database_1.prisma.rentalRequest.findUnique({
             where: { id },
             include: {
-                property: true,
-                renter: { select: { id: true, name: true, phone: true, email: true } },
-                owner: { select: { id: true, name: true, phone: true, email: true } },
+                property: {
+                    include: {
+                        owner: {
+                            select: {
+                                id: true,
+                                phone: true,
+                                email: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
+                renter: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
         });
     }
@@ -27,18 +71,40 @@ class RentalRepository {
         return database_1.prisma.rentalRequest.findMany({
             where: { renterId },
             include: {
-                property: { select: { id: true, title: true, price: true, city: true } },
-                owner: { select: { name: true, phone: true } },
+                property: {
+                    select: {
+                        id: true,
+                        title: true,
+                        price: true,
+                        city: true,
+                        owner: {
+                            select: {
+                                phone: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
     }
     static async findOwnerRequests(ownerId) {
         return database_1.prisma.rentalRequest.findMany({
-            where: { ownerId },
+            where: {
+                property: {
+                    ownerId,
+                },
+            },
             include: {
                 property: { select: { id: true, title: true, price: true, city: true } },
-                renter: { select: { name: true, phone: true, email: true } },
+                renter: {
+                    select: {
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -47,7 +113,7 @@ class RentalRepository {
         return database_1.prisma.rentalRequest.update({
             where: { id },
             data: { status },
-            include: { property: true, renter: true, owner: true },
+            include: { property: true, renter: true },
         });
     }
 }

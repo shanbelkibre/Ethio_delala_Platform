@@ -16,6 +16,28 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+  // Request Logging Middleware
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      if (req.originalUrl !== '/favicon.ico') {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+      }
+    });
+    next();
+  });
+
+  // Root Health-check Endpoint
+  app.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'healthy',
+      service: 'Ethiopian Property Platform API',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
+  });
+
   // Handle browser favicon requests cleanly (prevents 404 error logs in console)
   app.get('/favicon.ico', (req, res) => {
     res.status(204).end();

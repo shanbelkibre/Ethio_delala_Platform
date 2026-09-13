@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateRolesSchema = exports.updateProfileSchema = void 0;
 const zod_1 = require("zod");
-const client_1 = require("@prisma/client");
+const roles_1 = require("../../constants/roles");
 exports.updateProfileSchema = zod_1.z.object({
     body: zod_1.z.object({
         name: zod_1.z.string().min(2).optional(),
@@ -12,6 +12,6 @@ exports.updateProfileSchema = zod_1.z.object({
 });
 exports.updateRolesSchema = zod_1.z.object({
     body: zod_1.z.object({
-        roles: zod_1.z.array(zod_1.z.nativeEnum(client_1.Role)).min(1, 'At least one role is required'),
+        roles: zod_1.z.array(zod_1.z.nativeEnum(roles_1.Role)).min(1, 'At least one role is required'),
     }),
 });

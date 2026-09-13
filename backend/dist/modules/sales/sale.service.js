@@ -20,8 +20,7 @@ class SaleService {
         return sale_repository_1.SaleRepository.createRequest({
             propertyId: dto.propertyId,
             buyerId,
-            ownerId: property.ownerId,
-            offerPrice: dto.offerPrice || property.price,
+            offeredPrice: dto.offerPrice ?? property.price,
             message: dto.message,
         });
     }
@@ -36,7 +35,7 @@ class SaleService {
         if (!request) {
             throw new errors_1.NotFoundError('Purchase request not found');
         }
-        if (request.ownerId !== ownerId) {
+        if (request.property.ownerId !== ownerId) {
             throw new errors_1.ForbiddenError('Only the property owner can accept or reject purchase offers');
         }
         return sale_repository_1.SaleRepository.updateStatus(requestId, dto.status);

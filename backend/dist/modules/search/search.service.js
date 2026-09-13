@@ -57,7 +57,14 @@ class SearchService {
                 orderBy,
                 include: {
                     images: true,
-                    owner: { select: { id: true, name: true, phone: true } },
+                    owner: {
+                        select: {
+                            id: true,
+                            phone: true,
+                            email: true,
+                            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+                        },
+                    },
                 },
             }),
             database_1.prisma.property.count({ where }),

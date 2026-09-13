@@ -26,8 +26,23 @@ class AdminController {
     }
     static async getPayments(req, res, next) {
         try {
-            const payments = await prisma_1.prisma.payment.findMany({
-                include: { owner: true }
+            const payments = await prisma_1.prisma.subscriptionPayment.findMany({
+                include: {
+                    subscription: {
+                        include: {
+                            owner: {
+                                select: {
+                                    id: true,
+                                    phone: true,
+                                    email: true,
+                                    profile: { select: { firstName: true, lastName: true } },
+                                },
+                            },
+                            plan: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
             });
             (0, response_1.sendSuccess)(res, { payments }, 'All payments retrieved');
         }

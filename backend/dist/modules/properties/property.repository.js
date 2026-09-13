@@ -5,24 +5,38 @@ const database_1 = require("../../config/database");
 const client_1 = require("@prisma/client");
 class PropertyRepository {
     static async create(ownerId, data) {
-        const { images, ...propertyData } = data;
+        const { images, area, addressDetails, neighborhood, city, region, ...propertyData } = data;
         return database_1.prisma.property.create({
             data: {
                 ...propertyData,
+                region: region || city || 'Addis Ababa',
+                city,
+                price: new client_1.Prisma.Decimal(propertyData.price),
+                areaSqMeters: area !== undefined ? new client_1.Prisma.Decimal(area) : undefined,
+                detailedLocation: addressDetails || neighborhood,
                 ownerId,
-                status: client_1.PropertyStatus.PENDING_REVIEW,
+                status: client_1.PropertyStatus.DRAFT,
                 images: images && images.length > 0
                     ? {
                         create: images.map((url, idx) => ({
                             url,
                             isPrimary: idx === 0,
+                            sortOrder: idx,
                         })),
                     }
                     : undefined,
             },
             include: {
                 images: true,
-                owner: { select: { id: true, name: true, phone: true, isIdentityVerified: true } },
+                owner: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                        identityVerification: { select: { nationalIdVerified: true, status: true } },
+                    },
+                },
             },
         });
     }
@@ -31,8 +45,15 @@ class PropertyRepository {
             where: { id },
             include: {
                 images: true,
-                documents: true,
-                owner: { select: { id: true, name: true, phone: true, email: true, isIdentityVerified: true } },
+                owner: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                        identityVerification: { select: { nationalIdVerified: true, status: true } },
+                    },
+                },
             },
         });
     }
@@ -43,7 +64,15 @@ class PropertyRepository {
                 skip,
                 take: limit,
                 orderBy: { createdAt: 'desc' },
-                include: { images: true, owner: { select: { name: true, phone: true } } },
+                include: {
+                    images: true,
+                    owner: {
+                        select: {
+                            phone: true,
+                            profile: { select: { firstName: true, lastName: true } },
+                        },
+                    },
+                },
             }),
             database_1.prisma.property.count({ where }),
         ]);
@@ -58,7 +87,7 @@ class PropertyRepository {
     }
     static async countOwnerActiveProperties(ownerId) {
         return database_1.prisma.property.count({
-            where: { ownerId, status: { in: [client_1.PropertyStatus.APPROVED, client_1.PropertyStatus.PUBLISHED, client_1.PropertyStatus.PENDING_REVIEW] } },
+            where: { ownerId, status: { in: [client_1.PropertyStatus.PUBLISHED, client_1.PropertyStatus.DRAFT] } },
         });
     }
 }

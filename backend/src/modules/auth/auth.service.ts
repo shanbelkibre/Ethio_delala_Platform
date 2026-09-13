@@ -1,7 +1,10 @@
+import crypto from 'crypto';
 import { prisma, withReconnect } from '../../config/database';
+import { redisClient } from '../../config/redis';
 import { PasswordService } from '../../services/password.service';
 import { TokenService, TokenPayload } from '../../services/token.service';
 import { OtpService } from '../../services/otp.service';
+import { EmailService } from '../../services/email.service';
 import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError } from '../../utils/errors';
 import { RegisterDTO, LoginDTO, VerifyOtpDTO, AuthResponse } from './auth.types';
 import { Role } from '../../constants/roles';
@@ -190,6 +193,57 @@ export class AuthService {
   static async sendOtp(phoneOrEmail: string): Promise<{ message: string }> {
     await OtpService.sendOtp(phoneOrEmail);
     return { message: 'OTP sent successfully' };
+  }
+
+  static async forgotPassword(email: string): Promise<{ message: string }> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await withReconnect(() =>
+      prisma.user.findUnique({ where: { email: normalizedEmail } })
+    );
+
+    if (!user) {
+      return { message: 'If an account exists with this email, a password reset link has been sent.' };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetKey = `pwd-reset:${resetToken}`;
+    const TTL_SECONDS = 15 * 60; // 15 minutes
+
+    await redisClient.set(resetKey, user.id, TTL_SECONDS);
+
+    const clientOrigin = process.env.CLIENT_URL || 'http://localhost:3000';
+    const resetLink = `${clientOrigin}/auth/reset-password?token=${resetToken}`;
+
+    await EmailService.sendPasswordResetEmail(user.email, resetLink, resetToken);
+
+    return { message: 'Password reset link has been sent to your email.' };
+  }
+
+  static async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const resetKey = `pwd-reset:${token}`;
+    const userId = await redisClient.get(resetKey);
+
+    if (!userId) {
+      throw new BadRequestError('Invalid or expired password reset link or token');
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    const passwordHash = await PasswordService.hash(newPassword);
+
+    await withReconnect(() =>
+      prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      })
+    );
+
+    await redisClient.del(resetKey);
+
+    return { message: 'Password has been reset successfully. You can now log in.' };
   }
 }
 

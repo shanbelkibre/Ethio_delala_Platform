@@ -3,142 +3,662 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("./config/database");
 const password_service_1 = require("./services/password.service");
 const client_1 = require("@prisma/client");
+const library_1 = require("@prisma/client/runtime/library");
 async function seed() {
-    console.log('🌱 Seeding database...');
-    // 1. Create Admin User
+    console.log('🌱 Starting database seed...');
+    // ============================================================
+    // 1. ROLES
+    // ============================================================
+    console.log('Creating roles...');
+    const roleNames = [
+        client_1.RoleType.ADMIN,
+        client_1.RoleType.AGENT,
+        client_1.RoleType.OWNER,
+        client_1.RoleType.RENTER,
+    ];
+    const roles = {};
+    for (const name of roleNames) {
+        roles[name] = await database_1.prisma.role.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+            select: { id: true },
+        });
+    }
+    // ============================================================
+    // 2. ADMIN USER
+    // ============================================================
+    console.log('Creating admin...');
     const adminPassword = await password_service_1.PasswordService.hash('Admin@123456');
     const admin = await database_1.prisma.user.upsert({
-        where: { email: 'admin@ethioproperty.et' },
-        update: {},
+        where: {
+            email: 'admin@ethiodellala.et',
+        },
+        update: {
+            passwordHash: adminPassword,
+            roleId: roles[client_1.RoleType.ADMIN].id,
+            accountStatus: 'ACTIVE',
+        },
         create: {
-            name: 'System Admin',
-            email: 'admin@ethioproperty.et',
+            email: 'admin@ethiodellala.et',
             phone: '+251911000001',
             passwordHash: adminPassword,
-            roles: [client_1.Role.ADMIN],
-            isPhoneVerified: true,
-            isEmailVerified: true,
-            isIdentityVerified: true,
+            roleId: roles[client_1.RoleType.ADMIN].id,
+            accountStatus: 'ACTIVE',
+            profile: {
+                create: {
+                    firstName: 'System',
+                    lastName: 'Admin',
+                    region: 'Addis Ababa',
+                },
+            },
+            identityVerification: {
+                create: {
+                    emailVerified: true,
+                    emailVerifiedAt: new Date(),
+                    phoneOtpVerified: true,
+                    phoneVerifiedAt: new Date(),
+                    nationalIdReference: 'SEED-ADMIN-NATIONAL-ID',
+                    nationalIdVerified: true,
+                    nationalIdVerifiedAt: new Date(),
+                    status: client_1.VerificationStatus.VERIFIED,
+                    verifiedAt: new Date(),
+                },
+            },
         },
     });
-    console.log('✅ Admin user created:', admin.email);
-    // 2. Create Sample Owner User
+    // ============================================================
+    // 3. AGENT USER
+    // ============================================================
+    console.log('Creating agent...');
+    const agentPassword = await password_service_1.PasswordService.hash('Agent@123456');
+    const agent = await database_1.prisma.user.upsert({
+        where: {
+            email: 'agent@ethiodellala.et',
+        },
+        update: {
+            passwordHash: agentPassword,
+            roleId: roles[client_1.RoleType.AGENT].id,
+            accountStatus: 'ACTIVE',
+        },
+        create: {
+            email: 'agent@ethiodellala.et',
+            phone: '+251911000004',
+            passwordHash: agentPassword,
+            roleId: roles[client_1.RoleType.AGENT].id,
+            accountStatus: 'ACTIVE',
+            profile: {
+                create: {
+                    firstName: 'Dawit',
+                    lastName: 'Tadesse',
+                    region: 'Addis Ababa',
+                    zone: 'Bole',
+                    assignedRegion: 'Addis Ababa',
+                },
+            },
+            identityVerification: {
+                create: {
+                    emailVerified: true,
+                    emailVerifiedAt: new Date(),
+                    phoneOtpVerified: true,
+                    phoneVerifiedAt: new Date(),
+                    nationalIdReference: 'SEED-AGENT-NATIONAL-ID',
+                    nationalIdVerified: true,
+                    nationalIdVerifiedAt: new Date(),
+                    status: client_1.VerificationStatus.VERIFIED,
+                    verifiedAt: new Date(),
+                },
+            },
+        },
+    });
+    // ============================================================
+    // 4. OWNER USER
+    // ============================================================
+    console.log('Creating owner...');
     const ownerPassword = await password_service_1.PasswordService.hash('Owner@123456');
     const owner = await database_1.prisma.user.upsert({
-        where: { email: 'owner@ethioproperty.et' },
-        update: {},
+        where: {
+            email: 'owner@ethiodellala.et',
+        },
+        update: {
+            passwordHash: ownerPassword,
+            roleId: roles[client_1.RoleType.OWNER].id,
+            accountStatus: 'ACTIVE',
+        },
         create: {
-            name: 'Abebe Kebede',
-            email: 'owner@ethioproperty.et',
+            email: 'owner@ethiodellala.et',
             phone: '+251911000002',
             passwordHash: ownerPassword,
-            roles: [client_1.Role.OWNER, client_1.Role.RENTER],
-            isPhoneVerified: true,
-            isEmailVerified: true,
-            isIdentityVerified: true,
+            roleId: roles[client_1.RoleType.OWNER].id,
+            accountStatus: 'ACTIVE',
+            profile: {
+                create: {
+                    firstName: 'Abebe',
+                    lastName: 'Kebede',
+                    region: 'Addis Ababa',
+                },
+            },
+            identityVerification: {
+                create: {
+                    emailVerified: true,
+                    emailVerifiedAt: new Date(),
+                    phoneOtpVerified: true,
+                    phoneVerifiedAt: new Date(),
+                    nationalIdReference: 'SEED-OWNER-NATIONAL-ID',
+                    nationalIdVerified: true,
+                    nationalIdVerifiedAt: new Date(),
+                    status: client_1.VerificationStatus.VERIFIED,
+                    verifiedAt: new Date(),
+                },
+            },
         },
     });
-    console.log('✅ Owner user created:', owner.email);
-    // 3. Create Sample Renter User
+    // ============================================================
+    // 5. RENTER USER
+    // ============================================================
+    console.log('Creating renter...');
     const renterPassword = await password_service_1.PasswordService.hash('Renter@123456');
     const renter = await database_1.prisma.user.upsert({
-        where: { email: 'renter@ethioproperty.et' },
-        update: {},
+        where: {
+            email: 'renter@ethiodellala.et',
+        },
+        update: {
+            passwordHash: renterPassword,
+            roleId: roles[client_1.RoleType.RENTER].id,
+            accountStatus: 'ACTIVE',
+        },
         create: {
-            name: 'Tigist Alemu',
-            email: 'renter@ethioproperty.et',
+            email: 'renter@ethiodellala.et',
             phone: '+251911000003',
             passwordHash: renterPassword,
-            roles: [client_1.Role.RENTER, client_1.Role.BUYER],
-            isPhoneVerified: true,
-            isEmailVerified: true,
-            isIdentityVerified: true,
+            roleId: roles[client_1.RoleType.RENTER].id,
+            accountStatus: 'ACTIVE',
+            profile: {
+                create: {
+                    firstName: 'Tigist',
+                    lastName: 'Alemu',
+                    region: 'Addis Ababa',
+                },
+            },
+            identityVerification: {
+                create: {
+                    emailVerified: true,
+                    emailVerifiedAt: new Date(),
+                    phoneOtpVerified: true,
+                    phoneVerifiedAt: new Date(),
+                    nationalIdReference: 'SEED-RENTER-NATIONAL-ID',
+                    nationalIdVerified: true,
+                    nationalIdVerifiedAt: new Date(),
+                    status: client_1.VerificationStatus.VERIFIED,
+                    verifiedAt: new Date(),
+                },
+            },
         },
     });
-    console.log('✅ Renter user created:', renter.email);
-    // 4. Create Subscription Plans
-    const basicPlan = await database_1.prisma.subscriptionPlan.create({
-        data: {
+    // ============================================================
+    // 6. SUBSCRIPTION PLANS
+    // ============================================================
+    console.log('Creating subscription plans...');
+    const basicPlan = await database_1.prisma.subscriptionPlan.upsert({
+        where: {
             name: 'Basic Plan',
-            price: 500,
+        },
+        update: {},
+        create: {
+            name: 'Basic Plan',
+            price: new library_1.Decimal(500),
             durationDays: 30,
             maxListings: 3,
-            features: JSON.stringify(['3 Property Listings', 'Standard Search Result Priority', 'Direct Messaging']),
+            features: [
+                '3 Property Listings',
+                'Standard Search Result Priority',
+                'Direct Messaging',
+            ],
+            isActive: true,
         },
     });
-    const proPlan = await database_1.prisma.subscriptionPlan.create({
-        data: {
+    const proPlan = await database_1.prisma.subscriptionPlan.upsert({
+        where: {
             name: 'Professional Plan',
-            price: 1200,
+        },
+        update: {},
+        create: {
+            name: 'Professional Plan',
+            price: new library_1.Decimal(1200),
             durationDays: 30,
             maxListings: 10,
-            features: JSON.stringify(['10 Property Listings', 'Featured Search Placement', 'Analytics Access']),
+            features: [
+                '10 Property Listings',
+                'Featured Search Placement',
+                'Analytics Access',
+                'Priority Support',
+            ],
+            isActive: true,
         },
     });
-    console.log('✅ Subscription plans created');
-    // 5. Create Active Owner Subscription
-    await database_1.prisma.subscription.create({
-        data: {
+    // ============================================================
+    // 7. OWNER SUBSCRIPTION
+    // ============================================================
+    console.log('Creating owner subscription...');
+    const existingSubscription = await database_1.prisma.subscription.findFirst({
+        where: {
             ownerId: owner.id,
             planId: proPlan.id,
-            status: 'ACTIVE',
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
     });
-    console.log('✅ Active owner subscription assigned');
-    // 6. Create Sample Properties
-    const rentProperty = await database_1.prisma.property.create({
-        data: {
+    const subscription = existingSubscription ??
+        (await database_1.prisma.subscription.create({
+            data: {
+                ownerId: owner.id,
+                planId: proPlan.id,
+                status: client_1.SubscriptionStatus.ACTIVE,
+                startDate: new Date(),
+                endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            },
+        }));
+    // ============================================================
+    // 8. SUBSCRIPTION PAYMENT
+    // ============================================================
+    console.log('Creating subscription payment...');
+    const existingPayment = await database_1.prisma.subscriptionPayment.findFirst({
+        where: {
+            subscriptionId: subscription.id,
+        },
+    });
+    if (!existingPayment) {
+        await database_1.prisma.subscriptionPayment.create({
+            data: {
+                subscriptionId: subscription.id,
+                amount: new library_1.Decimal(1200),
+                currency: 'ETB',
+                paymentMethod: client_1.PaymentMethod.CHAPA,
+                paymentStatus: client_1.PaymentStatus.SUCCESS,
+                paymentReference: `SEED-TX-${Date.now()}`,
+                chapaTransactionReference: `CHAPA-SEED-${Date.now()}`,
+                checkoutUrl: 'https://checkout.chapa.co/seed-demo',
+                paidAt: new Date(),
+            },
+        });
+    }
+    // ============================================================
+    // 9. RENT PROPERTY
+    // ============================================================
+    console.log('Creating rental property...');
+    let rentProperty = await database_1.prisma.property.findFirst({
+        where: {
             ownerId: owner.id,
             title: 'Modern 2 Bedroom Apartment in Bole',
-            description: 'Spacious apartment near Bole Medhanealem with modern amenities and high-speed internet.',
-            propertyType: 'Apartment',
-            transactionType: client_1.TransactionType.RENT,
-            price: 35000,
-            area: 120,
-            bedrooms: 2,
-            bathrooms: 2,
-            city: 'Addis Ababa',
-            areaName: 'Bole',
-            neighborhood: 'Medhanealem',
-            status: client_1.PropertyStatus.PUBLISHED,
-            images: {
-                create: [
-                    { url: '/uploads/bole_apt_1.jpg', isPrimary: true },
-                    { url: '/uploads/bole_apt_2.jpg', isPrimary: false },
-                ],
-            },
         },
     });
-    const saleProperty = await database_1.prisma.property.create({
-        data: {
+    if (!rentProperty) {
+        rentProperty = await database_1.prisma.property.create({
+            data: {
+                ownerId: owner.id,
+                title: 'Modern 2 Bedroom Apartment in Bole',
+                description: 'Spacious apartment near Bole Medhanealem with modern amenities and high-speed internet.',
+                propertyType: 'Apartment',
+                transactionType: client_1.TransactionType.RENT,
+                price: new library_1.Decimal(35000),
+                areaSqMeters: new library_1.Decimal(120),
+                rooms: 3,
+                bedrooms: 2,
+                bathrooms: 2,
+                region: 'Addis Ababa',
+                city: 'Addis Ababa',
+                areaName: 'Bole',
+                detailedLocation: 'Near Medhanealem Church',
+                latitude: new library_1.Decimal('8.9950'),
+                longitude: new library_1.Decimal('38.7870'),
+                availability: true,
+                status: client_1.PropertyStatus.PUBLISHED,
+                viewsCount: 125,
+                images: {
+                    create: [
+                        {
+                            url: '/uploads/bole_apt_1.jpg',
+                            isPrimary: true,
+                            sortOrder: 1,
+                        },
+                        {
+                            url: '/uploads/bole_apt_2.jpg',
+                            isPrimary: false,
+                            sortOrder: 2,
+                        },
+                    ],
+                },
+            },
+        });
+    }
+    // ============================================================
+    // 10. SALE PROPERTY
+    // ============================================================
+    console.log('Creating sale property...');
+    let saleProperty = await database_1.prisma.property.findFirst({
+        where: {
             ownerId: owner.id,
             title: 'Luxury Villa for Sale in CMC',
-            description: 'Beautiful 4-bedroom villa with private garden, garage, and G+2 architecture.',
-            propertyType: 'Villa',
-            transactionType: client_1.TransactionType.SALE,
-            price: 25000000,
-            area: 350,
-            bedrooms: 4,
-            bathrooms: 4,
-            city: 'Addis Ababa',
-            areaName: 'CMC',
-            neighborhood: 'CMC Michael',
-            status: client_1.PropertyStatus.PUBLISHED,
-            images: {
-                create: [
-                    { url: '/uploads/cmc_villa_1.jpg', isPrimary: true },
-                ],
+        },
+    });
+    if (!saleProperty) {
+        saleProperty = await database_1.prisma.property.create({
+            data: {
+                ownerId: owner.id,
+                title: 'Luxury Villa for Sale in CMC',
+                description: 'Beautiful 4-bedroom villa with private garden, garage, and G+2 architecture.',
+                propertyType: 'Villa',
+                transactionType: client_1.TransactionType.SALE,
+                price: new library_1.Decimal(25000000),
+                areaSqMeters: new library_1.Decimal(350),
+                rooms: 6,
+                bedrooms: 4,
+                bathrooms: 4,
+                region: 'Addis Ababa',
+                city: 'Addis Ababa',
+                areaName: 'CMC',
+                detailedLocation: 'CMC Michael',
+                latitude: new library_1.Decimal('9.0150'),
+                longitude: new library_1.Decimal('38.8450'),
+                availability: true,
+                status: client_1.PropertyStatus.PUBLISHED,
+                viewsCount: 87,
+                images: {
+                    create: [
+                        {
+                            url: '/uploads/cmc_villa_1.jpg',
+                            isPrimary: true,
+                            sortOrder: 1,
+                        },
+                    ],
+                },
+            },
+        });
+    }
+    // ============================================================
+    // 11. RENTAL REQUEST
+    // ============================================================
+    console.log('Creating rental request...');
+    let rentalRequest = await database_1.prisma.rentalRequest.findFirst({
+        where: {
+            propertyId: rentProperty.id,
+            renterId: renter.id,
+        },
+    });
+    if (!rentalRequest) {
+        rentalRequest = await database_1.prisma.rentalRequest.create({
+            data: {
+                propertyId: rentProperty.id,
+                renterId: renter.id,
+                status: client_1.RentalStatus.PENDING,
+                message: 'I am interested in renting this apartment. Please provide more information.',
+                moveInDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                durationMonths: 12,
+            },
+        });
+    }
+    // ============================================================
+    // 12. SALE REQUEST
+    // ============================================================
+    console.log('Creating sale request...');
+    let saleRequest = await database_1.prisma.saleRequest.findFirst({
+        where: {
+            propertyId: saleProperty.id,
+            buyerId: renter.id,
+        },
+    });
+    if (!saleRequest) {
+        saleRequest = await database_1.prisma.saleRequest.create({
+            data: {
+                propertyId: saleProperty.id,
+                buyerId: renter.id,
+                status: client_1.SaleStatus.PENDING,
+                offeredPrice: new library_1.Decimal(24000000),
+                message: 'I am interested in purchasing this property. I would like to discuss the price and details.',
+            },
+        });
+    }
+    // ============================================================
+    // 13. MESSAGES
+    // ============================================================
+    const existingMessage = await database_1.prisma.message.findFirst({
+        where: {
+            senderId: renter.id,
+            receiverId: owner.id,
+            rentalRequestId: rentalRequest.id,
+        },
+    });
+    if (!existingMessage) {
+        await database_1.prisma.message.create({
+            data: {
+                senderId: renter.id,
+                receiverId: owner.id,
+                propertyId: rentProperty.id,
+                rentalRequestId: rentalRequest.id,
+                content: 'Hello, I am interested in this property. Is it still available?',
+                isRead: false,
+            },
+        });
+    }
+    // ============================================================
+    // 14. NOTIFICATIONS
+    // ============================================================
+    console.log('Creating notifications...');
+    await database_1.prisma.notification.create({
+        data: {
+            userId: owner.id,
+            title: 'New Rental Request',
+            message: 'You received a new rental request for your property.',
+            type: client_1.NotificationType.RENTAL_REQUEST,
+            link: `/rental-requests/${rentalRequest.id}`,
+            isRead: false,
+        },
+    });
+    await database_1.prisma.notification.create({
+        data: {
+            userId: renter.id,
+            title: 'Rental Request Submitted',
+            message: 'Your rental request has been successfully submitted.',
+            type: client_1.NotificationType.RENTAL_REQUEST,
+            link: `/rental-requests/${rentalRequest.id}`,
+            isRead: false,
+        },
+    });
+    // ============================================================
+    // 15. FAVORITE
+    // ============================================================
+    console.log('Creating favorite...');
+    await database_1.prisma.favorite.upsert({
+        where: {
+            userId_propertyId: {
+                userId: renter.id,
+                propertyId: rentProperty.id,
+            },
+        },
+        update: {},
+        create: {
+            userId: renter.id,
+            propertyId: rentProperty.id,
+        },
+    });
+    // ============================================================
+    // 16. REVIEW
+    // ============================================================
+    console.log('Creating review...');
+    const existingReview = await database_1.prisma.review.findUnique({
+        where: {
+            userId_propertyId: {
+                userId: renter.id,
+                propertyId: rentProperty.id,
             },
         },
     });
-    console.log('✅ Sample Rent and Sale properties created');
-    console.log('🎉 Database seeding completed successfully!');
+    if (!existingReview) {
+        await database_1.prisma.review.create({
+            data: {
+                userId: renter.id,
+                propertyId: rentProperty.id,
+                rating: 5,
+                comment: 'Excellent property with a good location and modern facilities.',
+            },
+        });
+    }
+    // ============================================================
+    // 17. ADMIN ACTION
+    // ============================================================
+    console.log('Creating admin action...');
+    await database_1.prisma.adminAction.create({
+        data: {
+            adminId: admin.id,
+            targetUserId: owner.id,
+            actionType: client_1.AdminActionType.CREATE_USER,
+            description: 'Owner account created during initial platform setup.',
+        },
+    });
+    // ============================================================
+    // 18. REPORT
+    // ============================================================
+    console.log('Creating report...');
+    const existingReport = await database_1.prisma.report.findFirst({
+        where: {
+            reporterId: renter.id,
+            propertyId: saleProperty.id,
+        },
+    });
+    if (!existingReport) {
+        await database_1.prisma.report.create({
+            data: {
+                reporterId: renter.id,
+                propertyId: saleProperty.id,
+                reason: 'Property information needs verification',
+                details: 'This is a sample report created for development and testing.',
+                status: client_1.ReportStatus.PENDING,
+            },
+        });
+    }
+    // ============================================================
+    // 19. ANALYTICS EVENTS
+    // ============================================================
+    console.log('Creating analytics events...');
+    await database_1.prisma.analyticsEvent.createMany({
+        data: [
+            {
+                eventType: 'PROPERTY_VIEW',
+                userId: renter.id,
+                propertyId: rentProperty.id,
+                metadata: {
+                    source: 'seed',
+                    device: 'web',
+                },
+            },
+            {
+                eventType: 'PROPERTY_VIEW',
+                userId: renter.id,
+                propertyId: saleProperty.id,
+                metadata: {
+                    source: 'seed',
+                    device: 'mobile',
+                },
+            },
+            {
+                eventType: 'PROPERTY_FAVORITED',
+                userId: renter.id,
+                propertyId: rentProperty.id,
+                metadata: {
+                    source: 'seed',
+                },
+            },
+            {
+                eventType: 'RENTAL_REQUEST_CREATED',
+                userId: renter.id,
+                propertyId: rentProperty.id,
+                metadata: {
+                    source: 'seed',
+                },
+            },
+            {
+                eventType: 'SALE_REQUEST_CREATED',
+                userId: renter.id,
+                propertyId: saleProperty.id,
+                metadata: {
+                    source: 'seed',
+                },
+            },
+        ],
+    });
+    // ============================================================
+    // 20. PLATFORM CONFIG
+    // ============================================================
+    console.log('Creating platform configuration...');
+    const platformConfigs = [
+        {
+            key: 'site_title',
+            value: 'Ethio Delala',
+            description: 'Main platform title',
+        },
+        {
+            key: 'site_tagline',
+            value: 'Ethiopian Real Estate Platform',
+            description: 'Main platform tagline',
+        },
+        {
+            key: 'default_currency',
+            value: 'ETB',
+            description: 'Default platform currency',
+        },
+        {
+            key: 'support_email',
+            value: 'support@ethiodellala.et',
+            description: 'Platform support email',
+        },
+        {
+            key: 'maintenance_mode',
+            value: 'false',
+            description: 'Whether the platform is in maintenance mode',
+        },
+    ];
+    for (const config of platformConfigs) {
+        await database_1.prisma.platformConfig.upsert({
+            where: {
+                key: config.key,
+            },
+            update: {
+                value: config.value,
+                description: config.description,
+            },
+            create: config,
+        });
+    }
+    // ============================================================
+    // 21. AI VERIFICATION
+    // ============================================================
+    // AI verification is included as a development/demo record.
+    // The real AI verification service will create these records
+    // when the AI feature is implemented.
+    console.log('Creating AI verification sample...');
+    const existingAIVerification = await database_1.prisma.aIVerification.findFirst({
+        where: {
+            entityType: 'PROPERTY',
+            entityId: rentProperty.id,
+        },
+    });
+    if (!existingAIVerification) {
+        await database_1.prisma.aIVerification.create({
+            data: {
+                entityType: 'PROPERTY',
+                entityId: rentProperty.id,
+                riskScore: 10,
+                ocrData: {
+                    source: 'seed',
+                    documentDetected: false,
+                },
+                warnings: [],
+                recommendation: 'Low risk sample property. Manual verification not required in development seed.',
+            },
+        });
+    }
 }
 seed()
-    .catch((e) => {
-    console.error('❌ Seeding error:', e);
+    .catch((error) => {
+    console.error(' Seeding error:', error);
     process.exit(1);
 })
     .finally(async () => {

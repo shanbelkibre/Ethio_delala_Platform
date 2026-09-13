@@ -2,14 +2,43 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SaleRepository = void 0;
 const database_1 = require("../../config/database");
+const client_1 = require("@prisma/client");
 class SaleRepository {
     static async createRequest(data) {
         return database_1.prisma.saleRequest.create({
-            data,
+            data: {
+                propertyId: data.propertyId,
+                buyerId: data.buyerId,
+                offeredPrice: data.offeredPrice !== undefined ? new client_1.Prisma.Decimal(data.offeredPrice) : undefined,
+                message: data.message,
+            },
             include: {
-                property: { select: { id: true, title: true, price: true, city: true, areaName: true } },
-                buyer: { select: { id: true, name: true, phone: true, email: true } },
-                owner: { select: { id: true, name: true, phone: true, email: true } },
+                property: {
+                    select: {
+                        id: true,
+                        title: true,
+                        price: true,
+                        city: true,
+                        areaName: true,
+                        ownerId: true,
+                        owner: {
+                            select: {
+                                id: true,
+                                phone: true,
+                                email: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
+                buyer: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
         });
     }
@@ -17,9 +46,26 @@ class SaleRepository {
         return database_1.prisma.saleRequest.findUnique({
             where: { id },
             include: {
-                property: true,
-                buyer: { select: { id: true, name: true, phone: true, email: true } },
-                owner: { select: { id: true, name: true, phone: true, email: true } },
+                property: {
+                    include: {
+                        owner: {
+                            select: {
+                                id: true,
+                                phone: true,
+                                email: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
+                buyer: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
         });
     }
@@ -27,18 +73,40 @@ class SaleRepository {
         return database_1.prisma.saleRequest.findMany({
             where: { buyerId },
             include: {
-                property: { select: { id: true, title: true, price: true, city: true } },
-                owner: { select: { name: true, phone: true } },
+                property: {
+                    select: {
+                        id: true,
+                        title: true,
+                        price: true,
+                        city: true,
+                        owner: {
+                            select: {
+                                phone: true,
+                                profile: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
     }
     static async findOwnerRequests(ownerId) {
         return database_1.prisma.saleRequest.findMany({
-            where: { ownerId },
+            where: {
+                property: {
+                    ownerId,
+                },
+            },
             include: {
                 property: { select: { id: true, title: true, price: true, city: true } },
-                buyer: { select: { name: true, phone: true, email: true } },
+                buyer: {
+                    select: {
+                        phone: true,
+                        email: true,
+                        profile: { select: { firstName: true, lastName: true } },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -47,7 +115,7 @@ class SaleRepository {
         return database_1.prisma.saleRequest.update({
             where: { id },
             data: { status },
-            include: { property: true, buyer: true, owner: true },
+            include: { property: true, buyer: true },
         });
     }
 }

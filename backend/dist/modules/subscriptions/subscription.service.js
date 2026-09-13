@@ -35,22 +35,21 @@ class SubscriptionService {
         });
         // Initiate payment via Payment Provider Abstraction (Chapa simulation)
         const paymentResult = await chapa_simulation_provider_1.defaultPaymentProvider.initializePayment({
-            amount: plan.price,
+            amount: Number(plan.price),
             currency: 'ETB',
             email: userEmail,
             name: userName,
             txRef: `SUB-${subscription.id}-${Date.now()}`,
         });
-        // Save payment record
-        const payment = await database_1.prisma.payment.create({
+        // Save payment record (3NF: SubscriptionPayment has subscriptionId, amount, currency, paymentReference, paymentMethod, paymentStatus)
+        const payment = await database_1.prisma.subscriptionPayment.create({
             data: {
-                ownerId,
                 subscriptionId: subscription.id,
                 amount: plan.price,
                 currency: 'ETB',
-                provider: chapa_simulation_provider_1.defaultPaymentProvider.name,
-                transactionRef: paymentResult.transactionRef,
-                status: client_1.PaymentStatus.PENDING,
+                paymentMethod: client_1.PaymentMethod.CHAPA,
+                paymentReference: paymentResult.transactionRef,
+                paymentStatus: client_1.PaymentStatus.PENDING,
             },
         });
         return {
@@ -60,8 +59,8 @@ class SubscriptionService {
         };
     }
     static async confirmPaymentAndActivate(transactionRef) {
-        const payment = await database_1.prisma.payment.findUnique({
-            where: { transactionRef },
+        const payment = await database_1.prisma.subscriptionPayment.findUnique({
+            where: { paymentReference: transactionRef },
             include: { subscription: { include: { plan: true } } },
         });
         if (!payment || !payment.subscription) {
@@ -73,9 +72,12 @@ class SubscriptionService {
             throw new errors_1.BadRequestError('Payment verification failed');
         }
         // Update payment status to SUCCESS
-        await database_1.prisma.payment.update({
+        await database_1.prisma.subscriptionPayment.update({
             where: { id: payment.id },
-            data: { status: client_1.PaymentStatus.SUCCESS },
+            data: {
+                paymentStatus: client_1.PaymentStatus.SUCCESS,
+                paidAt: new Date(),
+            },
         });
         // Activate subscription using plan duration
         const activatedSubscription = await subscription_repository_1.SubscriptionRepository.activateSubscription(payment.subscription.id, payment.subscription.plan.durationDays);

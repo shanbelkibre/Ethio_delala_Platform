@@ -10,6 +10,8 @@ const authRateLimiter = (0, rate_limit_middleware_1.rateLimit)({ windowMs: 15 * 
 router.post('/register', authRateLimiter, (0, validation_middleware_1.validateRequest)(auth_validation_1.registerSchema), auth_controller_1.AuthController.register);
 router.post('/login', authRateLimiter, (0, validation_middleware_1.validateRequest)(auth_validation_1.loginSchema), auth_controller_1.AuthController.login);
 router.post('/verify-phone', (0, validation_middleware_1.validateRequest)(auth_validation_1.verifyOtpSchema), auth_controller_1.AuthController.verifyPhone);
+router.post('/forgot-password', authRateLimiter, (0, validation_middleware_1.validateRequest)(auth_validation_1.forgotPasswordSchema), auth_controller_1.AuthController.forgotPassword);
+router.post('/reset-password', authRateLimiter, (0, validation_middleware_1.validateRequest)(auth_validation_1.resetPasswordSchema), auth_controller_1.AuthController.resetPassword);
 router.post('/refresh', (0, validation_middleware_1.validateRequest)(auth_validation_1.refreshTokenSchema), auth_controller_1.AuthController.refreshToken);
 router.post('/send-otp', authRateLimiter, (0, validation_middleware_1.validateRequest)(auth_validation_1.sendOtpSchema), auth_controller_1.AuthController.sendOtp);
 exports.default = router;

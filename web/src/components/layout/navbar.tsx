@@ -160,10 +160,9 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
             <div className="flex items-center gap-2">
               <Link
                 href="/auth/login"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                className="flex items-center rounded-lg border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
               >
-                <LogIn className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                <span>Sign In</span>
+                Sign In
               </Link>
             </div>
           )}

@@ -1,33 +1,61 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
+const crypto_1 = __importDefault(require("crypto"));
 const database_1 = require("../../config/database");
+const redis_1 = require("../../config/redis");
 const password_service_1 = require("../../services/password.service");
 const token_service_1 = require("../../services/token.service");
 const otp_service_1 = require("../../services/otp.service");
+const email_service_1 = require("../../services/email.service");
 const errors_1 = require("../../utils/errors");
-const client_1 = require("@prisma/client");
+const roles_1 = require("../../constants/roles");
 class AuthService {
     static async register(dto) {
         const normalizedEmail = dto.email.trim().toLowerCase();
         const normalizedPhone = dto.phone.trim();
-        const existingUser = await database_1.prisma.user.findFirst({
+        const existingUser = await (0, database_1.withReconnect)(() => database_1.prisma.user.findFirst({
             where: {
                 OR: [{ email: normalizedEmail }, { phone: normalizedPhone }],
             },
-        });
+        }));
         if (existingUser) {
             throw new errors_1.ConflictError('User with this email or phone already exists');
         }
         const passwordHash = await password_service_1.PasswordService.hash(dto.password);
-        const roles = dto.roles && dto.roles.length > 0 ? dto.roles : [client_1.Role.RENTER];
+        const requestedRoleName = (dto.roles && dto.roles[0]) ? dto.roles[0] : roles_1.Role.RENTER;
+        let roleRecord = await database_1.prisma.role.findUnique({ where: { name: requestedRoleName } });
+        if (!roleRecord) {
+            roleRecord = await database_1.prisma.role.findUnique({ where: { name: 'RENTER' } });
+        }
+        const nameParts = dto.name.trim().split(' ');
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' ') || undefined;
         const user = await database_1.prisma.user.create({
             data: {
-                name: dto.name,
                 email: normalizedEmail,
                 phone: normalizedPhone,
                 passwordHash,
-                roles,
+                roleId: roleRecord.id,
+                profile: {
+                    create: {
+                        firstName,
+                        lastName,
+                    },
+                },
+                identityVerification: {
+                    create: {
+                        status: 'PENDING',
+                    },
+                },
+            },
+            include: {
+                role: true,
+                profile: true,
+                identityVerification: true,
             },
         });
         // Send OTP to email via Gmail SMTP upon registration
@@ -35,20 +63,22 @@ class AuthService {
         if (user.phone) {
             await otp_service_1.OtpService.sendOtp(user.phone);
         }
-        const tokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+        const fullName = [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ') || user.email;
+        const roleName = (user.role?.name || 'RENTER');
+        const tokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
         const accessToken = token_service_1.TokenService.generateAccessToken(tokenPayload);
         const refreshToken = token_service_1.TokenService.generateRefreshToken(tokenPayload);
         return {
             user: {
                 id: user.id,
-                name: user.name,
+                name: fullName,
                 email: user.email,
                 phone: user.phone,
-                roles: user.roles,
-                avatarUrl: user.avatarUrl,
-                isPhoneVerified: user.isPhoneVerified,
-                isEmailVerified: user.isEmailVerified,
-                isIdentityVerified: user.isIdentityVerified,
+                roles: [roleName],
+                avatarUrl: user.profile?.profileImageUrl || null,
+                isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
+                isEmailVerified: user.identityVerification?.emailVerified || false,
+                isIdentityVerified: user.identityVerification?.nationalIdVerified || false,
             },
             tokens: {
                 accessToken,
@@ -58,11 +88,16 @@ class AuthService {
     }
     static async login(dto) {
         const normalizedInput = dto.emailOrPhone.trim().toLowerCase();
-        const user = await database_1.prisma.user.findFirst({
+        const user = await (0, database_1.withReconnect)(() => database_1.prisma.user.findFirst({
             where: {
                 OR: [{ email: normalizedInput }, { phone: normalizedInput }],
             },
-        });
+            include: {
+                role: true,
+                profile: true,
+                identityVerification: true,
+            },
+        }));
         if (!user) {
             throw new errors_1.UnauthorizedError('Invalid credentials');
         }
@@ -70,20 +105,22 @@ class AuthService {
         if (!isMatch) {
             throw new errors_1.UnauthorizedError('Invalid credentials');
         }
-        const tokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+        const fullName = [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ') || user.email;
+        const roleName = (user.role?.name || 'RENTER');
+        const tokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
         const accessToken = token_service_1.TokenService.generateAccessToken(tokenPayload);
         const refreshToken = token_service_1.TokenService.generateRefreshToken(tokenPayload);
         return {
             user: {
                 id: user.id,
-                name: user.name,
+                name: fullName,
                 email: user.email,
                 phone: user.phone,
-                roles: user.roles,
-                avatarUrl: user.avatarUrl,
-                isPhoneVerified: user.isPhoneVerified,
-                isEmailVerified: user.isEmailVerified,
-                isIdentityVerified: user.isIdentityVerified,
+                roles: [roleName],
+                avatarUrl: user.profile?.profileImageUrl || null,
+                isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
+                isEmailVerified: user.identityVerification?.emailVerified || false,
+                isIdentityVerified: user.identityVerification?.nationalIdVerified || false,
             },
             tokens: {
                 accessToken,
@@ -96,25 +133,39 @@ class AuthService {
         if (!isVerified) {
             throw new errors_1.BadRequestError('Invalid or expired OTP code');
         }
-        await database_1.prisma.user.updateMany({
+        const user = await database_1.prisma.user.findFirst({
             where: {
                 OR: [{ phone: dto.phoneOrEmail }, { email: dto.phoneOrEmail }],
             },
-            data: {
-                isPhoneVerified: true,
-                isEmailVerified: true,
-            },
         });
+        if (user) {
+            await database_1.prisma.identityVerification.upsert({
+                where: { userId: user.id },
+                create: {
+                    userId: user.id,
+                    phoneOtpVerified: true,
+                    emailVerified: true,
+                },
+                update: {
+                    phoneOtpVerified: true,
+                    emailVerified: true,
+                },
+            });
+        }
         return { success: true, message: 'Verification successfully completed' };
     }
     static async refreshToken(refreshToken) {
         try {
             const payload = token_service_1.TokenService.verifyRefreshToken(refreshToken);
-            const user = await database_1.prisma.user.findUnique({ where: { id: payload.userId } });
+            const user = await database_1.prisma.user.findUnique({
+                where: { id: payload.userId },
+                include: { role: true },
+            });
             if (!user) {
                 throw new errors_1.UnauthorizedError('User no longer exists');
             }
-            const newTokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+            const roleName = (user.role?.name || 'RENTER');
+            const newTokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
             const newAccessToken = token_service_1.TokenService.generateAccessToken(newTokenPayload);
             const newRefreshToken = token_service_1.TokenService.generateRefreshToken(newTokenPayload);
             return { accessToken: newAccessToken, refreshToken: newRefreshToken };
@@ -126,6 +177,39 @@ class AuthService {
     static async sendOtp(phoneOrEmail) {
         await otp_service_1.OtpService.sendOtp(phoneOrEmail);
         return { message: 'OTP sent successfully' };
+    }
+    static async forgotPassword(email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await (0, database_1.withReconnect)(() => database_1.prisma.user.findUnique({ where: { email: normalizedEmail } }));
+        if (!user) {
+            return { message: 'If an account exists with this email, a password reset link has been sent.' };
+        }
+        const resetToken = crypto_1.default.randomBytes(32).toString('hex');
+        const resetKey = `pwd-reset:${resetToken}`;
+        const TTL_SECONDS = 15 * 60; // 15 minutes
+        await redis_1.redisClient.set(resetKey, user.id, TTL_SECONDS);
+        const clientOrigin = process.env.CLIENT_URL || 'http://localhost:3000';
+        const resetLink = `${clientOrigin}/auth/reset-password?token=${resetToken}`;
+        await email_service_1.EmailService.sendPasswordResetEmail(user.email, resetLink, resetToken);
+        return { message: 'Password reset link has been sent to your email.' };
+    }
+    static async resetPassword(token, newPassword) {
+        const resetKey = `pwd-reset:${token}`;
+        const userId = await redis_1.redisClient.get(resetKey);
+        if (!userId) {
+            throw new errors_1.BadRequestError('Invalid or expired password reset link or token');
+        }
+        const user = await database_1.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new errors_1.NotFoundError('User not found');
+        }
+        const passwordHash = await password_service_1.PasswordService.hash(newPassword);
+        await (0, database_1.withReconnect)(() => database_1.prisma.user.update({
+            where: { id: userId },
+            data: { passwordHash },
+        }));
+        await redis_1.redisClient.del(resetKey);
+        return { message: 'Password has been reset successfully. You can now log in.' };
     }
 }
 exports.AuthService = AuthService;

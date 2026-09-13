@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
 const database_1 = require("../../config/database");
+const client_1 = require("@prisma/client");
 class NotificationService {
     static async send(options) {
         // 1. Create database notification record
@@ -10,7 +11,7 @@ class NotificationService {
                 userId: options.userId,
                 title: options.title,
                 message: options.message,
-                type: options.type || 'SYSTEM',
+                type: options.type || client_1.NotificationType.SYSTEM,
             },
         });
         // 2. Dispatch simulated channel abstractions

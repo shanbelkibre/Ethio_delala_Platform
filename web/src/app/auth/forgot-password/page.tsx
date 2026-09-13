@@ -1,15 +1,131 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { Mail, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus('loading');
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus('error');
+        setMessage(data.error?.message || data.message || 'Failed to request password reset');
+        return;
+      }
+
+      setStatus('success');
+      setMessage(data.message || 'Password reset link has been sent to your email.');
+    } catch {
+      setStatus('error');
+      setMessage('Network error. Please check your connection and try again.');
+    }
+  }
+
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Forgot Password</h1>
-        <p className="text-slate-500 mb-6">Enter your email to receive a password reset link.</p>
-        <p className="text-sm text-slate-400 bg-amber-50 p-4 rounded-xl border border-amber-100">Coming soon — password reset will be available shortly.</p>
-        <Link href="/auth/login" className="mt-6 inline-block text-sm text-emerald-600 font-bold hover:underline">Back to Login</Link>
+    <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 bg-slate-50 dark:bg-slate-950 transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 sm:p-10">
+        
+        {/* Header Icon */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 ring-8 ring-emerald-50 dark:ring-emerald-950/40">
+            <KeyRound className="w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-2">
+            Forgot Password
+          </h1>
+        
+        </div>
+
+        {/* Success Alert */}
+        {status === 'success' ? (
+          <div className="space-y-6 text-center">
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-sm flex items-start gap-3 text-left">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold mb-1">Check your inbox</p>
+                <p>{message}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              Did not receive the email? Check your spam folder or try again in a few minutes.
+            </p>
+
+            <div className="pt-2">
+              <Link
+                href="/auth/login"
+                className="w-full py-3 px-4 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Return to Sign In
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Reset Form */
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {status === 'error' && (
+              <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-sm font-semibold text-rose-600 dark:text-rose-400">
+                {message}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Registered Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm transition-all"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center"
+            >
+              {status === 'loading' ? (
+                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'Send Reset Link'
+              )}
+            </button>
+
+            <div className="text-center pt-2">
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Sign In
+              </Link>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

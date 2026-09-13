@@ -22,3 +22,4 @@ export const env = {
   SMTP_EMAIL: process.env.SMTP_EMAIL || 'shambel5110@gmail.com',
   SMTP_PASSWORD: process.env.SMTP_PASSWORD || 'xqzf tdnd gwcx jbog',
 };
+

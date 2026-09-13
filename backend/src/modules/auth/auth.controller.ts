@@ -47,4 +47,23 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await AuthService.forgotPassword(req.body.email);
+      sendSuccess(res, result, 'Password reset request processed successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { token, password } = req.body;
+      const result = await AuthService.resetPassword(token, password);
+      sendSuccess(res, result, 'Password has been successfully updated');
+    } catch (error) {
+      next(error);
+    }
+  }
 }

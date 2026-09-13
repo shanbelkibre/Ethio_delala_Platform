@@ -17,14 +17,10 @@ class RentalService {
         if (property.ownerId === renterId) {
             throw new errors_1.BadRequestError('Owners cannot send rental requests for their own properties');
         }
-        const moveInDate = dto.moveInDate ? new Date(dto.moveInDate) : undefined;
         return rental_repository_1.RentalRepository.createRequest({
             propertyId: dto.propertyId,
             renterId,
-            ownerId: property.ownerId,
             message: dto.message,
-            moveInDate,
-            durationMonths: dto.durationMonths || 12,
         });
     }
     static async getRenterRequests(renterId) {
@@ -38,7 +34,7 @@ class RentalService {
         if (!request) {
             throw new errors_1.NotFoundError('Rental request not found');
         }
-        if (request.ownerId !== ownerId) {
+        if (request.property.ownerId !== ownerId) {
             throw new errors_1.ForbiddenError('Only the property owner can accept or reject rental requests');
         }
         return rental_repository_1.RentalRepository.updateStatus(requestId, dto.status);
