@@ -17,7 +17,6 @@ export default function ResetPasswordPage() {
       return;
     }
     setStatus('loading');
-    // Simulate reset or connect to authService
     setTimeout(() => {
       setStatus('success');
       setMessage('Password has been successfully updated.');
@@ -41,7 +40,7 @@ export default function ResetPasswordPage() {
                 {message}
               </div>
               <Link
-                href="/login"
+                href="/auth/login"
                 className="w-full inline-block text-center py-2.5 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
               >
                 Go to Login
@@ -90,7 +89,7 @@ export default function ResetPasswordPage() {
 
               <div className="text-center pt-2">
                 <Link
-                  href="/login"
+                  href="/auth/login"
                   className="text-sm font-medium text-emerald-600 hover:text-emerald-500"
                 >
                   Back to login

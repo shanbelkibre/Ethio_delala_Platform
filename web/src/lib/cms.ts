@@ -52,7 +52,7 @@ export const defaultCmsConfig = {
     title: "Ready to Find Your Ideal Ethiopian Home?",
     subtitle: "Join thousands of tenants, landlords, and property managers operating on Ethiopia's unified rental ecosystem.",
     buttonText: "Browse All Home Rentals",
-    buttonLink: "/register",
+    buttonLink: "/auth/register",
   },
 
   // --- ABOUT US ---
@@ -67,7 +67,7 @@ export const defaultCmsConfig = {
     phone: "+251 911 819 145",
     services: ["Verified residential & luxury villa home rentals", "Move-in cleaning, inspection & tenant logistics", "Instant Chapa rent payments & digital lease agreements"],
     explorebuttonText: "Find Your Home Now",
-    exploreButtonLink: "/register",
+    exploreButtonLink: "/auth/register",
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-industrial-facility-with-pipelines-at-sunset-41481-large.mp4",
   },
 

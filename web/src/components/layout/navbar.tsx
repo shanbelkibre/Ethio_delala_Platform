@@ -81,7 +81,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
   const handleLogout = () => {
     clearAuth();
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   // Determine user dashboard link based on RBAC roles
