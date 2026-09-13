@@ -29,12 +29,11 @@ class EmailService {
                 subject: `Your Delala Platform OTP Code: ${otpCode}`,
                 html: htmlTemplate,
             });
-            console.log(`📧 [EMAIL OTP SENT] Successfully sent OTP ${otpCode} to ${toEmail}`);
+            console.log(` [EMAIL OTP SENT] Successfully sent OTP ${otpCode} to ${toEmail}`);
             return true;
         }
         catch (error) {
-            console.error(`❌ [EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
-            // Return false but don't crash dev workflow
+            console.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
             return false;
         }
     }
@@ -61,11 +60,11 @@ class EmailService {
                 subject: `Reset Your Ethio Delala Password`,
                 html: htmlTemplate,
             });
-            console.log(`📧 [PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
+            console.log(`[PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
             return true;
         }
         catch (error) {
-            console.error(`❌ [PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
+            console.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
             return false;
         }
     }
