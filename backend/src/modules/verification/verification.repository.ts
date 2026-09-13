@@ -17,11 +17,11 @@ export class VerificationRepository {
       create: {
         userId: data.userId,
         nationalIdReference,
-        verificationStatus: VerificationStatus.PENDING,
+        status: VerificationStatus.PENDING,
       },
       update: {
         nationalIdReference,
-        verificationStatus: VerificationStatus.PENDING,
+        status: VerificationStatus.PENDING,
       },
     });
   }
@@ -53,7 +53,7 @@ export class VerificationRepository {
     return prisma.identityVerification.update({
       where: { id },
       data: {
-        verificationStatus: status,
+        status,
         nationalIdVerified: status === VerificationStatus.VERIFIED,
         verifiedAt: status === VerificationStatus.VERIFIED ? new Date() : null,
       },
@@ -62,7 +62,7 @@ export class VerificationRepository {
 
   static async getPendingIdentityDocs(): Promise<IdentityVerification[]> {
     return prisma.identityVerification.findMany({
-      where: { verificationStatus: VerificationStatus.PENDING },
+      where: { status: VerificationStatus.PENDING },
       include: {
         user: {
           include: {

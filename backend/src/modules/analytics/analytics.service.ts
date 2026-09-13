@@ -4,10 +4,10 @@ export class AnalyticsService {
   static async recordEvent(userId: string | undefined, eventType: string, propertyId?: string, metadata?: any) {
     return prisma.analyticsEvent.create({
       data: {
-        userId: userId || null,
+        userId: userId || undefined,
         eventType,
-        propertyId: propertyId || null,
-        metadata: metadata ? JSON.stringify(metadata) : null,
+        propertyId: propertyId || undefined,
+        metadata: metadata || undefined,
       },
     });
   }

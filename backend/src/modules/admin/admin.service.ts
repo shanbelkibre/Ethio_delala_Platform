@@ -14,8 +14,8 @@ export class AdminService {
       prisma.user.count(),
       prisma.user.count({ where: { role: { name: 'OWNER' } } }),
       prisma.property.count(),
-      prisma.property.count({ where: { status: PropertyStatus.PENDING_REVIEW } }),
-      prisma.identityVerification.count({ where: { verificationStatus: VerificationStatus.PENDING } }),
+      prisma.property.count({ where: { status: PropertyStatus.DRAFT } }),
+      prisma.identityVerification.count({ where: { status: VerificationStatus.PENDING } }),
       prisma.subscription.count({ where: { status: 'ACTIVE' } }),
     ]);
 
@@ -33,7 +33,7 @@ export class AdminService {
     return prisma.adminAction.create({
       data: {
         adminId,
-        actionType: action,
+        actionType: (action as any) || 'UPDATE_SETTINGS',
         description: `${entityName} [${entityId}] ${details ? JSON.stringify(details) : ''}`.trim(),
       },
     });

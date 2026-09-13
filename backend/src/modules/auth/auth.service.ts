@@ -45,7 +45,7 @@ export class AuthService {
         },
         identityVerification: {
           create: {
-            verificationStatus: 'PENDING',
+            status: 'PENDING',
           },
         },
       },
@@ -75,7 +75,7 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         roles: [roleName],
-        avatarUrl: user.profile?.profileImage || null,
+        avatarUrl: user.profile?.profileImageUrl || null,
         isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
         isEmailVerified: user.identityVerification?.emailVerified || false,
         isIdentityVerified: user.identityVerification?.nationalIdVerified || false,
@@ -122,7 +122,7 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         roles: [roleName],
-        avatarUrl: user.profile?.profileImage || null,
+        avatarUrl: user.profile?.profileImageUrl || null,
         isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
         isEmailVerified: user.identityVerification?.emailVerified || false,
         isIdentityVerified: user.identityVerification?.nationalIdVerified || false,

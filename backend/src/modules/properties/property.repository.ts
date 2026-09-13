@@ -13,16 +13,17 @@ export class PropertyRepository {
     bathrooms: number;
     city: string;
     areaName: string;
+    region?: string;
     neighborhood?: string;
     addressDetails?: string;
     images?: string[];
   }): Promise<Property> {
-    const { images, area, addressDetails, neighborhood, city, ...propertyData } = data;
+    const { images, area, addressDetails, neighborhood, city, region, ...propertyData } = data;
 
     return prisma.property.create({
       data: {
         ...propertyData,
-        region: propertyData.region || city || 'Addis Ababa',
+        region: region || city || 'Addis Ababa',
         city,
         price: new Prisma.Decimal(propertyData.price),
         areaSqMeters: area !== undefined ? new Prisma.Decimal(area) : undefined,
