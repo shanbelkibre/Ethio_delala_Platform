@@ -19,15 +19,10 @@ export class RentalService {
       throw new BadRequestError('Owners cannot send rental requests for their own properties');
     }
 
-    const moveInDate = dto.moveInDate ? new Date(dto.moveInDate) : undefined;
-
     return RentalRepository.createRequest({
       propertyId: dto.propertyId,
       renterId,
-      ownerId: property.ownerId,
       message: dto.message,
-      moveInDate,
-      durationMonths: dto.durationMonths || 12,
     });
   }
 
@@ -45,7 +40,7 @@ export class RentalService {
       throw new NotFoundError('Rental request not found');
     }
 
-    if (request.ownerId !== ownerId) {
+    if (request.property.ownerId !== ownerId) {
       throw new ForbiddenError('Only the property owner can accept or reject rental requests');
     }
 

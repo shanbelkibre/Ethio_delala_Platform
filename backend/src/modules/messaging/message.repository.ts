@@ -9,10 +9,29 @@ export class MessageRepository {
     content: string;
   }): Promise<Message> {
     return prisma.message.create({
-      data,
+      data: {
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        propertyId: data.propertyId,
+        content: data.content,
+      },
       include: {
-        sender: { select: { id: true, name: true, avatarUrl: true } },
-        receiver: { select: { id: true, name: true, avatarUrl: true } },
+        sender: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
       },
     });
   }
@@ -28,8 +47,22 @@ export class MessageRepository {
       },
       orderBy: { createdAt: 'asc' },
       include: {
-        sender: { select: { id: true, name: true } },
-        receiver: { select: { id: true, name: true } },
+        sender: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
       },
     });
   }
@@ -41,9 +74,22 @@ export class MessageRepository {
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        sender: { select: { id: true, name: true, avatarUrl: true } },
-        receiver: { select: { id: true, name: true, avatarUrl: true } },
-        property: { select: { id: true, title: true } },
+        sender: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true, profileImageUrl: true } },
+          },
+        },
       },
     });
 

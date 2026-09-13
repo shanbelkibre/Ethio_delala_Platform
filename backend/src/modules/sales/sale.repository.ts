@@ -1,52 +1,118 @@
 import { prisma } from '../../config/database';
-import { SaleRequest, SaleStatus } from '@prisma/client';
+import { SaleRequest, SaleStatus, Prisma } from '@prisma/client';
 
 export class SaleRepository {
   static async createRequest(data: {
     propertyId: string;
     buyerId: string;
-    ownerId: string;
-    offerPrice?: number;
+    offeredPrice?: number | Prisma.Decimal;
     message?: string;
   }): Promise<SaleRequest> {
     return prisma.saleRequest.create({
-      data,
+      data: {
+        propertyId: data.propertyId,
+        buyerId: data.buyerId,
+        offeredPrice: data.offeredPrice !== undefined ? new Prisma.Decimal(data.offeredPrice) : undefined,
+        message: data.message,
+      },
       include: {
-        property: { select: { id: true, title: true, price: true, city: true, areaName: true } },
-        buyer: { select: { id: true, name: true, phone: true, email: true } },
-        owner: { select: { id: true, name: true, phone: true, email: true } },
+        property: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            city: true,
+            areaName: true,
+            ownerId: true,
+            owner: {
+              select: {
+                id: true,
+                phone: true,
+                email: true,
+                profile: { select: { firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
+        buyer: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true } },
+          },
+        },
       },
     });
   }
 
-  static async findById(id: string): Promise<SaleRequest | null> {
+  static async findById(id: string) {
     return prisma.saleRequest.findUnique({
       where: { id },
       include: {
-        property: true,
-        buyer: { select: { id: true, name: true, phone: true, email: true } },
-        owner: { select: { id: true, name: true, phone: true, email: true } },
+        property: {
+          include: {
+            owner: {
+              select: {
+                id: true,
+                phone: true,
+                email: true,
+                profile: { select: { firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
+        buyer: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true } },
+          },
+        },
       },
     });
   }
 
-  static async findBuyerRequests(buyerId: string): Promise<SaleRequest[]> {
+  static async findBuyerRequests(buyerId: string) {
     return prisma.saleRequest.findMany({
       where: { buyerId },
       include: {
-        property: { select: { id: true, title: true, price: true, city: true } },
-        owner: { select: { name: true, phone: true } },
+        property: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            city: true,
+            owner: {
+              select: {
+                phone: true,
+                profile: { select: { firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  static async findOwnerRequests(ownerId: string): Promise<SaleRequest[]> {
+  static async findOwnerRequests(ownerId: string) {
     return prisma.saleRequest.findMany({
-      where: { ownerId },
+      where: {
+        property: {
+          ownerId,
+        },
+      },
       include: {
         property: { select: { id: true, title: true, price: true, city: true } },
-        buyer: { select: { name: true, phone: true, email: true } },
+        buyer: {
+          select: {
+            phone: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true } },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -56,7 +122,8 @@ export class SaleRepository {
     return prisma.saleRequest.update({
       where: { id },
       data: { status },
-      include: { property: true, buyer: true, owner: true },
+      include: { property: true, buyer: true },
     });
   }
 }
+

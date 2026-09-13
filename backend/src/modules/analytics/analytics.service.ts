@@ -27,17 +27,17 @@ export class AnalyticsService {
         _count: { id: true },
         where: { status: 'PUBLISHED' },
       }),
-      prisma.payment.aggregate({
+      prisma.subscriptionPayment.aggregate({
         _sum: { amount: true },
-        where: { status: 'SUCCESS' },
+        where: { paymentStatus: 'SUCCESS' },
       }),
     ]);
 
     return {
-      averageRentETB: Math.round(avgRent._avg.price || 0),
-      averageSaleETB: Math.round(avgSale._avg.price || 0),
+      averageRentETB: Math.round(Number(avgRent._avg.price || 0)),
+      averageSaleETB: Math.round(Number(avgSale._avg.price || 0)),
       popularLocations: propertiesByCity.map((c) => ({ city: c.city, count: c._count.id })),
-      totalSubscriptionRevenueETB: totalRevenue._sum.amount || 0,
+      totalSubscriptionRevenueETB: Number(totalRevenue._sum.amount || 0),
     };
   }
 }

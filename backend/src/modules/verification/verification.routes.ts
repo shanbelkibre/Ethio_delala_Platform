@@ -5,7 +5,7 @@ import { authorizeRoles } from '../../middleware/role.middleware';
 import { uploadPrivate } from '../../middleware/upload.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { submitIdentitySchema, submitLicenseSchema, reviewDocSchema } from './verification.validation';
-import { Role } from '@prisma/client';
+import { Role } from '../../constants/roles';
 
 const router = Router();
 

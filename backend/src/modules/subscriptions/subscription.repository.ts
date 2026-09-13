@@ -6,12 +6,21 @@ export type SubscriptionWithPlan = Prisma.SubscriptionGetPayload<{ include: { pl
 export class SubscriptionRepository {
   static async createPlan(data: {
     name: string;
-    price: number;
+    price: number | Prisma.Decimal;
     durationDays?: number;
     maxListings?: number;
     features?: string;
   }): Promise<SubscriptionPlan> {
-    return prisma.subscriptionPlan.create({ data });
+    return prisma.subscriptionPlan.create({
+      data: {
+        name: data.name,
+        price: new Prisma.Decimal(data.price),
+        durationDays: data.durationDays ?? 30,
+        maxListings: data.maxListings ?? 5,
+        features: data.features ? JSON.parse(data.features) : [],
+        isActive: true,
+      },
+    });
   }
 
   static async findPlanById(id: string): Promise<SubscriptionPlan | null> {
@@ -57,3 +66,4 @@ export class SubscriptionRepository {
     });
   }
 }
+

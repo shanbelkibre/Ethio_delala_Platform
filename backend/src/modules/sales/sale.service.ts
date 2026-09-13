@@ -22,8 +22,7 @@ export class SaleService {
     return SaleRepository.createRequest({
       propertyId: dto.propertyId,
       buyerId,
-      ownerId: property.ownerId,
-      offerPrice: dto.offerPrice || property.price,
+      offeredPrice: dto.offerPrice ?? property.price,
       message: dto.message,
     });
   }
@@ -42,7 +41,7 @@ export class SaleService {
       throw new NotFoundError('Purchase request not found');
     }
 
-    if (request.ownerId !== ownerId) {
+    if (request.property.ownerId !== ownerId) {
       throw new ForbiddenError('Only the property owner can accept or reject purchase offers');
     }
 

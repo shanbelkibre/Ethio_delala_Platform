@@ -1,10 +1,11 @@
 import { prisma } from '../../config/database';
+import { NotificationType } from '@prisma/client';
 
 export interface SendNotificationOptions {
   userId: string;
   title: string;
   message: string;
-  type?: 'SYSTEM' | 'INQUIRY' | 'PROPERTY' | 'RENTAL' | 'SALE' | 'SUBSCRIPTION';
+  type?: NotificationType;
   channels?: ('SMS' | 'EMAIL' | 'TELEGRAM' | 'PUSH')[];
 }
 
@@ -16,7 +17,7 @@ export class NotificationService {
         userId: options.userId,
         title: options.title,
         message: options.message,
-        type: options.type || 'SYSTEM',
+        type: options.type || NotificationType.SYSTEM,
       },
     });
 

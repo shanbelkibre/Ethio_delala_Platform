@@ -1,10 +1,10 @@
 import { prisma, withReconnect } from '../../config/database';
 import { PasswordService } from '../../services/password.service';
-import { TokenService } from '../../services/token.service';
+import { TokenService, TokenPayload } from '../../services/token.service';
 import { OtpService } from '../../services/otp.service';
 import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError } from '../../utils/errors';
 import { RegisterDTO, LoginDTO, VerifyOtpDTO, AuthResponse } from './auth.types';
-import { Role } from '@prisma/client';
+import { Role } from '../../constants/roles';
 
 export class AuthService {
   static async register(dto: RegisterDTO): Promise<AuthResponse> {
@@ -21,15 +21,38 @@ export class AuthService {
     }
 
     const passwordHash = await PasswordService.hash(dto.password);
-    const roles: Role[] = dto.roles && dto.roles.length > 0 ? dto.roles : [Role.RENTER];
+    const requestedRoleName = (dto.roles && dto.roles[0]) ? dto.roles[0] : Role.RENTER;
+    let roleRecord = await prisma.role.findUnique({ where: { name: requestedRoleName } });
+    if (!roleRecord) {
+      roleRecord = await prisma.role.findUnique({ where: { name: 'RENTER' } });
+    }
+
+    const nameParts = dto.name.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || undefined;
 
     const user = await prisma.user.create({
       data: {
-        name: dto.name,
         email: normalizedEmail,
         phone: normalizedPhone,
         passwordHash,
-        roles,
+        roleId: roleRecord!.id,
+        profile: {
+          create: {
+            firstName,
+            lastName,
+          },
+        },
+        identityVerification: {
+          create: {
+            verificationStatus: 'PENDING',
+          },
+        },
+      },
+      include: {
+        role: true,
+        profile: true,
+        identityVerification: true,
       },
     });
 
@@ -39,21 +62,23 @@ export class AuthService {
       await OtpService.sendOtp(user.phone);
     }
 
-    const tokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+    const fullName = [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ') || user.email;
+    const roleName = (user.role?.name || 'RENTER') as Role;
+    const tokenPayload: TokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
     const accessToken = TokenService.generateAccessToken(tokenPayload);
     const refreshToken = TokenService.generateRefreshToken(tokenPayload);
 
     return {
       user: {
         id: user.id,
-        name: user.name,
+        name: fullName,
         email: user.email,
         phone: user.phone,
-        roles: user.roles,
-        avatarUrl: user.avatarUrl,
-        isPhoneVerified: user.isPhoneVerified,
-        isEmailVerified: user.isEmailVerified,
-        isIdentityVerified: user.isIdentityVerified,
+        roles: [roleName],
+        avatarUrl: user.profile?.profileImage || null,
+        isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
+        isEmailVerified: user.identityVerification?.emailVerified || false,
+        isIdentityVerified: user.identityVerification?.nationalIdVerified || false,
       },
       tokens: {
         accessToken,
@@ -68,6 +93,11 @@ export class AuthService {
       where: {
         OR: [{ email: normalizedInput }, { phone: normalizedInput }],
       },
+      include: {
+        role: true,
+        profile: true,
+        identityVerification: true,
+      },
     }));
 
     if (!user) {
@@ -79,21 +109,23 @@ export class AuthService {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const tokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+    const fullName = [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ') || user.email;
+    const roleName = (user.role?.name || 'RENTER') as Role;
+    const tokenPayload: TokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
     const accessToken = TokenService.generateAccessToken(tokenPayload);
     const refreshToken = TokenService.generateRefreshToken(tokenPayload);
 
     return {
       user: {
         id: user.id,
-        name: user.name,
+        name: fullName,
         email: user.email,
         phone: user.phone,
-        roles: user.roles,
-        avatarUrl: user.avatarUrl,
-        isPhoneVerified: user.isPhoneVerified,
-        isEmailVerified: user.isEmailVerified,
-        isIdentityVerified: user.isIdentityVerified,
+        roles: [roleName],
+        avatarUrl: user.profile?.profileImage || null,
+        isPhoneVerified: user.identityVerification?.phoneOtpVerified || false,
+        isEmailVerified: user.identityVerification?.emailVerified || false,
+        isIdentityVerified: user.identityVerification?.nationalIdVerified || false,
       },
       tokens: {
         accessToken,
@@ -108,15 +140,26 @@ export class AuthService {
       throw new BadRequestError('Invalid or expired OTP code');
     }
 
-    await prisma.user.updateMany({
+    const user = await prisma.user.findFirst({
       where: {
         OR: [{ phone: dto.phoneOrEmail }, { email: dto.phoneOrEmail }],
       },
-      data: {
-        isPhoneVerified: true,
-        isEmailVerified: true,
-      },
     });
+
+    if (user) {
+      await prisma.identityVerification.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          phoneOtpVerified: true,
+          emailVerified: true,
+        },
+        update: {
+          phoneOtpVerified: true,
+          emailVerified: true,
+        },
+      });
+    }
 
     return { success: true, message: 'Verification successfully completed' };
   }
@@ -124,13 +167,17 @@ export class AuthService {
   static async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const payload = TokenService.verifyRefreshToken(refreshToken);
-      const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+      const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+        include: { role: true },
+      });
 
       if (!user) {
         throw new UnauthorizedError('User no longer exists');
       }
 
-      const newTokenPayload = { userId: user.id, email: user.email, roles: user.roles };
+      const roleName = (user.role?.name || 'RENTER') as Role;
+      const newTokenPayload: TokenPayload = { userId: user.id, email: user.email, roles: [roleName] };
       const newAccessToken = TokenService.generateAccessToken(newTokenPayload);
       const newRefreshToken = TokenService.generateRefreshToken(newTokenPayload);
 
@@ -145,3 +192,4 @@ export class AuthService {
     return { message: 'OTP sent successfully' };
   }
 }
+

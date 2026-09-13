@@ -12,10 +12,10 @@ export class AdminService {
       activeSubscriptions,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.user.count({ where: { roles: { has: 'OWNER' } } }),
+      prisma.user.count({ where: { role: { name: 'OWNER' } } }),
       prisma.property.count(),
       prisma.property.count({ where: { status: PropertyStatus.PENDING_REVIEW } }),
-      prisma.identityDocument.count({ where: { status: VerificationStatus.PENDING } }),
+      prisma.identityVerification.count({ where: { verificationStatus: VerificationStatus.PENDING } }),
       prisma.subscription.count({ where: { status: 'ACTIVE' } }),
     ]);
 
@@ -30,22 +30,29 @@ export class AdminService {
   }
 
   static async logAdminAction(adminId: string, action: string, entityName: string, entityId: string, details?: any) {
-    return prisma.auditLog.create({
+    return prisma.adminAction.create({
       data: {
         adminId,
-        action,
-        entityName,
-        entityId,
-        details: details ? JSON.stringify(details) : null,
+        actionType: action,
+        description: `${entityName} [${entityId}] ${details ? JSON.stringify(details) : ''}`.trim(),
       },
     });
   }
 
   static async getAuditLogs() {
-    return prisma.auditLog.findMany({
+    return prisma.adminAction.findMany({
       take: 50,
       orderBy: { createdAt: 'desc' },
-      include: { admin: { select: { id: true, name: true, email: true } } },
+      include: {
+        admin: {
+          select: {
+            id: true,
+            email: true,
+            profile: { select: { firstName: true, lastName: true } },
+          },
+        },
+      },
     });
   }
 }
+

@@ -3,7 +3,7 @@ import { prisma } from '../../config/database';
 import { NotFoundError, BadRequestError } from '../../utils/errors';
 import { defaultPaymentProvider } from '../payments/chapa-simulation.provider';
 import { CreatePlanDTO, SubscribeDTO } from './subscription.types';
-import { SubscriptionStatus, PaymentStatus } from '@prisma/client';
+import { SubscriptionStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
 
 export class SubscriptionService {
   static async createPlan(dto: CreatePlanDTO) {
@@ -39,23 +39,22 @@ export class SubscriptionService {
 
     // Initiate payment via Payment Provider Abstraction (Chapa simulation)
     const paymentResult = await defaultPaymentProvider.initializePayment({
-      amount: plan.price,
+      amount: Number(plan.price),
       currency: 'ETB',
       email: userEmail,
       name: userName,
       txRef: `SUB-${subscription.id}-${Date.now()}`,
     });
 
-    // Save payment record
-    const payment = await prisma.payment.create({
+    // Save payment record (3NF: SubscriptionPayment has subscriptionId, amount, currency, paymentReference, paymentMethod, paymentStatus)
+    const payment = await prisma.subscriptionPayment.create({
       data: {
-        ownerId,
         subscriptionId: subscription.id,
         amount: plan.price,
         currency: 'ETB',
-        provider: defaultPaymentProvider.name,
-        transactionRef: paymentResult.transactionRef,
-        status: PaymentStatus.PENDING,
+        paymentMethod: PaymentMethod.CHAPA,
+        paymentReference: paymentResult.transactionRef,
+        paymentStatus: PaymentStatus.PENDING,
       },
     });
 
@@ -67,8 +66,8 @@ export class SubscriptionService {
   }
 
   static async confirmPaymentAndActivate(transactionRef: string) {
-    const payment = await prisma.payment.findUnique({
-      where: { transactionRef },
+    const payment = await prisma.subscriptionPayment.findUnique({
+      where: { paymentReference: transactionRef },
       include: { subscription: { include: { plan: true } } },
     });
 
@@ -83,9 +82,12 @@ export class SubscriptionService {
     }
 
     // Update payment status to SUCCESS
-    await prisma.payment.update({
+    await prisma.subscriptionPayment.update({
       where: { id: payment.id },
-      data: { status: PaymentStatus.SUCCESS },
+      data: {
+        paymentStatus: PaymentStatus.SUCCESS,
+        paidAt: new Date(),
+      },
     });
 
     // Activate subscription using plan duration

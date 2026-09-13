@@ -6,7 +6,7 @@ import { ReviewDocDTO } from './verification.types';
 
 export class VerificationService {
   static async submitIdentityDocument(userId: string, documentType: string, documentNumber: string, documentUrl: string) {
-    const doc = await VerificationRepository.createIdentityDoc({
+    const doc = await VerificationRepository.upsertIdentityDoc({
       userId,
       documentType,
       documentNumber,
@@ -14,59 +14,42 @@ export class VerificationService {
     });
 
     // Create AI Pre-check hook entry
-    await this.triggerAiPrecheck('IdentityDocument', doc.id);
+    await this.triggerAiPrecheck('IdentityVerification', doc.id);
 
     return doc;
   }
 
   static async submitOwnerLicense(ownerId: string, licenseNumber: string, documentUrl: string) {
-    const license = await VerificationRepository.createLicense({
-      ownerId,
-      licenseNumber,
+    const doc = await VerificationRepository.upsertIdentityDoc({
+      userId: ownerId,
+      documentType: 'LICENSE',
+      documentNumber: licenseNumber,
       documentUrl,
     });
 
     // Create AI Pre-check hook entry
-    await this.triggerAiPrecheck('License', license.id);
+    await this.triggerAiPrecheck('OwnerLicense', doc.id);
 
-    return license;
+    return doc;
   }
 
   static async reviewIdentityDocument(docId: string, dto: ReviewDocDTO) {
     const doc = await VerificationRepository.findIdentityDocById(docId);
     if (!doc) {
-      throw new NotFoundError('Identity document not found');
+      throw new NotFoundError('Identity verification document not found');
     }
 
     const updatedDoc = await VerificationRepository.updateIdentityStatus(docId, dto.status, dto.rejectionReason);
-
-    // If verified, set user.isIdentityVerified to true
-    if (dto.status === VerificationStatus.VERIFIED) {
-      await prisma.user.update({
-        where: { id: doc.userId },
-        data: { isIdentityVerified: true },
-      });
-    }
-
     return updatedDoc;
   }
 
   static async reviewLicenseDocument(licenseId: string, dto: ReviewDocDTO) {
-    const license = await VerificationRepository.findLicenseById(licenseId);
-    if (!license) {
-      throw new NotFoundError('License document not found');
-    }
-
-    return VerificationRepository.updateLicenseStatus(licenseId, dto.status, dto.rejectionReason);
+    return this.reviewIdentityDocument(licenseId, dto);
   }
 
   static async getPendingSubmissions() {
-    const [identities, licenses] = await Promise.all([
-      VerificationRepository.getPendingIdentityDocs(),
-      VerificationRepository.getPendingLicenses(),
-    ]);
-
-    return { identities, licenses };
+    const identities = await VerificationRepository.getPendingIdentityDocs();
+    return { identities, licenses: [] };
   }
 
   private static async triggerAiPrecheck(entityType: string, entityId: string) {

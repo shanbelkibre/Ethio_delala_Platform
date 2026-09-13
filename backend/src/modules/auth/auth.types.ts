@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client';
+import { Role } from '../../constants/roles';
 
 export interface RegisterDTO {
   name: string;
