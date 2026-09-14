@@ -14,23 +14,76 @@ import {
   Tag,
   Heart,
   Bell,
-  Sparkles,
-  ClipboardList,
-  Flag,
-  ShieldCheck,
-  ShieldAlert,
   LogOut,
-  ChevronDown,
   Sun,
   Moon,
   Menu,
   X,
-  LogIn,
-  UserPlus,
+  ShieldCheck,
+  ShieldAlert,
+  Globe,
+  LucideIcon,
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/hooks/useAuthStore';
+
+// ============================================================================
+// MODULAR REUSABLE NAVBAR STYLE PRESETS (Uniform Senior Frontend Design Tokens)
+// ============================================================================
+const navStyles = {
+  // Uniform Navigation Links (Used identically for Public Discovery, Login, and Get Started)
+  navLink: (active: boolean) =>
+    cn(
+      'rounded-lg px-3.5 py-2 text-sm font-semibold transition-all',
+      active
+        ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold'
+        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100'
+    ),
+
+  // Mobile Drawer Links
+  mobileNavLink: (active: boolean) =>
+    cn(
+      'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors',
+      active
+        ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold'
+        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'
+    ),
+
+  // Dropdown Link Item
+  dropdownLink:
+    'flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors',
+
+  // Language Switcher Button
+  langToggleBtn:
+    'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border border-slate-200/80 dark:border-slate-800',
+
+  // Theme Toggle Button
+  themeToggleBtn:
+    'flex h-9 w-9 items-center justify-center rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors',
+
+  // Sign Out Danger Button
+  btnLogout:
+    'flex w-full items-center gap-3 px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors',
+};
+
+// ============================================================================
+// REUSABLE SUB-COMPONENTS
+// ============================================================================
+interface DropdownItemProps {
+  href: string;
+  icon: LucideIcon;
+  iconColor?: string;
+  label: string;
+  onClick: () => void;
+}
+
+const DropdownItem = ({ href, icon: Icon, iconColor = 'text-slate-400', label, onClick }: DropdownItemProps) => (
+  <Link href={href} onClick={onClick} className={navStyles.dropdownLink}>
+    <Icon className={cn('h-4 w-4', iconColor)} />
+    <span>{label}</span>
+  </Link>
+);
 
 interface NavbarProps {
   cmsNavbar?: {
@@ -48,6 +101,9 @@ const publicLinks = [
   { href: '/public/contact', label: 'Contact', icon: MessageSquare },
 ];
 
+// ============================================================================
+// MAIN NAVBAR COMPONENT
+// ============================================================================
 export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -58,6 +114,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [locale, setLocale] = useState<'EN' | 'AM'>('EN');
 
   useEffect(() => {
     setMounted(true);
@@ -69,6 +126,11 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+
+    const savedLocale = localStorage.getItem('locale') as 'EN' | 'AM' | null;
+    if (savedLocale) {
+      setLocale(savedLocale);
     }
   }, []);
 
@@ -93,6 +155,15 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const toggleLanguage = () => {
+    const nextLocale = locale === 'EN' ? 'AM' : 'EN';
+    setLocale(nextLocale);
+    localStorage.setItem('locale', nextLocale);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('localeChange', { detail: nextLocale }));
     }
   };
 
@@ -134,23 +205,21 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     dashboardHref = '/owner/dashboard';
   }
 
-  // Profile Avatar Icon using image PNG profile from public/images/profile.png or user avatar
-  const ProfileAvatarIcon = ({ className = 'h-9 w-9' }: { className?: string }) => {
-    return (
-      <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-slate-100 dark:bg-slate-800', className)}>
-        <img
-          src={user?.avatarUrl || '/images/profile.png'}
-          alt={user?.name || 'User profile'}
-          className="h-full w-full object-cover rounded-full"
-        />
-      </div>
-    );
-  };
+  // Profile Avatar Icon
+  const ProfileAvatarIcon = ({ className = 'h-9 w-9' }: { className?: string }) => (
+    <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-slate-100 dark:bg-slate-800', className)}>
+      <img
+        src={user?.avatarUrl || '/images/profile.png'}
+        alt={user?.name || 'User profile'}
+        className="h-full w-full object-cover rounded-full"
+      />
+    </div>
+  );
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        {/* Public Brand Logo */}
+        {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div
             className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold text-white shadow-sm group-hover:scale-105 transition-transform"
@@ -168,34 +237,164 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
           </div>
         </Link>
 
-        {/* Public Website Navigation (Public Discovery Only) */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {publicLinks.map((link) => {
-            const active = isLinkActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'rounded-lg px-3.5 py-2 text-sm font-semibold transition-all',
-                  active
-                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100'
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        {/* Public Website Navigation (Discovery Links) */}
+        <nav className="hidden items-center gap-1 lg:flex">
+          {publicLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={navStyles.navLink(isLinkActive(link.href))}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
-        {/* Right Header Section: Theme Toggle & Profile Account Menu */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Theme Toggle Button */}
+          {/* Language Switcher (Amharic / English) - Positioned between Contact & Login */}
+        <div className="flex items-center gap-1 sm:gap-2">
+
+          {mounted && (
+            <button
+              onClick={toggleLanguage}
+              className={navStyles.langToggleBtn}
+              title={locale === 'EN' ? 'Switch to Amharic (ወደ አማርኛ ይቀይሩ)' : 'Switch to English'}
+              aria-label="Toggle language"
+            >
+              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{locale === 'EN' ? 'EN / አማ' : 'አማ / EN'}</span>
+            </button>
+          )}
+
+          {/* AUTHENTICATED STATE: Profile Image Avatar & Dropdown Menu */}
+          {mounted && isAuthenticated && user ? (
+            <div className="relative" ref={profileDropdownRef}>
+              <button
+                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                className={cn(
+                  'flex h-9 w-9 items-center justify-center rounded-full border-2 overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:scale-105 active:scale-95',
+                  profileMenuOpen
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                    : 'border-slate-300 dark:border-slate-700 hover:border-emerald-500'
+                )}
+                aria-label="Account menu"
+                aria-expanded={profileMenuOpen}
+              >
+                <ProfileAvatarIcon className="h-full w-full" />
+              </button>
+
+              {/* Account Profile Dropdown Menu */}
+              {profileMenuOpen && (
+                <div className="absolute right-0 mt-2.5 w-64 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  {/* Authenticated User Header Card */}
+                  <div className="px-4 py-3 border-b border-slate-150 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 rounded-t-2xl">
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatarIcon className="h-10 w-10" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                          {user.name || 'User'}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          {user.email || user.phone || ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 flex items-center justify-between gap-2">
+                      <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border', roleBadgeClass)}>
+                        {roleLabel}
+                      </span>
+                      {user.isIdentityVerified ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                          Fayda Verified
+                        </span>
+                      ) : (
+                        <Link
+                          href={isOwner ? '/owner/verification' : '/renter/profile'}
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 transition-colors"
+                        >
+                          <ShieldAlert className="h-3 w-3 text-amber-500" />
+                          Verify ID
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Role-Specific Account Actions */}
+                  <div className="py-1.5 text-xs font-medium space-y-0.5">
+                    {isRenter && (
+                      <>
+                        <DropdownItem href="/renter/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Renter Dashboard" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/profile" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/favorites" icon={Heart} iconColor="text-rose-500" label="Favorites" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/notifications" icon={Bell} iconColor="text-amber-500" label="Notifications" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/messages" icon={MessageSquare} iconColor="text-emerald-500" label="Messages" onClick={() => setProfileMenuOpen(false)} />
+                      </>
+                    )}
+
+                    {isOwner && (
+                      <>
+                        <DropdownItem href="/owner/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Owner Dashboard" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/profile" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/properties" icon={Building2} iconColor="text-emerald-500" label="My Properties" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/notifications" icon={Bell} iconColor="text-amber-500" label="Notifications" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/messages" icon={MessageSquare} iconColor="text-emerald-500" label="Messages" onClick={() => setProfileMenuOpen(false)} />
+                      </>
+                    )}
+
+                    {isAgent && (
+                      <>
+                        <DropdownItem href="/management/agent/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Agent Dashboard" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/management/agent/dashboard" icon={Building2} iconColor="text-blue-500" label="Properties Queue" onClick={() => setProfileMenuOpen(false)} />
+                      </>
+                    )}
+
+                    {isAdmin && (
+                      <>
+                        <DropdownItem href="/management/admin/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Admin Dashboard" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/management/admin/dashboard" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                      </>
+                    )}
+                  </div>
+
+                  {/* Sign Out Action */}
+                  <div className="pt-1 mt-1 border-t border-slate-150 dark:border-slate-800">
+                    <button onClick={handleLogout} className={navStyles.btnLogout}>
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* UNAUTHENTICATED GUEST STATE: Clean links with identical styling */
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Link
+                href="/auth/login"
+                className={navStyles.navLink(isLinkActive('/auth/login'))}
+              >
+                Login
+              </Link>
+              <Link
+                href="/auth/register"
+                className={navStyles.navLink(isLinkActive('/auth/register'))}
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+
+          {/* Theme Toggle Button (Positioned on the Far Right) */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors"
+              className={navStyles.themeToggleBtn}
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
               aria-label="Toggle theme"
             >
@@ -203,305 +402,9 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
             </button>
           )}
 
-          {/* Account Profile Dropdown Trigger (Icon Only - Matched Circle Size) */}
-          <div className="relative" ref={profileDropdownRef}>
-            <button
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className={cn(
-                'flex h-9 w-9 items-center justify-center rounded-full border-2 overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:scale-105 active:scale-95',
-                profileMenuOpen
-                  ? 'border-emerald-500 ring-2 ring-emerald-500/30'
-                  : 'border-slate-300 dark:border-slate-700 hover:border-emerald-500'
-              )}
-              aria-label="Account menu"
-              aria-expanded={profileMenuOpen}
-            >
-              <ProfileAvatarIcon className="h-full w-full" />
-            </button>
-
-            {/* Account Profile Dropdown Menu */}
-            {profileMenuOpen && (
-              <div className="absolute right-0 mt-2.5 w-64 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                {mounted && isAuthenticated && user ? (
-                  <>
-                    {/* 1. Authenticated User Header Card */}
-                    <div className="px-4 py-3 border-b border-slate-150 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 rounded-t-2xl">
-                      <div className="flex items-center gap-3">
-                        <ProfileAvatarIcon className="h-10 w-10" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
-                            {user.name || 'User'}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                            {user.email || user.phone || ''}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-2.5 flex items-center justify-between gap-2">
-                        <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border', roleBadgeClass)}>
-                          {roleLabel}
-                        </span>
-                        {user.isIdentityVerified ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                            <ShieldCheck className="h-3 w-3 text-emerald-600" />
-                            Fayda Verified
-                          </span>
-                        ) : (
-                          <Link
-                            href={isOwner ? '/owner/verification' : '/renter/profile'}
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 transition-colors"
-                          >
-                            <ShieldAlert className="h-3 w-3 text-amber-500" />
-                            Verify ID
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 2. Role-Specific Account Actions */}
-                    <div className="py-1.5 text-xs font-medium space-y-0.5">
-                      {/* RENTER Profile Menu */}
-                      {isRenter && (
-                        <>
-                          <Link
-                            href="/renter/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                            <span>Renter Dashboard</span>
-                          </Link>
-                          <Link
-                            href="/renter/profile"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <User className="h-4 w-4 text-slate-400" />
-                            <span>Profile & Settings</span>
-                          </Link>
-                          <Link
-                            href="/renter/rental-requests"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <FileText className="h-4 w-4 text-indigo-500" />
-                            <span>Rental Requests</span>
-                          </Link>
-                          <Link
-                            href="/renter/sale-requests"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Tag className="h-4 w-4 text-blue-500" />
-                            <span>Sale Requests</span>
-                          </Link>
-                          <Link
-                            href="/renter/favorites"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Heart className="h-4 w-4 text-rose-500" />
-                            <span>Favorites</span>
-                          </Link>
-                          <Link
-                            href="/renter/notifications"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Bell className="h-4 w-4 text-amber-500" />
-                            <span>Notifications</span>
-                          </Link>
-                          <Link
-                            href="/renter/messages"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <MessageSquare className="h-4 w-4 text-emerald-500" />
-                            <span>Messages</span>
-                          </Link>
-                        </>
-                      )}
-
-                      {/* OWNER Profile Menu */}
-                      {isOwner && (
-                        <>
-                          <Link
-                            href="/owner/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                            <span>Owner Dashboard</span>
-                          </Link>
-                          <Link
-                            href="/owner/profile"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <User className="h-4 w-4 text-slate-400" />
-                            <span>Profile & Settings</span>
-                          </Link>
-                          <Link
-                            href="/owner/properties"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Building2 className="h-4 w-4 text-emerald-500" />
-                            <span>My Properties</span>
-                          </Link>
-                          <Link
-                            href="/owner/rental-requests"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <FileText className="h-4 w-4 text-indigo-500" />
-                            <span>Rental Requests</span>
-                          </Link>
-                          <Link
-                            href="/owner/sale-requests"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Tag className="h-4 w-4 text-blue-500" />
-                            <span>Sale Requests</span>
-                          </Link>
-                          <Link
-                            href="/owner/subscription"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Sparkles className="h-4 w-4 text-amber-500" />
-                            <span>Subscription</span>
-                          </Link>
-                          <Link
-                            href="/owner/notifications"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Bell className="h-4 w-4 text-amber-500" />
-                            <span>Notifications</span>
-                          </Link>
-                          <Link
-                            href="/owner/messages"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <MessageSquare className="h-4 w-4 text-emerald-500" />
-                            <span>Messages</span>
-                          </Link>
-                        </>
-                      )}
-
-                      {/* AGENT Profile Menu */}
-                      {isAgent && (
-                        <>
-                          <Link
-                            href="/management/agent/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                            <span>Agent Workspace</span>
-                          </Link>
-                          <Link
-                            href="/management/agent/profile"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <User className="h-4 w-4 text-slate-400" />
-                            <span>Profile & Settings</span>
-                          </Link>
-                          <Link
-                            href="/management/agent/properties"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Building2 className="h-4 w-4 text-emerald-500" />
-                            <span>Agent Properties</span>
-                          </Link>
-                          <Link
-                            href="/management/agent/requests"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <ClipboardList className="h-4 w-4 text-blue-500" />
-                            <span>Requests</span>
-                          </Link>
-                          <Link
-                            href="/management/agent/reports"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <Flag className="h-4 w-4 text-rose-500" />
-                            <span>Reports</span>
-                          </Link>
-                        </>
-                      )}
-
-                      {/* ADMIN Profile Menu */}
-                      {isAdmin && (
-                        <>
-                          <Link
-                            href="/management/admin/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                            <span>Admin Dashboard</span>
-                          </Link>
-                          <Link
-                            href="/management/admin/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-                          >
-                            <User className="h-4 w-4 text-slate-400" />
-                            <span>Profile & Settings</span>
-                          </Link>
-                        </>
-                      )}
-                    </div>
-
-                    {/* 3. Sign Out Action Section */}
-                    <div className="pt-1 mt-1 border-t border-slate-150 dark:border-slate-800">
-                      <button
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  /* Guest User Profile Menu (Only Sign In & Create Account) */
-                  <div className="p-1 space-y-1">
-                    <Link
-                      href="/auth/login"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
-                    >
-                      <LogIn className="h-4 w-4 text-emerald-600" />
-                      <span>Sign In</span>
-                    </Link>
-                    <Link
-                      href="/auth/register"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 transition-colors"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>Create Account</span>
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Mobile Drawer Hamburger Toggle */}
           <button
-            className="rounded-xl p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 md:hidden"
+            className="rounded-xl p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle navigation menu"
           >
@@ -512,7 +415,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
       {/* Mobile Drawer (Public Discovery Navigation + Account Area) */}
       {mobileOpen && (
-        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 md:hidden space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-150">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 lg:hidden space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-150">
           {/* Authenticated User Preview Card on Mobile */}
           {mounted && isAuthenticated && user ? (
             <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
@@ -535,25 +438,29 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
           {/* Public Navigation in Mobile */}
           <div className="space-y-1">
-            {publicLinks.map((link) => {
-              const active = isLinkActive(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors',
-                    active
-                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'
-                  )}
-                >
-                  <link.icon className="h-4 w-4 text-slate-500" />
-                  {link.label}
-                </Link>
-              );
-            })}
+            {publicLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className={navStyles.mobileNavLink(isLinkActive(link.href))}
+              >
+                <link.icon className="h-4 w-4 text-slate-500" />
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Language Switcher */}
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Language</span>
+            <button
+              onClick={toggleLanguage}
+              className={navStyles.langToggleBtn}
+            >
+              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{locale === 'EN' ? 'English (EN)' : 'አማርኛ (AM)'}</span>
+            </button>
           </div>
 
           {/* Mobile Account Actions */}
@@ -568,10 +475,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                 <span>Dashboard</span>
               </Link>
 
-              <button
-                onClick={handleLogout}
-                className="flex w-full items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-              >
+              <button onClick={handleLogout} className={cn(navStyles.btnLogout, 'rounded-xl px-4 py-2.5 text-sm')}>
                 <LogOut className="h-4 w-4" />
                 <span>Sign Out</span>
               </button>
@@ -581,16 +485,16 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
               <Link
                 href="/auth/login"
                 onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                className={cn(navStyles.mobileNavLink(isLinkActive('/auth/login')), 'justify-center font-bold border border-slate-200 dark:border-slate-800')}
               >
-                Sign In
+                Login
               </Link>
               <Link
                 href="/auth/register"
                 onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
+                className={cn(navStyles.mobileNavLink(isLinkActive('/auth/register')), 'justify-center font-bold border border-slate-200 dark:border-slate-800')}
               >
-                Create Account
+                Get Started
               </Link>
             </div>
           )}
