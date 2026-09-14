@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import {
   Home,
   Building2,
@@ -21,15 +21,15 @@ import {
   X,
   ShieldCheck,
   ShieldAlert,
-  Globe,
   LucideIcon,
 } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/hooks/useAuthStore';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 
 // ============================================================================
-// MODULAR REUSABLE NAVBAR STYLE PRESETS (Uniform Senior Frontend Design Tokens)
+// MODULAR REUSABLE NAVBAR STYLE PRESETS (Senior Frontend Design Tokens)
 // ============================================================================
 const navStyles = {
   // Uniform Navigation Links (Used identically for Public Discovery, Login, and Get Started)
@@ -53,10 +53,6 @@ const navStyles = {
   // Dropdown Link Item
   dropdownLink:
     'flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors',
-
-  // Language Switcher Button
-  langToggleBtn:
-    'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border border-slate-200/80 dark:border-slate-800',
 
   // Theme Toggle Button
   themeToggleBtn:
@@ -93,20 +89,15 @@ interface NavbarProps {
   };
 }
 
-const publicLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/public/properties', label: 'Properties', icon: Building2 },
-  { href: '/public/about', label: 'About', icon: Info },
-  { href: '/#services', label: 'Services', icon: Wrench },
-  { href: '/public/contact', label: 'Contact', icon: MessageSquare },
-];
-
 // ============================================================================
 // MAIN NAVBAR COMPONENT
 // ============================================================================
 export function Navbar({ cmsNavbar = {} }: NavbarProps) {
+  const tNav = useTranslations('nav');
+  const tRoles = useTranslations('roles');
   const pathname = usePathname();
   const router = useRouter();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -114,7 +105,14 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [locale, setLocale] = useState<'EN' | 'AM'>('EN');
+
+  const publicLinks = [
+    { href: '/', label: tNav('home'), icon: Home },
+    { href: '/public/properties', label: tNav('properties'), icon: Building2 },
+    { href: '/public/about', label: tNav('about'), icon: Info },
+    { href: '/#services', label: tNav('services'), icon: Wrench },
+    { href: '/public/contact', label: tNav('contact'), icon: MessageSquare },
+  ];
 
   useEffect(() => {
     setMounted(true);
@@ -126,11 +124,6 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
-    }
-
-    const savedLocale = localStorage.getItem('locale') as 'EN' | 'AM' | null;
-    if (savedLocale) {
-      setLocale(savedLocale);
     }
   }, []);
 
@@ -158,15 +151,6 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     }
   };
 
-  const toggleLanguage = () => {
-    const nextLocale = locale === 'EN' ? 'AM' : 'EN';
-    setLocale(nextLocale);
-    localStorage.setItem('locale', nextLocale);
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('localeChange', { detail: nextLocale }));
-    }
-  };
-
   const handleLogout = () => {
     clearAuth();
     setProfileMenuOpen(false);
@@ -187,20 +171,20 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const isAgent = user?.roles?.includes('AGENT');
   const isAdmin = user?.roles?.includes('ADMIN');
 
-  let roleLabel = 'Renter';
+  let roleLabel = tRoles('renter');
   let roleBadgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
   let dashboardHref = '/renter/dashboard';
 
   if (isAdmin) {
-    roleLabel = 'Admin';
+    roleLabel = tRoles('admin');
     roleBadgeClass = 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800';
     dashboardHref = '/management/admin/dashboard';
   } else if (isAgent) {
-    roleLabel = 'Agent';
+    roleLabel = tRoles('agent');
     roleBadgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800';
     dashboardHref = '/management/agent/dashboard';
   } else if (isOwner) {
-    roleLabel = 'Owner';
+    roleLabel = tRoles('owner');
     roleBadgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800';
     dashboardHref = '/owner/dashboard';
   }
@@ -229,10 +213,10 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
           </div>
           <div className="hidden sm:block">
             <p className="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {cmsNavbar.siteName || 'Ethio Delala'}
+              {cmsNavbar.siteName || tNav('brandName')}
             </p>
             <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-              {cmsNavbar.siteTagline || 'Ethiopian Property Platform'}
+              {cmsNavbar.siteTagline || tNav('brandTagline')}
             </p>
           </div>
         </Link>
@@ -250,20 +234,10 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
           ))}
         </nav>
 
-          {/* Language Switcher (Amharic / English) - Positioned between Contact & Login */}
+        {/* Right Header Section: Language Switcher + Auth Links + Theme Toggle */}
         <div className="flex items-center gap-1 sm:gap-2">
-
-          {mounted && (
-            <button
-              onClick={toggleLanguage}
-              className={navStyles.langToggleBtn}
-              title={locale === 'EN' ? 'Switch to Amharic (ወደ አማርኛ ይቀይሩ)' : 'Switch to English'}
-              aria-label="Toggle language"
-            >
-              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{locale === 'EN' ? 'EN / አማ' : 'አማ / EN'}</span>
-            </button>
-          )}
+          {/* Language Switcher (Amharic / English) */}
+          {mounted && <LanguageSwitcher />}
 
           {/* AUTHENTICATED STATE: Profile Image Avatar & Dropdown Menu */}
           {mounted && isAuthenticated && user ? (
@@ -271,7 +245,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 className={cn(
-                  'flex h-9 w-9 items-center justify-center rounded-full border-2 overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:scale-105 active:scale-95',
+                  'flex h-9 w-9 items-center justify-center rounded-full border-2 overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:scale-105 active:scale-95 cursor-pointer',
                   profileMenuOpen
                     ? 'border-emerald-500 ring-2 ring-emerald-500/30'
                     : 'border-slate-300 dark:border-slate-700 hover:border-emerald-500'
@@ -306,7 +280,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                       {user.isIdentityVerified ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                           <ShieldCheck className="h-3 w-3 text-emerald-600" />
-                          Fayda Verified
+                          {tNav('faydaVerified')}
                         </span>
                       ) : (
                         <Link
@@ -315,7 +289,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 transition-colors"
                         >
                           <ShieldAlert className="h-3 w-3 text-amber-500" />
-                          Verify ID
+                          {tNav('verifyId')}
                         </Link>
                       )}
                     </div>
@@ -325,8 +299,8 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                   <div className="py-1.5 text-xs font-medium space-y-0.5">
                     {isRenter && (
                       <>
-                        <DropdownItem href="/renter/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Renter Dashboard" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/profile" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/renter/profile" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/renter/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/renter/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/renter/favorites" icon={Heart} iconColor="text-rose-500" label="Favorites" onClick={() => setProfileMenuOpen(false)} />
@@ -337,8 +311,8 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
                     {isOwner && (
                       <>
-                        <DropdownItem href="/owner/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Owner Dashboard" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/profile" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/owner/profile" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/owner/properties" icon={Building2} iconColor="text-emerald-500" label="My Properties" onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/owner/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/owner/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
@@ -349,15 +323,15 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
                     {isAgent && (
                       <>
-                        <DropdownItem href="/management/agent/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Agent Dashboard" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/management/agent/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
                         <DropdownItem href="/management/agent/dashboard" icon={Building2} iconColor="text-blue-500" label="Properties Queue" onClick={() => setProfileMenuOpen(false)} />
                       </>
                     )}
 
                     {isAdmin && (
                       <>
-                        <DropdownItem href="/management/admin/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label="Admin Dashboard" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/management/admin/dashboard" icon={User} label="Profile & Settings" onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/management/admin/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
+                        <DropdownItem href="/management/admin/dashboard" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
                       </>
                     )}
                   </div>
@@ -366,31 +340,31 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                   <div className="pt-1 mt-1 border-t border-slate-150 dark:border-slate-800">
                     <button onClick={handleLogout} className={navStyles.btnLogout}>
                       <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
+                      <span>{tNav('signOut')}</span>
                     </button>
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            /* UNAUTHENTICATED GUEST STATE: Clean links with identical styling */
+            /* UNAUTHENTICATED GUEST STATE: Uniform links */
             <div className="flex items-center gap-1 sm:gap-1.5">
               <Link
                 href="/auth/login"
                 className={navStyles.navLink(isLinkActive('/auth/login'))}
               >
-                Login
+                {tNav('login')}
               </Link>
               <Link
                 href="/auth/register"
                 className={navStyles.navLink(isLinkActive('/auth/register'))}
               >
-                Get Started
+                {tNav('getStarted')}
               </Link>
             </div>
           )}
 
-          {/* Theme Toggle Button (Positioned on the Far Right) */}
+          {/* Theme Toggle Button (Far Right) */}
           {mounted && (
             <button
               onClick={toggleTheme}
@@ -453,14 +427,8 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
           {/* Mobile Language Switcher */}
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Language</span>
-            <button
-              onClick={toggleLanguage}
-              className={navStyles.langToggleBtn}
-            >
-              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{locale === 'EN' ? 'English (EN)' : 'አማርኛ (AM)'}</span>
-            </button>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tNav('language')}</span>
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile Account Actions */}
@@ -472,12 +440,12 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                 className="flex items-center gap-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-sm font-bold transition-colors"
               >
                 <LayoutDashboard className="h-4 w-4" />
-                <span>Dashboard</span>
+                <span>{tNav('dashboard')}</span>
               </Link>
 
               <button onClick={handleLogout} className={cn(navStyles.btnLogout, 'rounded-xl px-4 py-2.5 text-sm')}>
                 <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
+                <span>{tNav('signOut')}</span>
               </button>
             </div>
           ) : (
@@ -487,14 +455,14 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                 onClick={() => setMobileOpen(false)}
                 className={cn(navStyles.mobileNavLink(isLinkActive('/auth/login')), 'justify-center font-bold border border-slate-200 dark:border-slate-800')}
               >
-                Login
+                {tNav('login')}
               </Link>
               <Link
                 href="/auth/register"
                 onClick={() => setMobileOpen(false)}
                 className={cn(navStyles.mobileNavLink(isLinkActive('/auth/register')), 'justify-center font-bold border border-slate-200 dark:border-slate-800')}
               >
-                Get Started
+                {tNav('getStarted')}
               </Link>
             </div>
           )}
