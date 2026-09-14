@@ -17,6 +17,8 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 // --- 3D HOUSE MESH COMPONENT ---
 function House3DModel({ activeRoom }: { activeRoom: string }) {
@@ -138,9 +140,46 @@ const roomDetails = [
 ];
 
 export default function Virtual3DTourSection() {
+  const t = useTranslations("home");
   const [activeRoomId, setActiveRoomId] = useState<string>("living");
 
-  const currentRoom = roomDetails.find(r => r.id === activeRoomId) || roomDetails[0];
+  const localizedRooms = [
+    {
+      id: "living",
+      label: t("virtualTour.livingRoom"),
+      description: t("virtualTour.livingDesc"),
+      hotspots: [
+        { name: "Skyline Glass Balcony", detail: "Double-glazed acoustic glass" },
+        { name: "Smart Climate Control", detail: "Dual zone AC & heating" },
+        { name: "24/7 Power Outlet", detail: "Connected to automatic generator" }
+      ],
+      image: "/images/residential_apartments.png"
+    },
+    {
+      id: "master",
+      label: t("virtualTour.masterSuite"),
+      description: t("virtualTour.masterDesc"),
+      hotspots: [
+        { name: "Marble En-Suite Bathroom", detail: "Italian Jacuzzi & rainfall head" },
+        { name: "Walk-In Dressing Room", detail: "Built-in cedarwood wardrobes" },
+        { name: "Soundproof Walls", detail: "52dB noise isolation index" }
+      ],
+      image: "/images/penthouse_duplex.png"
+    },
+    {
+      id: "kitchen",
+      label: t("virtualTour.kitchen"),
+      description: t("virtualTour.kitchenDesc"),
+      hotspots: [
+        { name: "Integrated Oven & Range", detail: "Bosch German engineering" },
+        { name: "Water Filtration System", detail: "5-stage Reverse Osmosis filter" },
+        { name: "Quartz Center Island", detail: "Seating for 4 breakfast diner" }
+      ],
+      image: "/images/studio_flat.png"
+    }
+  ];
+
+  const currentRoom = localizedRooms.find(r => r.id === activeRoomId) || localizedRooms[0];
 
   return (
     <section className="bg-slate-950 text-white py-24 relative overflow-hidden border-t border-slate-800">
@@ -151,22 +190,19 @@ export default function Virtual3DTourSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-            <Eye className="h-4 w-4" /> Next-Gen Property Viewing
+            <Eye className="h-4 w-4" /> {t("virtualTour.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-            Interactive 360° Virtual <br />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              House & Room Walkthrough
-            </span>
+            {t("virtualTour.title")}
           </h2>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Inspect every corner of your future Ethiopian home before booking an in-person walkthrough. Powered by interactive 3D spatial canvas rendering.
+            {t("virtualTour.subtitle")}
           </p>
         </div>
 
         {/* Room Navigation Tabs */}
         <div className="flex justify-center gap-3 mb-10 overflow-x-auto pb-2">
-          {roomDetails.map(room => (
+          {localizedRooms.map(room => (
             <button
               key={room.id}
               onClick={() => setActiveRoomId(room.id)}
@@ -241,11 +277,11 @@ export default function Virtual3DTourSection() {
               ))}
             </div>
 
-            <a href="/browse-houses" className="block pt-2">
+            <Link href="/browse-houses" className="block pt-2">
               <Button className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 text-xs flex items-center justify-center gap-2">
-                Browse Matching Homes <ArrowRight className="h-4 w-4" />
+                {t("virtualTour.browseMatching")} <ArrowRight className="h-4 w-4" />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

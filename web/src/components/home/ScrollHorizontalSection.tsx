@@ -11,10 +11,11 @@ import {
   ArrowRight,
   ArrowDown,
   ArrowLeftRight,
-  ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 interface FeaturedHouse {
   id: string;
@@ -120,6 +121,7 @@ const scrollHouses: FeaturedHouse[] = [
 
 export default function ScrollHorizontalSection() {
   const targetRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("home.scrollHorizontal");
 
   // Hook into page vertical scroll progress
   const { scrollYProgress } = useScroll({
@@ -143,13 +145,13 @@ export default function ScrollHorizontalSection() {
           <div className="bg-white/90 backdrop-blur-md border border-slate-200 shadow-md px-4 py-2 rounded-2xl flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-emerald-600" />
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">
-              Interactive Horizontal Motion
+              {t("badge")}
             </span>
           </div>
 
           <div className="hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md border border-slate-200 shadow-md px-4 py-2 rounded-2xl text-xs font-bold text-slate-700">
             <ArrowDown className="h-4 w-4 text-emerald-600 animate-bounce" />
-            <span>Scroll vertical page ➔ Cards slide horizontally</span>
+            <span>{t("scrollHint")}</span>
           </div>
         </div>
 
@@ -159,23 +161,20 @@ export default function ScrollHorizontalSection() {
           <div className="w-[320px] sm:w-[400px] shrink-0 bg-slate-900 text-white rounded-3xl p-8 space-y-6 shadow-2xl flex flex-col justify-between h-[480px]">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-400/30 px-3 py-1 text-xs font-bold text-emerald-300 uppercase tracking-widest">
-                <ArrowLeftRight className="h-4 w-4" /> Scroll Interactive
+                <ArrowLeftRight className="h-4 w-4" /> {t("scrollInteractive")}
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
-                Featured Ethiopian <br />
-                <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-                  Home Rentals
-                </span>
+                {t("title")}
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                As you scroll down the page, this section moves left to present curated residential properties. Scroll up to reverse.
+                {t("subtitle")}
               </p>
             </div>
 
             <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-300 font-semibold">
-                <span>Verified Listings</span>
-                <span className="text-emerald-400 font-mono">100% Legal ETB</span>
+                <span>{t("verifiedListings")}</span>
+                <span className="text-emerald-400 font-mono">{t("legalEtb")}</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-emerald-400 h-full w-full animate-pulse" />
@@ -209,7 +208,7 @@ export default function ScrollHorizontalSection() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">{house.category}</span>
-                    <span className="text-lg font-black text-emerald-700 font-mono">{formatCurrency(house.pricePerMonth)} <span className="text-[10px] font-normal text-slate-500">/mo</span></span>
+                    <span className="text-lg font-black text-emerald-700 font-mono">{formatCurrency(house.pricePerMonth)} <span className="text-[10px] font-normal text-slate-500">{t("perMonth")}</span></span>
                   </div>
                   <h3 className="font-bold text-slate-900 text-lg mt-2 group-hover:text-emerald-700 transition-colors line-clamp-1">
                     {house.title}
@@ -221,16 +220,16 @@ export default function ScrollHorizontalSection() {
 
                 {/* Specs */}
                 <div className="grid grid-cols-3 gap-2 py-2.5 border-t border-b border-slate-200 text-xs text-slate-700 font-medium">
-                  <span className="flex items-center gap-1.5"><Bed className="h-4 w-4 text-emerald-600" /> {house.bedrooms} Beds</span>
-                  <span className="flex items-center gap-1.5"><Bath className="h-4 w-4 text-emerald-600" /> {house.bathrooms} Baths</span>
+                  <span className="flex items-center gap-1.5"><Bed className="h-4 w-4 text-emerald-600" /> {house.bedrooms} {t("beds")}</span>
+                  <span className="flex items-center gap-1.5"><Bath className="h-4 w-4 text-emerald-600" /> {house.bathrooms} {t("baths")}</span>
                   <span className="flex items-center gap-1.5"><Maximize2 className="h-4 w-4 text-emerald-600" /> {house.areaSqm} m²</span>
                 </div>
 
-                <a href="/browse-houses" className="block pt-1">
+                <Link href={`/public/properties`} className="block pt-1">
                   <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs flex items-center justify-center gap-2 shadow-md">
-                    View Details & Schedule Tour <ArrowRight className="h-4 w-4" />
+                    {t("viewDetails")} <ArrowRight className="h-4 w-4" />
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
           ))}

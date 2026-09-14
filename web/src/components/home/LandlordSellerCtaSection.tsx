@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
+import { Link } from "@/i18n/routing";
 import {
   Building2,
   TrendingUp,
@@ -19,6 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function LandlordSellerCtaSection() {
+  const t = useTranslations("home");
+
   return (
     <section className="bg-white text-slate-900 py-20 border-y border-slate-200 relative overflow-hidden">
       {/* Background Subtle Mesh Accents */}
@@ -30,27 +34,24 @@ export default function LandlordSellerCtaSection() {
           {/* LEFT CONTENT (6 Columns) */}
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 border border-emerald-200 px-4 py-1.5 text-xs font-bold text-emerald-800 uppercase tracking-widest">
-              <TrendingUp className="h-4 w-4 text-emerald-600" /> For Landlords & Property Owners
+              <TrendingUp className="h-4 w-4 text-emerald-600" /> {t("landlordCta.badge")}
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
-              List Your Ethiopian Property & <br />
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                Rent Out 3x Faster
-              </span>
+              {t("landlordCta.title")}
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Connect directly with verified tenants in Addis Ababa, Hawassa, Adama & Bahir Dar. Receive guaranteed monthly ETB rent via Chapa and safeguard your property with digital lease contracts.
+              {t("landlordCta.subtitle")}
             </p>
 
             {/* Checklist Features */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {[
-                { title: "100% Free Property Listing", desc: "No upfront fees or hidden broker cuts" },
-                { title: "Automated Chapa Rent Payouts", desc: "Direct deposits to your bank account" },
-                { title: "Tenant Screening & National ID", desc: "Verified background & employment history" },
-                { title: "Amharic/English Digital Leases", desc: "Legal protection under Ethiopian civil law" },
+                { title: t("landlordCta.feat1Title"), desc: t("landlordCta.feat1Desc") },
+                { title: t("landlordCta.feat2Title"), desc: t("landlordCta.feat2Desc") },
+                { title: t("landlordCta.feat3Title"), desc: t("landlordCta.feat3Desc") },
+                { title: t("landlordCta.feat4Title"), desc: t("landlordCta.feat4Desc") },
               ].map((feat, i) => (
                 <div key={i} className="flex items-start gap-2.5 bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -64,17 +65,17 @@ export default function LandlordSellerCtaSection() {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-4">
-              <a href="/register?role=vendor">
+              <Link href="/register?role=vendor">
                 <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-7 py-3.5 rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg hover:shadow-xl transition-all">
-                  <Plus className="h-4 w-4 text-emerald-400" /> List Your Property for Free <ArrowRight className="h-4 w-4" />
+                  <Plus className="h-4 w-4 text-emerald-400" /> {t("landlordCta.listFree")} <ArrowRight className="h-4 w-4" />
                 </Button>
-              </a>
+              </Link>
 
-              <a href="/browse-houses">
+              <Link href="/browse-houses">
                 <Button size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 font-bold px-6 py-3.5 rounded-2xl text-xs sm:text-sm">
-                  View Market Rates
+                  {t("landlordCta.marketRates")}
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
 

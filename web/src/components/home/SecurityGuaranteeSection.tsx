@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ShieldCheck, Lock, FileText, Key, CheckCircle2, Award, HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SecurityGuaranteeSection() {
+  const t = useTranslations("home");
+
   return (
     <section className="bg-slate-950 text-white py-24 relative overflow-hidden border-t border-slate-800">
       {/* Glow Effects */}
@@ -14,16 +17,13 @@ export default function SecurityGuaranteeSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-            <Award className="h-4 w-4" /> 100% Verified Tenant Security
+            <Award className="h-4 w-4" /> {t("securityGuarantee.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-            The Delala Rental Security & <br />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              Escrow Guarantee
-            </span>
+            {t("securityGuarantee.title")}
           </h2>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Renting in Ethiopia without stress. Our platform provides complete financial escrow, legally verified contracts, and pre-move inspections.
+            {t("securityGuarantee.subtitle")}
           </p>
         </div>
 
@@ -31,26 +31,26 @@ export default function SecurityGuaranteeSection() {
           {[
             {
               icon: Lock,
-              title: "Chapa Escrow Deposit Protection",
-              desc: "Security deposits are safely held in escrow and released only upon successful key handover & physical walkthrough.",
+              title: t("securityGuarantee.g1Title"),
+              desc: t("securityGuarantee.g1Desc"),
               badge: "Escrow Protected",
             },
             {
               icon: FileText,
-              title: "Legal Digital Rental Lease",
-              desc: "Standardized bilingual Amharic & English lease contracts compliant with Ethiopian civil law.",
+              title: t("securityGuarantee.g2Title"),
+              desc: t("securityGuarantee.g2Desc"),
               badge: "Gov Compliant",
             },
             {
               icon: ShieldCheck,
-              title: "Pre-Move Inventory Verification",
-              desc: "High-resolution photo inventory report before you move in to protect your security deposit refund.",
+              title: t("securityGuarantee.g3Title"),
+              desc: t("securityGuarantee.g3Desc"),
               badge: "Verified Inspection",
             },
             {
               icon: Key,
-              title: "24-Hour Key Handover Guarantee",
-              desc: "If the property condition does not match the online listing upon key handover, receive a 100% full refund.",
+              title: t("securityGuarantee.g4Title"),
+              desc: t("securityGuarantee.g4Desc"),
               badge: "Full Money-Back",
             },
           ].map((card, idx) => (

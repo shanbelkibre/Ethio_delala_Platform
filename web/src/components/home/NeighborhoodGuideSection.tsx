@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ShieldCheck, Footprints, GraduationCap, Building2, ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 interface Neighborhood {
   id: string;
@@ -89,6 +91,7 @@ const neighborhoodsData: Neighborhood[] = [
 ];
 
 export default function NeighborhoodGuideSection() {
+  const t = useTranslations("home");
   const [activeId, setActiveId] = useState<string>("bole");
 
   const activeHood = neighborhoodsData.find(n => n.id === activeId) || neighborhoodsData[0];
@@ -98,16 +101,13 @@ export default function NeighborhoodGuideSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1 text-xs font-bold text-emerald-800 uppercase tracking-widest">
-            <MapPin className="h-4 w-4 text-emerald-600" /> City Living Intelligence
+            <MapPin className="h-4 w-4 text-emerald-600" /> {t("neighborhoods.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
-            Explore Premier Ethiopian <br />
-            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              Residential Neighborhoods
-            </span>
+            {t("neighborhoods.title")}
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Compare average ETB monthly rent, neighborhood security ratings, and amenities across Ethiopia's top residential hubs.
+            {t("neighborhoods.subtitle")}
           </p>
         </div>
 
@@ -160,17 +160,17 @@ export default function NeighborhoodGuideSection() {
               {/* Stats Bar */}
               <div className="grid grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-slate-200 text-center shadow-sm">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Avg Monthly Rent</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.avgRent")}</span>
                   <span className="text-base font-black text-emerald-600 mt-1 block">{formatCurrency(activeHood.avgRentEtb)}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Safety Rating</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.safety")}</span>
                   <span className="text-base font-black text-slate-900 mt-1 flex items-center justify-center gap-1">
                     <ShieldCheck className="h-4 w-4 text-emerald-600" /> {activeHood.safetyScore}%
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Walkability Index</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.walkability")}</span>
                   <span className="text-base font-black text-slate-900 mt-1 flex items-center justify-center gap-1">
                     <Footprints className="h-4 w-4 text-blue-600" /> {activeHood.walkScore}/100
                   </span>
@@ -179,7 +179,7 @@ export default function NeighborhoodGuideSection() {
 
               {/* Key Highlights */}
               <div>
-                <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Key Neighborhood Amenities</h5>
+                <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Key Highlights</h5>
                 <div className="grid grid-cols-2 gap-2">
                   {activeHood.keyHighlights.map((h, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800">
@@ -191,11 +191,11 @@ export default function NeighborhoodGuideSection() {
               </div>
 
               <div className="pt-2">
-                <a href={`/browse-houses?q=${encodeURIComponent(activeHood.name)}`}>
+                <Link href={`/browse-houses?q=${encodeURIComponent(activeHood.name)}`}>
                   <Button className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 shadow-md">
-                    Explore Homes in {activeHood.name} <ArrowRight className="h-4 w-4" />
+                    {t("neighborhoods.exploreIn")} {activeHood.name} <ArrowRight className="h-4 w-4" />
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>

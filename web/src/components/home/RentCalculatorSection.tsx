@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { Calculator, ShieldCheck, CreditCard, ArrowRight, CheckCircle2, Info, Sparkles, Wallet, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 
 export default function RentCalculatorSection() {
+  const t = useTranslations("home");
   const [monthlyBudget, setMonthlyBudget] = useState<number>(35000);
   const [depositMonths, setDepositMonths] = useState<number>(2);
   const [includeUtilities, setIncludeUtilities] = useState<boolean>(true);
@@ -28,16 +31,13 @@ export default function RentCalculatorSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-            <Calculator className="h-4 w-4" /> Move-In Cost Transparency
+            <Calculator className="h-4 w-4" /> {t("rentCalc.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-            Interactive Rent & Deposit <br />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              Budget Calculator
-            </span>
+            {t("rentCalc.title")}
           </h2>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Calculate your total move-in ETB cost with zero hidden fees. Includes refundable security deposit terms & digital Chapa payment verification.
+            {t("rentCalc.subtitle")}
           </p>
         </div>
 
@@ -47,7 +47,7 @@ export default function RentCalculatorSection() {
             {/* Monthly Rent Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">Target Monthly Rent (ETB)</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">{t("rentCalc.targetRent")}</label>
                 <span className="text-lg font-black text-emerald-400 font-mono">{formatCurrency(monthlyBudget)}</span>
               </div>
               <input
@@ -68,7 +68,7 @@ export default function RentCalculatorSection() {
 
             {/* Deposit Terms Select */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">Security Deposit Requirement</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">{t("rentCalc.securityDeposit")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[1, 2, 3].map(months => (
                   <button
@@ -81,7 +81,7 @@ export default function RentCalculatorSection() {
                         : "bg-[#0c1427] border-slate-800 text-slate-400 hover:text-white"
                     }`}
                   >
-                    {months} {months === 1 ? "Month" : "Months"} Deposit
+                    {months} {months === 1 ? t("rentCalc.monthDeposit") : t("rentCalc.monthsDeposit")}
                   </button>
                 ))}
               </div>
@@ -91,7 +91,7 @@ export default function RentCalculatorSection() {
             <div className="space-y-3 pt-2">
               <label className="flex items-center justify-between p-3 rounded-xl bg-[#0c1427] border border-slate-800 cursor-pointer select-none">
                 <span className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Include Estimated Utility Reserve (+2,500 ETB)
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> {t("rentCalc.includeUtilities")}
                 </span>
                 <input
                   type="checkbox"
@@ -103,7 +103,7 @@ export default function RentCalculatorSection() {
 
               <div className="flex items-center justify-between p-3 rounded-xl bg-[#0c1427] border border-slate-800">
                 <span className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-emerald-400" /> Preferred Payment Method
+                  <CreditCard className="h-4 w-4 text-emerald-400" /> {t("rentCalc.paymentMethod")}
                 </span>
                 <div className="flex gap-2">
                   <button
@@ -131,11 +131,11 @@ export default function RentCalculatorSection() {
             {/* Line Items Breakdown Inside Controls */}
             <div className="bg-[#0c1427] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
               <div className="flex justify-between text-slate-300">
-                <span>First Month Rent</span>
+                <span>{t("rentCalc.firstMonth")}</span>
                 <span className="font-mono font-bold text-white">{formatCurrency(firstMonthRent)}</span>
               </div>
               <div className="flex justify-between text-slate-300">
-                <span>Refundable Deposit ({depositMonths} Mo)</span>
+                <span>{t("rentCalc.refundableDeposit")} ({depositMonths} Mo)</span>
                 <span className="font-mono font-bold text-white">{formatCurrency(securityDeposit)}</span>
               </div>
               {includeUtilities && (
@@ -145,7 +145,7 @@ export default function RentCalculatorSection() {
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-slate-800 text-sm font-bold text-white">
-                <span>Total Move-In ETB</span>
+                <span>{t("rentCalc.totalMoveIn")}</span>
                 <span className="font-mono text-emerald-400">{formatCurrency(totalMoveInEtb)}</span>
               </div>
             </div>
@@ -165,15 +165,15 @@ export default function RentCalculatorSection() {
                 {/* Bottom Overlay Label */}
                 <div className="absolute bottom-4 left-4 right-4 bg-[#070c19]/90 border border-slate-800 p-4 rounded-2xl flex items-center justify-between backdrop-blur-md">
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Instant Budget Total</span>
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">{t("rentCalc.totalMoveIn")}</span>
                     <span className="text-xl font-black text-white font-mono">{formatCurrency(totalMoveInEtb)} ETB</span>
                   </div>
 
-                  <a href={`/browse-houses?price=${monthlyBudget}`}>
+                  <Link href={`/browse-houses?price=${monthlyBudget}`}>
                     <Button size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs">
-                      Find Homes <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                      {t("rentCalc.findHomes")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </div>
 
