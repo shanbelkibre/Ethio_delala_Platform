@@ -95,9 +95,69 @@ const featuredHouses: FeaturedHouse[] = [
 export default function ScrollHorizontalSection() {
   const router = useRouter();
   const t = useTranslations("home.scrollHorizontal");
+  const tHome = useTranslations("home");
   const [searchLocation, setSearchLocation] = useState("");
   const [searchPrice, setSearchPrice] = useState("");
   const [searchRooms, setSearchRooms] = useState("");
+
+  const featuredHousesList: FeaturedHouse[] = [
+    {
+      id: "h1",
+      title: t("h1Title"),
+      category: t("h1Category"),
+      city: "Addis Ababa",
+      neighborhood: t("h1Neighborhood"),
+      pricePerMonth: 65000,
+      bedrooms: 4,
+      bathrooms: 3,
+      areaSqm: 260,
+      image: "/images/penthouse_duplex.png",
+      description: t("h1Desc"),
+      badge: t("h1Badge"),
+    },
+    {
+      id: "h2",
+      title: t("h2Title"),
+      category: t("h2Category"),
+      city: "Addis Ababa",
+      neighborhood: t("h2Neighborhood"),
+      pricePerMonth: 85000,
+      bedrooms: 5,
+      bathrooms: 4,
+      areaSqm: 380,
+      image: "/images/villas_family_homes.png",
+      description: t("h2Desc"),
+      badge: t("h2Badge"),
+    },
+    {
+      id: "h3",
+      title: t("h3Title"),
+      category: t("h3Category"),
+      city: "Addis Ababa",
+      neighborhood: t("h3Neighborhood"),
+      pricePerMonth: 38000,
+      bedrooms: 2,
+      bathrooms: 2,
+      areaSqm: 130,
+      image: "/images/residential_apartments.png",
+      description: t("h3Desc"),
+      badge: t("h3Badge"),
+    },
+    {
+      id: "h4",
+      title: t("h4Title"),
+      category: t("h4Category"),
+      city: "Addis Ababa",
+      neighborhood: t("h4Neighborhood"),
+      pricePerMonth: 22000,
+      bedrooms: 1,
+      bathrooms: 1,
+      areaSqm: 65,
+      image: "/images/studio_flat.png",
+      description: t("h4Desc"),
+      badge: t("h4Badge"),
+    },
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,9 +187,9 @@ export default function ScrollHorizontalSection() {
             <Link href="/public/properties">
               <Button
                 variant="outline"
-                className="border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2"
+                className="border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
               >
-                <span>Explore All Homes</span>
+                <span>{t("exploreAllHomes")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -138,7 +198,7 @@ export default function ScrollHorizontalSection() {
 
         {/* 4-Item Responsive Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredHouses.map((house, idx) => (
+          {featuredHousesList.map((house, idx) => (
             <motion.div
               key={house.id}
               initial={{ opacity: 0, y: 20 }}
@@ -203,7 +263,7 @@ export default function ScrollHorizontalSection() {
 
                 {/* Action CTA */}
                 <Link href="/public/properties" className="block pt-1">
-                  <Button className="w-full bg-slate-900 dark:bg-slate-800 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-colors">
+                  <Button className="w-full bg-slate-900 dark:bg-slate-800 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer">
                     <span>{t("viewDetails")}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
@@ -227,7 +287,7 @@ export default function ScrollHorizontalSection() {
                   type="text"
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
-                  placeholder="Where do you want to live?"
+                  placeholder={tHome("wherePlaceholder")}
                   className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
                 />
               </div>
@@ -240,10 +300,10 @@ export default function ScrollHorizontalSection() {
                   onChange={(e) => setSearchPrice(e.target.value)}
                   className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
                 >
-                  <option value="">Any Price</option>
-                  <option value="25000">Under 25,000 ETB</option>
-                  <option value="50000">25,000 - 50,000 ETB</option>
-                  <option value="100000">Above 50,000 ETB</option>
+                  <option value="">{tHome("anyPrice")}</option>
+                  <option value="25000">{tHome("under25k")}</option>
+                  <option value="50000">{tHome("between25k50k")}</option>
+                  <option value="100000">{tHome("above50k")}</option>
                 </select>
               </div>
 
@@ -255,11 +315,11 @@ export default function ScrollHorizontalSection() {
                   onChange={(e) => setSearchRooms(e.target.value)}
                   className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
                 >
-                  <option value="">Rooms</option>
-                  <option value="1">1 Bed / Studio</option>
-                  <option value="2">2 Bedrooms</option>
-                  <option value="3">3 Bedrooms</option>
-                  <option value="4">4+ Bedrooms</option>
+                  <option value="">{tHome("rooms")}</option>
+                  <option value="1">{tHome("bedStudio")}</option>
+                  <option value="2">{tHome("twoBeds")}</option>
+                  <option value="3">{tHome("threeBeds")}</option>
+                  <option value="4">{tHome("fourPlusBeds")}</option>
                 </select>
               </div>
 
@@ -269,7 +329,7 @@ export default function ScrollHorizontalSection() {
                 size="lg"
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
               >
-                Search
+                {tHome("searchButton")}
               </Button>
             </div>
           </form>
@@ -277,7 +337,7 @@ export default function ScrollHorizontalSection() {
           {/* Popular Locations Quick Filter Pills */}
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1">
-              Popular:
+              {t("popularNeighborhoods")}
             </span>
             {["Bole", "Kazanchis", "Old Airport", "Hawassa", "Adama"].map((city) => (
               <button

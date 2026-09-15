@@ -94,6 +94,99 @@ export default function NeighborhoodGuideSection() {
   const t = useTranslations("home");
   const [activeId, setActiveId] = useState<string>("bole");
 
+  const neighborhoodsData: Neighborhood[] = [
+    {
+      id: "bole",
+      name: t("neighborhoods.boleName"),
+      city: "Addis Ababa",
+      tagline: t("neighborhoods.boleTagline"),
+      avgRentEtb: 55000,
+      safetyScore: 98,
+      walkScore: 94,
+      schoolsCount: 12,
+      description: t("neighborhoods.boleDesc"),
+      image: "/images/residential_apartments.png",
+      keyHighlights: [
+        t("neighborhoods.boleH1"),
+        t("neighborhoods.boleH2"),
+        t("neighborhoods.boleH3"),
+        t("neighborhoods.boleH4"),
+      ],
+    },
+    {
+      id: "kazanchis",
+      name: t("neighborhoods.kazanchisName"),
+      city: "Addis Ababa",
+      tagline: t("neighborhoods.kazanchisTagline"),
+      avgRentEtb: 42000,
+      safetyScore: 96,
+      walkScore: 91,
+      schoolsCount: 8,
+      description: t("neighborhoods.kazanchisDesc"),
+      image: "/images/penthouse_duplex.png",
+      keyHighlights: [
+        t("neighborhoods.kazanchisH1"),
+        t("neighborhoods.kazanchisH2"),
+        t("neighborhoods.kazanchisH3"),
+        t("neighborhoods.kazanchisH4"),
+      ],
+    },
+    {
+      id: "old-airport",
+      name: t("neighborhoods.oldAirportName"),
+      city: "Addis Ababa",
+      tagline: t("neighborhoods.oldAirportTagline"),
+      avgRentEtb: 75000,
+      safetyScore: 99,
+      walkScore: 86,
+      schoolsCount: 14,
+      description: t("neighborhoods.oldAirportDesc"),
+      image: "/images/villas_family_homes.png",
+      keyHighlights: [
+        t("neighborhoods.oldAirportH1"),
+        t("neighborhoods.oldAirportH2"),
+        t("neighborhoods.oldAirportH3"),
+        t("neighborhoods.oldAirportH4"),
+      ],
+    },
+    {
+      id: "hawassa",
+      name: t("neighborhoods.hawassaName"),
+      city: "Hawassa",
+      tagline: t("neighborhoods.hawassaTagline"),
+      avgRentEtb: 35000,
+      safetyScore: 95,
+      walkScore: 89,
+      schoolsCount: 7,
+      description: t("neighborhoods.hawassaDesc"),
+      image: "/images/villas_family_homes.png",
+      keyHighlights: [
+        t("neighborhoods.hawassaH1"),
+        t("neighborhoods.hawassaH2"),
+        t("neighborhoods.hawassaH3"),
+        t("neighborhoods.hawassaH4"),
+      ],
+    },
+    {
+      id: "adama",
+      name: t("neighborhoods.adamaName"),
+      city: "Adama",
+      tagline: t("neighborhoods.adamaTagline"),
+      avgRentEtb: 28000,
+      safetyScore: 94,
+      walkScore: 85,
+      schoolsCount: 9,
+      description: t("neighborhoods.adamaDesc"),
+      image: "/images/studio_flat.png",
+      keyHighlights: [
+        t("neighborhoods.adamaH1"),
+        t("neighborhoods.adamaH2"),
+        t("neighborhoods.adamaH3"),
+        t("neighborhoods.adamaH4"),
+      ],
+    },
+  ];
+
   const activeHood = neighborhoodsData.find(n => n.id === activeId) || neighborhoodsData[0];
 
   return (
@@ -148,7 +241,7 @@ export default function NeighborhoodGuideSection() {
             {/* Neighborhood Stats & Breakdown (6 columns) */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white">Neighborhood Overview</h4>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white">{t("neighborhoods.overview")}</h4>
                 <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
                   {activeHood.description}
                 </p>
@@ -176,7 +269,7 @@ export default function NeighborhoodGuideSection() {
 
               {/* Key Highlights */}
               <div>
-                <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">Key Highlights</h5>
+                <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">{t("neighborhoods.keyHighlights")}</h5>
                 <div className="grid grid-cols-2 gap-2">
                   {activeHood.keyHighlights.map((h, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200">
