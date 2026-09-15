@@ -50,7 +50,7 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: any
   const carouselItems = [...reviews, ...reviews, ...reviews, ...reviews];
 
   return (
-    <section className="py-20 bg-slate-50 dark:bg-slate-950 transition-colors overflow-hidden">
+    <section className="py-20 bg-slate-50 dark:bg-[#0b1329] dark-grid-bg transition-colors overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* Section Header */}
@@ -80,7 +80,7 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: any
               return (
                 <div key={`${item.id}-${i}`} className="flex flex-col items-center w-[360px] sm:w-[420px] flex-shrink-0">
                   {/* Chat-Bubble Testimonial Card (Consistent CSS across all items) */}
-                  <div className="p-7 sm:p-8 mb-6 w-full rounded-3xl rounded-br-none bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-200 shadow-md shadow-slate-900/5 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 min-h-[160px] flex items-center justify-center text-center">
+                  <div className="p-7 sm:p-8 mb-6 w-full rounded-3xl rounded-br-none bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 text-slate-800 dark:text-slate-200 shadow-md hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 min-h-[160px] flex items-center justify-center text-center">
                     <p className="leading-relaxed font-medium text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       "{item.content}"
                     </p>

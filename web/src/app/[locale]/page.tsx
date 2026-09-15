@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
 import { motion, useMotionValue, useSpring, useInView } from "framer-motion";
 import { FaLinkedin, FaXTwitter } from "react-icons/fa6";
@@ -95,6 +95,7 @@ const CounterItem = ({ value, label, icon: Icon }: CounterItemProps) => {
 
 export default function HomePage() {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("home");
   const [cmsConfig, setCmsConfig] = useState<any>(null);
   const [dbStats, setDbStats] = useState<{
@@ -169,7 +170,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors flex flex-col w-full">
+    <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors flex flex-col w-full min-h-screen">
 
       {/* ========================================================================= */}
       {/* 1. WELCOME & SEARCH DIVISION                                              */}
@@ -177,8 +178,8 @@ export default function HomePage() {
       <div id="welcome-section" className="w-full relative">
         {/* HERO BANNER */}
         <section 
-          className={`relative overflow-hidden px-4 pt-16 pb-40 text-white sm:px-6 lg:pt-20 lg:pb-48 ${(!hero.backgroundType || hero.backgroundType === 'animation') ? 'gradient-hero' : ''}`}
-          style={hero.backgroundType === 'color' ? { backgroundColor: hero.backgroundColor || '#059669' } : {}}
+          className={`relative overflow-hidden px-4 pt-6 pb-12 text-slate-900 dark:text-white sm:px-6 lg:pt-10 lg:pb-16 transition-colors ${(!hero.backgroundType || hero.backgroundType === 'animation') ? 'gradient-hero' : ''}`}
+          style={hero.backgroundType === 'color' ? { backgroundColor: hero.backgroundColor } : {}}
         >
           {hero.backgroundType === 'image' && hero.backgroundImage && (
             <div className="absolute inset-0 z-0">
@@ -194,113 +195,75 @@ export default function HomePage() {
           )}
 
           <div className="relative z-10 mx-auto max-w-7xl">
-            <div className="max-w-4xl text-left">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs sm:text-sm font-semibold backdrop-blur-md border border-white/20">
-                <Sparkles className="h-4 w-4 text-emerald-200" />
-                {t("heroBadge")}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* LEFT SIDE: HERO HEADLINE, SUBTITLE & CTAs (7 Columns) */}
+              <div className="lg:col-span-7 text-left space-y-5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300/80 dark:border-emerald-800/80 px-4 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">
+                  <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>{t("heroBadge")}</span>
+                </div>
+
+                <h1 className={`text-3xl sm:text-5xl lg:text-6xl font-black ${locale === 'am' ? 'leading-relaxed tracking-normal font-serif' : 'leading-tight tracking-tight'} text-slate-900 dark:text-white`}>
+                  {t("heroTitle")}
+                </h1>
+
+                <p className={`text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl ${locale === 'am' ? 'leading-relaxed font-normal' : 'leading-relaxed'}`}>
+                  {t("heroSubtitle")}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <Link href="/browse-houses">
+                    <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-sm sm:text-base shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer">
+                      <span>{t("exploreHomeRentals")}</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </Link>
+
+                  <Link href="/auth/register">
+                    <Button size="lg" variant="outline" className="border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-bold px-7 py-4 rounded-2xl text-sm sm:text-base transition-all cursor-pointer">
+                      {t("listYourProperty")}
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white">
-                {t("heroTitle")}
-              </h1>
-
-              <p className="mt-4 text-sm sm:text-base lg:text-lg text-emerald-50/90 max-w-3xl leading-relaxed">
-                {t("heroSubtitle")}
-              </p>
-
-              {/* INTEGRATED MODERN SEARCH WIDGET */}
-              <form
-                onSubmit={handleHeroSearch}
-                className="mt-8 max-w-4xl bg-white dark:bg-slate-900/95 border border-white/40 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl transition-all"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
-                  {/* Location Input */}
-                  <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                    <span className="text-lg mr-3 select-none">📍</span>
-                    <input
-                      type="text"
-                      value={heroLocation}
-                      onChange={(e) => setHeroLocation(e.target.value)}
-                      placeholder={t("wherePlaceholder")}
-                      className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
+              {/* RIGHT SIDE: IMPRESSIVE HUMAN HERO IMAGE PORTRAIT SHOWCASE (5 Columns) */}
+              <div className="lg:col-span-5 relative mt-6 lg:mt-0">
+                <div className="relative mx-auto max-w-md sm:max-w-lg">
+                  {/* Photo Container Frame */}
+                  <div className="relative h-[380px] sm:h-[440px] rounded-3xl overflow-hidden bg-white/90 dark:bg-[#111a33]/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-2xl flex items-center justify-center">
+                    <img
+                      src="/images/ethiopian_woman_seller_white_bg.png"
+                      alt="Ethiopian Property Host & Owner"
+                      className="w-full h-full object-contain drop-shadow-md"
                     />
-                  </div>
 
-                  {/* Price Filter Select */}
-                  <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                    <span className="text-lg mr-3 select-none">💰</span>
-                    <select
-                      value={heroPrice}
-                      onChange={(e) => setHeroPrice(e.target.value)}
-                      className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-slate-900 [&>option]:text-slate-900 dark:[&>option]:text-white"
-                    >
-                      <option value="">{t("anyPrice")}</option>
-                      <option value="25000">{t("under25k")}</option>
-                      <option value="50000">{t("between25k50k")}</option>
-                      <option value="100000">{t("above50k")}</option>
-                    </select>
+                    {/* Verified Partner Badge */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full shadow-lg text-center shrink-0">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                        <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        {t("verifiedHost")}
+                      </span>
+                    </div>
                   </div>
-
-                  {/* Rooms Select */}
-                  <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                    <span className="text-lg mr-3 select-none">🛏️</span>
-                    <select
-                      value={heroRooms}
-                      onChange={(e) => setHeroRooms(e.target.value)}
-                      className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-slate-900 [&>option]:text-slate-900 dark:[&>option]:text-white"
-                    >
-                      <option value="">{t("rooms")}</option>
-                      <option value="1">{t("bedStudio")}</option>
-                      <option value="2">{t("twoBeds")}</option>
-                      <option value="3">{t("threeBeds")}</option>
-                      <option value="4">{t("fourPlusBeds")}</option>
-                    </select>
-                  </div>
-
-                  {/* Search Action Button */}
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
-                  >
-                    {t("searchButton")}
-                  </Button>
                 </div>
-              </form>
-
-              {/* Quick Popular Location Suggestions */}
-              <div className="mt-5 flex flex-wrap items-center gap-2.5">
-                <span className="text-xs font-semibold text-emerald-100/90">Popular:</span>
-                {["Bole", "Kazanchis", "Old Airport", "Hawassa", "Adama"].map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => {
-                      setHeroLocation(city);
-                      router.push(`/browse-houses?q=${encodeURIComponent(city)}`);
-                    }}
-                    className="bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-medium px-3 py-1 rounded-full backdrop-blur-md transition-all cursor-pointer"
-                  >
-                    {city}
-                  </button>
-                ))}
               </div>
             </div>
           </div>
         </section>
 
         {/* CORE PLATFORM FEATURES */}
-        <section className="relative z-20 -mt-20 rounded-t-[50px] sm:rounded-t-[80px] bg-white dark:bg-slate-900 pt-20 pb-16 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
+        <section className="relative z-20 -mt-6 rounded-t-[36px] sm:rounded-t-[50px] bg-slate-50/90 dark:bg-[#0b1329]/95 backdrop-blur-xl pt-10 pb-16 border-t border-slate-200 dark:border-slate-800/80 transition-colors text-slate-900 dark:text-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {features.map((f) => (
-                <Card key={f.title} className="card-hover overflow-hidden bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
+                <Card key={f.title} className="card-hover overflow-hidden bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border-slate-200 dark:border-slate-800/80 rounded-3xl text-slate-900 dark:text-white shadow-lg">
                   <CardContent className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                       <f.icon className="h-6 w-6" />
                     </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">{f.title}</h3>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{f.desc}</p>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-lg">{f.title}</h3>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{f.desc}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -309,7 +272,7 @@ export default function HomePage() {
         </section>
 
         {/* PLATFORM HIGHLIGHTS */}
-        <section className="bg-white dark:bg-slate-900 py-16 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
+        <section className="bg-slate-100/80 dark:bg-[#0b1329] dark-grid-bg py-16 border-t border-slate-200 dark:border-slate-800/80 transition-colors text-slate-900 dark:text-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="mb-10 flex items-end justify-between">
               <div>
@@ -325,18 +288,20 @@ export default function HomePage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {platformHighlights.map((highlight) => (
                 <div key={highlight.id} className="cursor-default">
-                  <Card className="card-hover overflow-hidden h-full flex flex-col bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
-                    <div className="flex h-40 items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 dark:from-emerald-950/40 dark:to-slate-800">
-                      <highlight.icon className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+                  <Card className="card-hover overflow-hidden h-full flex flex-col bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border-slate-200 dark:border-slate-800/80 rounded-3xl text-slate-900 dark:text-white shadow-lg">
+                    <div className="flex h-40 items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-100/60 dark:from-emerald-950/40 dark:to-[#111a33]/60">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <highlight.icon className="h-8 w-8" />
+                      </div>
                     </div>
-                    <CardContent className="p-4 flex-1">
-                      <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    <CardContent className="p-5 flex-1">
+                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                         {highlight.category}
                       </p>
                       <h3 className="mt-2 font-bold text-slate-900 dark:text-white text-lg">
                         {highlight.name}
                       </h3>
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                         {highlight.desc}
                       </p>
                     </CardContent>
@@ -353,17 +318,13 @@ export default function HomePage() {
       {/* ========================================================================= */}
       <div id="how-it-works-section" className="w-full relative">
         {/* HOW IT WORKS PROCESS */}
-        <section className="w-full bg-white dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200/80 dark:border-slate-800 shadow-sm my-8 transition-colors">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
+        <section className="w-full bg-slate-50 dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200 dark:border-slate-800 shadow-sm my-8 transition-colors text-slate-900 dark:text-white">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-30 pointer-events-none" />
           <div className="absolute -top-32 -left-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
           <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-16 md:mb-20">
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 tracking-wide uppercase mb-4">
-                <Sparkles className="h-3.5 w-3.5" />
-                {t("howItWorksBadge")}
-              </div>
               <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                 {t("howItWorksTitle")}
               </h2>
@@ -374,7 +335,7 @@ export default function HomePage() {
 
             {/* Steps Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 relative">
-              <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-emerald-200 via-teal-200 to-cyan-200 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 z-0" />
+              <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 z-0 opacity-50" />
 
               {[
                 { step: "01", title: t("step1Title"), description: t("step1Desc") },
@@ -395,7 +356,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     className="relative z-10 group"
                   >
-                    <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col">
+                    <div className="bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col text-slate-900 dark:text-white">
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         <StepIcon className="w-6 h-6 text-white" />
                       </div>
@@ -403,8 +364,8 @@ export default function HomePage() {
                         Step {item.step}
                       </span>
                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">{item.title}</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed flex-1">{item.description}</p>
-                      <div className={`mt-6 h-1 w-12 rounded-full bg-gradient-to-r ${gradient} opacity-40 group-hover:opacity-100 group-hover:w-full transition-all duration-500`} />
+                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed flex-1">{item.description}</p>
+                      <div className={`mt-6 h-1 w-12 rounded-full bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 group-hover:w-full transition-all duration-500`} />
                     </div>
                   </motion.div>
                 );
@@ -429,14 +390,14 @@ export default function HomePage() {
         <SecurityGuaranteeSection />
 
         {/* VENDOR & PARTNER B2B CTA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50/40 to-teal-50 dark:from-slate-900 dark:via-slate-950 dark:to-emerald-950/40 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-xl my-16 transition-colors">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-5 pointer-events-none" />
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-100 dark:from-emerald-950 dark:via-slate-900 dark:to-emerald-950 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-emerald-200 dark:border-emerald-800/60 shadow-xl my-16 transition-colors text-slate-900 dark:text-white">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-15 pointer-events-none" />
           <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
           <div className="mx-auto max-w-5xl px-6 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center lg:text-left">
               <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-400 tracking-wide uppercase">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800/60 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300 tracking-wide uppercase">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   {t("vendorCta.badge")}
                 </div>
@@ -445,7 +406,7 @@ export default function HomePage() {
                   {t("vendorCta.title")}
                 </h3>
 
-                <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 text-sm md:text-base leading-relaxed">
                   {t("vendorCta.subtitle")}
                 </p>
               </div>
@@ -453,7 +414,7 @@ export default function HomePage() {
               <div className="shrink-0">
                 <Link href="/auth/register">
                   <Button
-                    className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-0.5 active:translate-y-0"
+                    className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     {t("vendorCta.buttonText")}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -481,28 +442,25 @@ export default function HomePage() {
         {/* ABOUT US SECTION */}
         <section className="my-16 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-lg relative overflow-hidden transition-colors">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
             <div className="space-y-8 relative z-10">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
-                  {t("aboutBadge")}
-                </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                   {t("aboutTitle")}
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="bg-slate-50 dark:bg-slate-850/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
-                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t("ourMission")}</h3>
+                <div className="bg-slate-50 dark:bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("ourMission")}</h3>
                   <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                     {t("ourMissionDesc")}
                   </p>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-850/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
-                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t("ourVision")}</h3>
+                <div className="bg-slate-50 dark:bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("ourVision")}</h3>
                   <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                     {t("ourVisionDesc")}
                   </p>
@@ -510,10 +468,10 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("services")}</h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("services")}</h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-semibold text-slate-900 dark:text-white">
                   {[t("residentialRentals"), t("tenantRelocation"), t("digitalLeases")].map((s: string, i: number) => (
-                    <li key={i} className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                    <li key={i} className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>{s}</span>
                     </li>
@@ -547,8 +505,8 @@ export default function HomePage() {
         </section>
 
         {/* FULL WIDTH ANIMATED DATABASE STATS COUNTER */}
-        <section className="w-full relative overflow-hidden bg-slate-100 dark:bg-slate-900/90 py-16 md:py-20 border-y border-slate-200 dark:border-slate-800 transition-colors my-8">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#022c22_1px,transparent_1px),linear-gradient(to_bottom,#022c22_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30 dark:opacity-25 pointer-events-none" />
+        <section className="w-full relative overflow-hidden bg-slate-100/90 dark:bg-slate-900/90 py-16 md:py-20 border-y border-slate-200 dark:border-slate-800 transition-colors my-8 text-slate-900 dark:text-white">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-25 pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 items-center justify-center divide-x-0 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800">
@@ -571,18 +529,15 @@ export default function HomePage() {
       {/* ========================================================================= */}
       <div id="community-support-section" className="w-full relative">
         {/* PARTNER COMPANIES */}
-        <section className="py-20 overflow-hidden bg-white dark:bg-slate-950 border-y border-slate-200 dark:border-slate-800 transition-colors">
+        <section className="py-20 overflow-hidden bg-slate-50/80 dark:bg-slate-900/60 border-y border-slate-200 dark:border-slate-800 transition-colors text-slate-900 dark:text-white">
           <div className="max-w-7xl mx-auto px-4 mb-12 text-center space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
-              {t("partners.title")}
-            </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{t("partners.title")}</h2>
             <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl mx-auto">{t("partners.subtitle")}</p>
           </div>
 
           <div className="relative overflow-hidden w-full">
-            <div className="absolute top-0 left-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 right-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-slate-50 dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent z-10 pointer-events-none" />
 
             <motion.div
               className="flex gap-6 w-max"

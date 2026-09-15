@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 interface FeaturedHouse {
   id: string;
@@ -93,19 +93,28 @@ const featuredHouses: FeaturedHouse[] = [
 ];
 
 export default function ScrollHorizontalSection() {
+  const router = useRouter();
   const t = useTranslations("home.scrollHorizontal");
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchPrice, setSearchPrice] = useState("");
+  const [searchRooms, setSearchRooms] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchLocation) params.set("q", searchLocation);
+    if (searchPrice) params.set("price", searchPrice);
+    if (searchRooms) params.set("rooms", searchRooms);
+    router.push(`/browse-houses?${params.toString()}`);
+  };
 
   return (
-    <section className="bg-white dark:bg-slate-950 py-20 md:py-24 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800 transition-colors">
+    <section className="bg-white dark:bg-[#0b1329] dark-grid-bg py-20 md:py-24 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
-              <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{t("title")}</span>
-            </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
               {t("title")}
             </h2>
@@ -127,7 +136,7 @@ export default function ScrollHorizontalSection() {
           </div>
         </div>
 
-        {/* 4-Item Responsive Grid (Fast, Fluid, Non-Scroll-Hijacking) */}
+        {/* 4-Item Responsive Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredHouses.map((house, idx) => (
             <motion.div
@@ -136,7 +145,7 @@ export default function ScrollHorizontalSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: idx * 0.1 }}
-              className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+              className="bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
             >
               {/* Card Image Frame */}
               <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
@@ -202,6 +211,89 @@ export default function ScrollHorizontalSection() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* INTEGRATED MODERN SEARCH WIDGET & POPULAR LOCATIONS */}
+        <div className="mt-12 space-y-5 pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+          <form
+            onSubmit={handleSearch}
+            className="w-full bg-white/95 dark:bg-[#111a33]/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-xl dark:shadow-2xl backdrop-blur-xl transition-all"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
+              {/* Location Input */}
+              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <span className="text-lg mr-3 select-none">📍</span>
+                <input
+                  type="text"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  placeholder="Where do you want to live?"
+                  className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
+                />
+              </div>
+
+              {/* Price Filter Select */}
+              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <span className="text-lg mr-3 select-none">💰</span>
+                <select
+                  value={searchPrice}
+                  onChange={(e) => setSearchPrice(e.target.value)}
+                  className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
+                >
+                  <option value="">Any Price</option>
+                  <option value="25000">Under 25,000 ETB</option>
+                  <option value="50000">25,000 - 50,000 ETB</option>
+                  <option value="100000">Above 50,000 ETB</option>
+                </select>
+              </div>
+
+              {/* Rooms Select */}
+              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <span className="text-lg mr-3 select-none">🛏️</span>
+                <select
+                  value={searchRooms}
+                  onChange={(e) => setSearchRooms(e.target.value)}
+                  className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
+                >
+                  <option value="">Rooms</option>
+                  <option value="1">1 Bed / Studio</option>
+                  <option value="2">2 Bedrooms</option>
+                  <option value="3">3 Bedrooms</option>
+                  <option value="4">4+ Bedrooms</option>
+                </select>
+              </div>
+
+              {/* Search Action Button */}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+              >
+                Search
+              </Button>
+            </div>
+          </form>
+
+          {/* Popular Locations Quick Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1">
+              Popular:
+            </span>
+            {["Bole", "Kazanchis", "Old Airport", "Hawassa", "Adama"].map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => {
+                  setSearchLocation(city);
+                  router.push(`/browse-houses?q=${encodeURIComponent(city)}`);
+                }}
+                className="bg-slate-100 hover:bg-emerald-50 dark:bg-[#111a33]/80 dark:hover:bg-emerald-950/60 border border-slate-200/90 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-semibold px-3.5 py-1.5 rounded-full backdrop-blur-md transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md cursor-pointer"
+              >
+                <MapPin className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                <span>{city}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
       </div>

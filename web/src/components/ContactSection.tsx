@@ -23,7 +23,7 @@ export default function ContactSection() {
   return (
     // 'id' allows the link to find this spot. 
     // 'scroll-mt-24' prevents the sticky header from covering the top of the section.
-    <section id="contact" className="relative py-24 bg-white dark:bg-slate-950 overflow-hidden scroll-mt-24 transition-colors">
+    <section id="contact" className="relative py-24 bg-slate-50 dark:bg-[#0b1329] dark-grid-bg overflow-hidden scroll-mt-24 transition-colors">
       {/* Abstract Background Accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -48,7 +48,7 @@ export default function ContactSection() {
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid md:grid-cols-12 gap-0 bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors"
+          className="grid md:grid-cols-12 gap-0 bg-white dark:bg-[#111a33]/60 backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-800/80 overflow-hidden transition-colors"
         >
           
           {/* Form Side */}
@@ -75,7 +75,7 @@ export default function ContactSection() {
               <textarea 
                 placeholder={t("messagePlaceholder")} 
                 rows={5} 
-                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all resize-none text-sm"
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-[#0b1329]/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all resize-none text-sm"
                 value={formData.message}
                 onChange={(e: any) => setFormData({ ...formData, message: e.target.value })}
                 required
@@ -83,7 +83,7 @@ export default function ContactSection() {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-600/20 group disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg group disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? t("sending") : t("sendMessage")} <Send size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
@@ -91,8 +91,8 @@ export default function ContactSection() {
           </div>
 
           {/* Info Side */}
-          <div className="md:col-span-5 bg-gradient-to-br from-emerald-600 to-teal-700 dark:from-emerald-900 dark:to-slate-900 p-8 md:p-12 text-white flex flex-col justify-center gap-10">
-            <h3 className="text-2xl font-bold">{t("contactDetails")}</h3>
+          <div className="md:col-span-5 bg-slate-900 dark:bg-[#0b1329]/90 border-l border-slate-200 dark:border-slate-800/80 p-8 md:p-12 text-white flex flex-col justify-center gap-10">
+            <h3 className="text-2xl font-bold text-white">{t("contactDetails")}</h3>
             
             <div className="space-y-8">
               <InfoRow icon={<Mail />} title={t("email")} text={t("supportEmail")} />
@@ -115,16 +115,16 @@ const Input = ({ placeholder, type = "text", value, onChange }: { placeholder: s
     value={value}
     onChange={onChange}
     required
-    className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm" 
+    className="w-full p-4 rounded-xl bg-slate-50 dark:bg-[#0b1329]/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all text-sm" 
   />
 );
 
 const InfoRow = ({ icon, title, text }: { icon: React.ReactNode, title: string, text: string }) => (
   <div className="flex items-start gap-4">
-    <div className="p-3 bg-white/10 rounded-xl">{icon}</div>
+    <div className="p-3 bg-emerald-500/10 dark:bg-emerald-950/80 border border-emerald-500/20 text-emerald-400 rounded-2xl shrink-0">{icon}</div>
     <div>
-      <p className="text-emerald-100 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">{title}</p>
-      <p className="font-semibold text-base sm:text-lg">{text}</p>
+      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider">{title}</p>
+      <p className="font-semibold text-base sm:text-lg text-white mt-0.5">{text}</p>
     </div>
   </div>
 );

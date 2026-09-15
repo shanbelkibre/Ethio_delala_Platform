@@ -66,11 +66,12 @@
     "admin": "Admin"
   },
   "home": {
-    "heroBadge": "Ethiopia's Premier Home Rental Platform",
+    "heroBadge": "ETHIOPIA'S VERIFIED RENTAL PLATFORM",
     "heroTitle": "Find & Rent Your Next Dream Home in Ethiopia",
     "heroSubtitle": "Explore verified apartments, luxury villas, studio flats, and family houses in Addis Ababa, Hawassa, Adama & Bahir Dar with transparent ETB pricing and digital lease agreements.",
-    "exploreHomeRentals": "Explore Home Rentals",
-    "bookRentalInspection": "Book Rental Inspection",
+    "exploreHomeRentals": "Browse Houses",
+    "listYourProperty": "List Your Property",
+    "verifiedHost": "Verified Ethiopian Host",
     "fastRentalLookup": "Fast Rental Lookup",
     "whereToLive": "Where Would You Like to Live Next?",
     "searchSubtitle": "Search verified apartments, villas, and studio flats across Addis Ababa, Hawassa, Adama & Bahir Dar",

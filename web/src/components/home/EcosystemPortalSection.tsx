@@ -26,7 +26,7 @@ const portalStyles = {
   badge: "inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest",
   
   // Tab Pill Switcher Container
-  tabContainer: "bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex gap-2 max-w-md w-full shadow-inner",
+  tabContainer: "bg-slate-100 dark:bg-[#111a33]/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 flex gap-2 max-w-md w-full shadow-inner",
   
   // Tab Button States
   tabButton: (isActive: boolean) =>
@@ -38,7 +38,7 @@ const portalStyles = {
     ),
 
   // Feature Card Container
-  card: "group relative bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-1",
+  card: "group relative bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-1",
   
   // Icon Badge Container
   iconBadge: (colorClass: string) =>
@@ -49,7 +49,7 @@ const portalStyles = {
 
   // Card Content
   cardTitle: "text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors",
-  cardDesc: "text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed flex-1",
+  cardDesc: "text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed flex-1",
   
   // Action Link
   cardLink: "inline-flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group-hover:translate-x-1 transition-all pt-2",
@@ -171,15 +171,11 @@ export default function EcosystemPortalSection() {
   ];
 
   return (
-    <section className="bg-slate-50 dark:bg-slate-950 py-20 md:py-24 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800 transition-colors">
+    <section className="bg-slate-50 dark:bg-[#0b1329] dark-grid-bg py-20 md:py-24 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className={portalStyles.badge}>
-            <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>{t("badge")}</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
             {t("title")}
           </h2>
