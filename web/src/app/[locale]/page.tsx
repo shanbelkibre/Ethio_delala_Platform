@@ -14,7 +14,6 @@ import {
   CreditCard,
   ArrowRight,
   Sparkles,
-  Play,
   Calendar,
   Users,
   Briefcase,
@@ -129,31 +128,6 @@ export default function HomePage() {
         setDbStats(data.stats);
       }
     }).catch(console.error);
-  }, []);
-
-  // Set up scroll tracking state for the About Us Section
-  const [isAboutVisible, setIsAboutVisible] = useState(false);
-  const aboutSectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsAboutVisible(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: "0px 0px -12% 0px",
-        threshold: 0.02,
-      }
-    );
-
-    if (aboutSectionRef.current) {
-      observer.observe(aboutSectionRef.current);
-    }
-
-    return () => observer.disconnect();
   }, []);
 
   // Map of icon name strings -> React components for CMS-driven icons
@@ -453,6 +427,42 @@ export default function HomePage() {
 
         {/* DELALA RENT GUARANTEE & ESCROW PROTECTION */}
         <SecurityGuaranteeSection />
+
+        {/* VENDOR & PARTNER B2B CTA */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50/40 to-teal-50 dark:from-slate-900 dark:via-slate-950 dark:to-emerald-950/40 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-xl my-16 transition-colors">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-5 pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+          <div className="mx-auto max-w-5xl px-6 relative z-10">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center lg:text-left">
+              <div className="space-y-3 max-w-2xl">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-400 tracking-wide uppercase">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {t("vendorCta.badge")}
+                </div>
+
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                  {t("vendorCta.title")}
+                </h3>
+
+                <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
+                  {t("vendorCta.subtitle")}
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                <Link href="/auth/register">
+                  <Button
+                    className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    {t("vendorCta.buttonText")}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* ========================================================================= */}
@@ -467,6 +477,74 @@ export default function HomePage() {
 
         {/* LANDLORD SELLER CTA SECTION */}
         <LandlordSellerCtaSection />
+
+        {/* ABOUT US SECTION */}
+        <section className="my-16 max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-lg relative overflow-hidden transition-colors">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+
+            <div className="space-y-8 relative z-10">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
+                  {t("aboutBadge")}
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                  {t("aboutTitle")}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="bg-slate-50 dark:bg-slate-850/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t("ourMission")}</h3>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {t("ourMissionDesc")}
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-850/60 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t("ourVision")}</h3>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {t("ourVisionDesc")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("services")}</h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {[t("residentialRentals"), t("tenantRelocation"), t("digitalLeases")].map((s: string, i: number) => (
+                    <li key={i} className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 block">{t("contact247")}</span>
+                  <a
+                    href="tel:+251911819145"
+                    className="text-2xl font-black text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 block mt-0.5 transition-colors"
+                  >
+                    +251 911 819 145
+                  </a>
+                </div>
+
+                <Link href="/auth/register">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl text-sm transition-all shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2"
+                  >
+                    {t("findYourHomeNow")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* FULL WIDTH ANIMATED DATABASE STATS COUNTER */}
         <section className="w-full relative overflow-hidden bg-slate-100 dark:bg-slate-900/90 py-16 md:py-20 border-y border-slate-200 dark:border-slate-800 transition-colors my-8">
@@ -533,113 +611,6 @@ export default function HomePage() {
 
         {/* CLIENT TESTIMONIALS */}
         <Testimonials testimonials={cmsConfig?.cms_testimonials || []} />
-
-        {/* ABOUT US SECTION */}
-        <section
-          ref={aboutSectionRef}
-          className="my-20 max-w-[95vw] mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[32px] overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 items-stretch"
-        >
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            @keyframes textScrollSlideIn {
-              0% { opacity: 0; transform: translateY(28px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            .scroll-item {
-              opacity: 0;
-            }
-            .animate-scroll-active {
-              animation: textScrollSlideIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
-          `}} />
-
-          {/* LEFT COLUMN: Clean Text Structure */}
-          <div className="w-full lg:col-span-7 p-8 sm:p-12 md:p-16 lg:pl-16 xl:pl-24 space-y-8 text-left flex flex-col justify-center">
-            <div
-              className={`space-y-2 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
-              style={{ animationDelay: "100ms" }}
-            >
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">{t("aboutBadge")}</span>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
-                {t("aboutTitle")}
-              </h2>
-            </div>
-
-            <div
-              className={`grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
-              style={{ animationDelay: "350ms" }}
-            >
-              <div className="space-y-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">{t("ourMission")}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {t("ourMissionDesc")}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">{t("ourVision")}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {t("ourVisionDesc")}
-                </p>
-              </div>
-            </div>
-
-            <div
-              className={`space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
-              style={{ animationDelay: "850ms" }}
-            >
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("services")}</h4>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-800 dark:text-slate-200 font-medium">
-                {[t("residentialRentals"), t("tenantRelocation"), t("digitalLeases")].map((s: string, i: number) => (
-                  <li key={i} className="flex items-center gap-2">✓ {s}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div
-              className={`pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
-              style={{ animationDelay: "1100ms" }}
-            >
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 block">{t("contact247")}</span>
-                <a
-                  href="tel:+251911819145"
-                  className="text-xl font-extrabold text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 block mt-0.5 transition-colors"
-                >
-                  +251 911 819 145
-                </a>
-              </div>
-
-              <Link href="/auth/register">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-5 rounded-xl text-sm transition-all shadow-md shadow-emerald-600/25"
-                >
-                  {t("findYourHomeNow")}
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN: Video Player */}
-          <div className="w-full lg:col-span-5 relative min-h-[380px] lg:min-h-full bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 flex items-center justify-center group cursor-pointer overflow-hidden">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover brightness-[0.85]"
-              src="https://assets.mixkit.co/videos/preview/mixkit-industrial-facility-with-pipelines-at-sunset-41481-large.mp4"
-            />
-            <div className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-              <div className="absolute w-28 h-28 rounded-full bg-white/20 border-2 border-white/40 animate-ping opacity-25 pointer-events-none" />
-              <div className="absolute w-24 h-24 rounded-full bg-white/30 border border-white/50 animate-pulse" />
-              <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center pl-1.5 relative">
-                <Play className="w-9 h-9 fill-emerald-600 text-emerald-600 stroke-[3]" />
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* MOBILE APP DOWNLOAD SECTION */}
         <section className="w-full bg-white dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors my-16">
@@ -811,42 +782,6 @@ export default function HomePage() {
                   </div>
                   <div className="absolute inset-4 rounded-[44px] bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-20" />
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* VENDOR & PARTNER B2B CTA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50/40 to-teal-50 dark:from-slate-900 dark:via-slate-950 dark:to-emerald-950/40 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-xl my-16 transition-colors">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-5 pointer-events-none" />
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
-
-          <div className="mx-auto max-w-5xl px-6 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center lg:text-left">
-              <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-400 tracking-wide uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {t("vendorCta.badge")}
-                </div>
-
-                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                  {t("vendorCta.title")}
-                </h3>
-
-                <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
-                  {t("vendorCta.subtitle")}
-                </p>
-              </div>
-
-              <div className="shrink-0">
-                <Link href="/auth/register">
-                  <Button
-                    className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    {t("vendorCta.buttonText")}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
