@@ -100,7 +100,7 @@ export default function NeighborhoodGuideSection() {
     <section className="bg-white py-24 text-slate-900 border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1 text-xs font-bold text-emerald-800 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-xs font-bold text-emerald-700 uppercase tracking-widest">
             <MapPin className="h-4 w-4 text-emerald-600" /> {t("neighborhoods.badge")}
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
@@ -119,7 +119,7 @@ export default function NeighborhoodGuideSection() {
               onClick={() => setActiveId(hood.id)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeId === hood.id
-                  ? "bg-slate-900 text-white shadow-xl scale-105"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 scale-105"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
               }`}
             >

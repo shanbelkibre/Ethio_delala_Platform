@@ -336,7 +336,7 @@ export default function HomePage() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
               >
                 {t("searchButton")}
               </Button>
@@ -562,7 +562,7 @@ export default function HomePage() {
             <div className="absolute w-28 h-28 rounded-full bg-white/20 border-2 border-white/40 animate-ping opacity-25 pointer-events-none" />
             <div className="absolute w-24 h-24 rounded-full bg-white/30 border border-white/50 animate-pulse" />
             <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center pl-1.5 relative">
-              <Play className="w-9 h-9 fill-blue-600 text-blue-600 stroke-[3]" />
+              <Play className="w-9 h-9 fill-emerald-600 text-emerald-600 stroke-[3]" />
             </div>
           </div>
         </div>
@@ -612,7 +612,7 @@ export default function HomePage() {
           </div>
 
           <Link href="/services" className="mt-8 inline-block">
-            <Button className="bg-emerald-500 hover:bg-emerald-600">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/25">
               {t("bookRentalServiceNow")}
             </Button>
           </Link>
@@ -623,13 +623,13 @@ export default function HomePage() {
       <section className="w-full bg-white py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-100 shadow-sm my-16">
         {/* Subtle background texture */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none" />
-        <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-100 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-emerald-100 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-emerald-100 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-100 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           {/* Header */}
           <div className="text-center mb-16 md:mb-20">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-xs font-semibold text-blue-700 tracking-wide uppercase mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-xs font-semibold text-emerald-700 tracking-wide uppercase mb-4">
               <Sparkles className="h-3.5 w-3.5" />
               {t("howItWorksBadge")}
             </div>
