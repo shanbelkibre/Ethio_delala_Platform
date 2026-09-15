@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
-import { Calculator, ShieldCheck, CreditCard, ArrowRight, CheckCircle2, Info, Sparkles, Wallet, Lock } from "lucide-react";
+import { Calculator, ShieldCheck, CreditCard, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 
@@ -23,32 +23,33 @@ export default function RentCalculatorSection() {
   const totalMoveInEtb = firstMonthRent + securityDeposit + estimatedUtilities + platformFee;
 
   return (
-    <section className="bg-[#0c1427] text-white py-24 relative overflow-hidden border-t border-slate-800">
+    <section className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white py-20 md:py-24 relative overflow-hidden border-t border-slate-200 dark:border-slate-800 transition-colors">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/2 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 -left-40 w-96 h-96 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-            <Calculator className="h-4 w-4" /> {t("rentCalc.badge")}
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
+            <Calculator className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>{t("rentCalc.badge")}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
             {t("rentCalc.title")}
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
             {t("rentCalc.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Controls Box (6 columns) */}
-          <div className="lg:col-span-6 bg-[#070c19] border border-slate-800/80 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl transition-colors">
             {/* Monthly Rent Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">{t("rentCalc.targetRent")}</label>
-                <span className="text-lg font-black text-emerald-400 font-mono">{formatCurrency(monthlyBudget)}</span>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">{t("rentCalc.targetRent")}</label>
+                <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(monthlyBudget)}</span>
               </div>
               <input
                 type="range"
@@ -57,9 +58,9 @@ export default function RentCalculatorSection() {
                 step={2500}
                 value={monthlyBudget}
                 onChange={e => setMonthlyBudget(Number(e.target.value))}
-                className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                className="w-full accent-emerald-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-800 rounded-lg"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                 <span>15,000 ETB</span>
                 <span>50,000 ETB</span>
                 <span>100,000 ETB</span>
@@ -68,7 +69,7 @@ export default function RentCalculatorSection() {
 
             {/* Deposit Terms Select */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">{t("rentCalc.securityDeposit")}</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">{t("rentCalc.securityDeposit")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[1, 2, 3].map(months => (
                   <button
@@ -77,8 +78,8 @@ export default function RentCalculatorSection() {
                     onClick={() => setDepositMonths(months)}
                     className={`py-3 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       depositMonths === months
-                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-md"
-                        : "bg-[#0c1427] border-slate-800 text-slate-400 hover:text-white"
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
+                        : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     {months} {months === 1 ? t("rentCalc.monthDeposit") : t("rentCalc.monthsDeposit")}
@@ -89,28 +90,28 @@ export default function RentCalculatorSection() {
 
             {/* Utility & Option Toggles */}
             <div className="space-y-3 pt-2">
-              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0c1427] border border-slate-800 cursor-pointer select-none">
-                <span className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> {t("rentCalc.includeUtilities")}
+              <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 cursor-pointer select-none">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> {t("rentCalc.includeUtilities")}
                 </span>
                 <input
                   type="checkbox"
                   checked={includeUtilities}
                   onChange={e => setIncludeUtilities(e.target.checked)}
-                  className="rounded accent-emerald-500 h-4 w-4"
+                  className="rounded accent-emerald-600 h-4 w-4"
                 />
               </label>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#0c1427] border border-slate-800">
-                <span className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-emerald-400" /> {t("rentCalc.paymentMethod")}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> {t("rentCalc.paymentMethod")}
                 </span>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setPaymentGateway("chapa")}
                     className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                      paymentGateway === "chapa" ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400"
+                      paymentGateway === "chapa" ? "bg-emerald-600 text-white shadow-sm" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     Chapa Pay
@@ -119,7 +120,7 @@ export default function RentCalculatorSection() {
                     type="button"
                     onClick={() => setPaymentGateway("bank")}
                     className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                      paymentGateway === "bank" ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400"
+                      paymentGateway === "bank" ? "bg-emerald-600 text-white shadow-sm" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     Bank Transfer
@@ -129,24 +130,24 @@ export default function RentCalculatorSection() {
             </div>
 
             {/* Line Items Breakdown Inside Controls */}
-            <div className="bg-[#0c1427] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
-              <div className="flex justify-between text-slate-300">
+            <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl space-y-3 text-xs">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>{t("rentCalc.firstMonth")}</span>
-                <span className="font-mono font-bold text-white">{formatCurrency(firstMonthRent)}</span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{formatCurrency(firstMonthRent)}</span>
               </div>
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>{t("rentCalc.refundableDeposit")} ({depositMonths} Mo)</span>
-                <span className="font-mono font-bold text-white">{formatCurrency(securityDeposit)}</span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{formatCurrency(securityDeposit)}</span>
               </div>
               {includeUtilities && (
-                <div className="flex justify-between text-slate-300">
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span>Utility Reserve</span>
-                  <span className="font-mono font-bold text-white">{formatCurrency(estimatedUtilities)}</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white">{formatCurrency(estimatedUtilities)}</span>
                 </div>
               )}
-              <div className="flex justify-between pt-2 border-t border-slate-800 text-sm font-bold text-white">
+              <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-white">
                 <span>{t("rentCalc.totalMoveIn")}</span>
-                <span className="font-mono text-emerald-400">{formatCurrency(totalMoveInEtb)}</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">{formatCurrency(totalMoveInEtb)}</span>
               </div>
             </div>
           </div>
@@ -154,23 +155,23 @@ export default function RentCalculatorSection() {
           {/* RIGHT SIDE: PHOTOGRAPHIC PERSON GRAPHIC WITH EXACT SECTION COLOR (6 columns) */}
           <div className="lg:col-span-6 relative">
             <div className="relative mx-auto max-w-md sm:max-w-lg">
-              {/* Photo Graphic Frame Matching Section BG #0c1427 */}
-              <div className="relative h-[440px] sm:h-[480px] rounded-3xl overflow-hidden bg-[#0c1427] flex items-center justify-center">
+              {/* Photo Graphic Frame Matching Section BG */}
+              <div className="relative h-[440px] sm:h-[480px] rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-800">
                 <img
                   src="/images/ethiopian_calculator_person_nobg.png"
                   alt="Ethiopian Tenant Calculating Rent Budget"
-                  className="w-full h-full object-contain bg-[#0c1427]"
+                  className="w-full h-full object-contain"
                 />
 
                 {/* Bottom Overlay Label */}
-                <div className="absolute bottom-4 left-4 right-4 bg-[#070c19]/90 border border-slate-800 p-4 rounded-2xl flex items-center justify-between backdrop-blur-md">
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between backdrop-blur-md shadow-lg">
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">{t("rentCalc.totalMoveIn")}</span>
-                    <span className="text-xl font-black text-white font-mono">{formatCurrency(totalMoveInEtb)} ETB</span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block">{t("rentCalc.totalMoveIn")}</span>
+                    <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(totalMoveInEtb)} ETB</span>
                   </div>
 
-                  <Link href={`/browse-houses?price=${monthlyBudget}`}>
-                    <Button size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs">
+                  <Link href={`/public/properties?price=${monthlyBudget}`}>
+                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20">
                       {t("rentCalc.findHomes")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
                     </Button>
                   </Link>
@@ -182,14 +183,14 @@ export default function RentCalculatorSection() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: [0, -10, 0], opacity: 1 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-4 -right-2 sm:-right-4 z-20 bg-[#070c19]/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3 text-white"
+                className="absolute -top-4 -right-2 sm:-right-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xl flex items-center gap-3 text-slate-900 dark:text-white"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
                   <h5 className="text-xs font-black">Chapa Escrow Verified</h5>
-                  <p className="text-[10px] text-slate-400 font-semibold">100% Refundable Deposit</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">100% Refundable Deposit</p>
                 </div>
               </motion.div>
 
@@ -198,14 +199,14 @@ export default function RentCalculatorSection() {
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: [0, 10, 0], opacity: 1 }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-4 -left-2 sm:-left-4 z-20 bg-[#070c19]/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3 text-white"
+                className="absolute -bottom-4 -left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xl flex items-center gap-3 text-slate-900 dark:text-white"
               >
-                <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 text-teal-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold">
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
                   <h5 className="text-xs font-black">Zero Tenant Fees</h5>
-                  <p className="text-[10px] text-slate-400 font-semibold">Transparent Pricing</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">Transparent Pricing</p>
                 </div>
               </motion.div>
             </div>

@@ -12,11 +12,22 @@ exports.strongPasswordSchema = zod_1.z
     .regex(/[@$!%*?&#^()_+={}[\]:;"'<>,.?/~`|\\-]/, 'Password must contain at least one symbol (@$!%*?&#...)');
 exports.registerSchema = zod_1.z.object({
     body: zod_1.z.object({
-        name: zod_1.z.string().min(2, 'Name must be at least 2 characters'),
+        firstName: zod_1.z.string().min(2, 'First name must be at least 2 characters').optional(),
+        middleName: zod_1.z.string().optional().nullable(),
+        lastName: zod_1.z.string().optional().nullable(),
+        name: zod_1.z.string().min(2, 'Name must be at least 2 characters').optional(),
         email: zod_1.z.string().email('Invalid email address'),
         phone: zod_1.z.string().min(10, 'Phone number must be at least 10 digits'),
         password: exports.strongPasswordSchema,
         roles: zod_1.z.array(zod_1.z.nativeEnum(roles_1.Role)).optional(),
+        gender: zod_1.z.string().optional().nullable(),
+        dateOfBirth: zod_1.z.string().optional().nullable(),
+        maritalStatus: zod_1.z.string().optional().nullable(),
+        profileImageUrl: zod_1.z.string().optional().nullable(),
+        region: zod_1.z.string().optional().nullable(),
+        zone: zod_1.z.string().optional().nullable(),
+        wereda: zod_1.z.string().optional().nullable(),
+        kebele: zod_1.z.string().optional().nullable(),
     }),
 });
 exports.loginSchema = zod_1.z.object({

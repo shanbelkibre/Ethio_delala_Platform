@@ -21,9 +21,10 @@ import {
   Download,
   CheckCircle2,
   Mail,
-  Users2
-
-
+  Users2,
+  MapPin,
+  Phone,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -72,7 +73,7 @@ const CounterNumber = ({ value }: { value: number }) => {
   }, [springValue]);
 
   return (
-    <span ref={ref} className="text-4xl sm:text-5xl font-black tracking-tight text-white drop-shadow-sm">
+    <span ref={ref} className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white drop-shadow-sm">
       0
     </span>
   );
@@ -81,11 +82,11 @@ const CounterNumber = ({ value }: { value: number }) => {
 const CounterItem = ({ value, label, icon: Icon }: CounterItemProps) => {
   return (
     <div className="flex flex-col items-center text-center p-4 relative group">
-      <div className="mb-4 text-white group-hover:scale-110 transition-transform duration-300">
+      <div className="mb-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-300">
         <Icon className="h-7 w-7 stroke-[2]" />
       </div>
       <CounterNumber value={value} />
-      <p className="mt-3 text-xs sm:text-sm font-medium tracking-wide text-emerald-100/70 max-w-[180px]">
+      <p className="mt-3 text-xs sm:text-sm font-semibold tracking-wide text-slate-600 dark:text-slate-300 max-w-[180px]">
         {label}
       </p>
     </div>
@@ -98,6 +99,13 @@ export default function HomePage() {
   const router = useRouter();
   const t = useTranslations("home");
   const [cmsConfig, setCmsConfig] = useState<any>(null);
+  const [agents, setAgents] = useState<any[]>([]);
+  const [dbStats, setDbStats] = useState<{
+    yearsExperience: number;
+    verifiedProperties: number;
+    satisfiedTenants: number;
+    completedBookings: number;
+  } | null>(null);
   const [heroLocation, setHeroLocation] = useState("");
   const [heroPrice, setHeroPrice] = useState("");
   const [heroRooms, setHeroRooms] = useState("");
@@ -115,6 +123,18 @@ export default function HomePage() {
     fetch("/api/cms").then(res => res.json()).then(data => {
       if (data?.config && Object.keys(data.config).length > 0) {
         setCmsConfig(data.config);
+      }
+    }).catch(console.error);
+
+    fetch("/api/agents").then(res => res.json()).then(data => {
+      if (data?.success && Array.isArray(data.agents) && data.agents.length > 0) {
+        setAgents(data.agents);
+      }
+    }).catch(console.error);
+
+    fetch("/api/stats").then(res => res.json()).then(data => {
+      if (data?.success && data.stats) {
+        setDbStats(data.stats);
       }
     }).catch(console.error);
   }, []);
@@ -163,10 +183,10 @@ export default function HomePage() {
   ];
 
   const counterData = [
-    { value: 2018, label: t("yearsExperience"), icon: Calendar },
-    { value: 3500, label: t("verifiedRentalProperties"), icon: Wrench },
-    { value: 12500, label: t("satisfiedTenantsCount"), icon: Users },
-    { value: 8500, label: t("completedBookingsCount"), icon: Briefcase },
+    { value: dbStats?.yearsExperience ?? 8, label: t("yearsExperience"), icon: Calendar },
+    { value: dbStats?.verifiedProperties ?? 0, label: t("verifiedRentalProperties"), icon: Wrench },
+    { value: dbStats?.satisfiedTenants ?? 0, label: t("satisfiedTenantsCount"), icon: Users },
+    { value: dbStats?.completedBookings ?? 0, label: t("completedBookingsCount"), icon: Briefcase },
   ];
 
   const cta = cmsConfig?.cms_cta || {};
@@ -183,10 +203,10 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="bg-slate-50">
+    <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
       {/* HERO */}
       <section 
-        className={`relative overflow-hidden px-4 pt-24 pb-52 text-white sm:px-6 lg:pt-32 lg:pb-64 ${(!hero.backgroundType || hero.backgroundType === 'animation') ? 'gradient-hero' : ''}`}
+        className={`relative overflow-hidden px-4 pt-16 pb-40 text-white sm:px-6 lg:pt-20 lg:pb-48 ${(!hero.backgroundType || hero.backgroundType === 'animation') ? 'gradient-hero' : ''}`}
         style={hero.backgroundType === 'color' ? { backgroundColor: hero.backgroundColor || '#059669' } : {}}
       >
         {hero.backgroundType === 'image' && hero.backgroundImage && (
@@ -203,59 +223,115 @@ export default function HomePage() {
         )}
 
         <div className="relative z-10 mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm backdrop-blur">
-              <Sparkles className="h-4 w-4" />
+          <div className="max-w-4xl text-left">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs sm:text-sm font-semibold backdrop-blur-md border border-white/20">
+              <Sparkles className="h-4 w-4 text-emerald-200" />
               {t("heroBadge")}
             </div>
 
-            <h1 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white">
               {t("heroTitle")}
             </h1>
 
-            <p className="mt-6 text-lg text-emerald-50/90 sm:text-xl">
+            <p className="mt-4 text-sm sm:text-base lg:text-lg text-emerald-50/90 max-w-3xl leading-relaxed">
               {t("heroSubtitle")}
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href={hero.primaryButtonLink || "/public/properties"}>
-                <Button
-                  size="lg"
-                  className="bg-white text-emerald-800 hover:bg-emerald-50"
-                >
-                  {t("exploreHomeRentals")}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+            {/* INTEGRATED MODERN SEARCH WIDGET DIRECTLY BELOW SUBTITLE */}
+            <form
+              onSubmit={handleHeroSearch}
+              className="mt-8 max-w-4xl bg-white dark:bg-slate-900/95 border border-white/40 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl transition-all"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
+                {/* Location Input */}
+                <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                  <span className="text-lg mr-3 select-none">📍</span>
+                  <input
+                    type="text"
+                    value={heroLocation}
+                    onChange={(e) => setHeroLocation(e.target.value)}
+                    placeholder={t("wherePlaceholder")}
+                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
+                  />
+                </div>
 
-              <Link href={hero.secondaryButtonLink || "/public/about"}>
+                {/* Price Filter Select */}
+                <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                  <span className="text-lg mr-3 select-none">💰</span>
+                  <select
+                    value={heroPrice}
+                    onChange={(e) => setHeroPrice(e.target.value)}
+                    className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-slate-900 [&>option]:text-slate-900 dark:[&>option]:text-white"
+                  >
+                    <option value="">{t("anyPrice")}</option>
+                    <option value="25000">{t("under25k")}</option>
+                    <option value="50000">{t("between25k50k")}</option>
+                    <option value="100000">{t("above50k")}</option>
+                  </select>
+                </div>
+
+                {/* Rooms Select */}
+                <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/80 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                  <span className="text-lg mr-3 select-none">🛏️</span>
+                  <select
+                    value={heroRooms}
+                    onChange={(e) => setHeroRooms(e.target.value)}
+                    className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-slate-900 [&>option]:text-slate-900 dark:[&>option]:text-white"
+                  >
+                    <option value="">{t("rooms")}</option>
+                    <option value="1">{t("bedStudio")}</option>
+                    <option value="2">{t("twoBeds")}</option>
+                    <option value="3">{t("threeBeds")}</option>
+                    <option value="4">{t("fourPlusBeds")}</option>
+                  </select>
+                </div>
+
+                {/* Search Action Button */}
                 <Button
+                  type="submit"
                   size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
                 >
-                  {t("bookRentalInspection")}
+                  {t("searchButton")}
                 </Button>
-              </Link>
+              </div>
+            </form>
+
+            {/* Quick Popular Location Suggestions */}
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <span className="text-xs font-semibold text-emerald-100/90">Popular:</span>
+              {["Bole", "Kazanchis", "Old Airport", "Hawassa", "Adama"].map((city) => (
+                <button
+                  key={city}
+                  type="button"
+                  onClick={() => {
+                    setHeroLocation(city);
+                    router.push(`/browse-houses?q=${encodeURIComponent(city)}`);
+                  }}
+                  className="bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-medium px-3 py-1 rounded-full backdrop-blur-md transition-all cursor-pointer"
+                >
+                  {city}
+                </button>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* FEATURES SECTION */}
-      <section className="relative z-20 -mt-23 rounded-t-[80px] bg-white pt-24 pb-16">
+      <section className="relative z-20 -mt-20 rounded-t-[50px] sm:rounded-t-[80px] bg-white dark:bg-slate-900 pt-20 pb-16 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((f) => (
-              <Card key={f.title} className="card-hover overflow-hidden">
+              <Card key={f.title} className="card-hover overflow-hidden bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
                 <CardContent className="p-6">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
                     <f.icon className="h-6 w-6" />
                   </div>
 
-                  <h3 className="font-bold text-slate-900">{f.title}</h3>
+                  <h3 className="font-bold text-slate-900 dark:text-white">{f.title}</h3>
 
-                  <p className="mt-2 text-sm text-slate-600">{f.desc}</p>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{f.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -263,97 +339,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* IMPRESSIVE & MODERN FAST PROPERTY SEARCH WIDGET (BEFORE PLATFORM HIGHLIGHTS) */}
-      <section className="relative z-10 bg-slate-950 border-y border-slate-800 py-16 overflow-hidden">
-        {/* Ambient Glow & Grid Lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-8 space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-              <Sparkles className="h-3.5 w-3.5" /> {t("fastRentalLookup")}
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              {t("whereToLive")}
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base">
-              {t("searchSubtitle")}
-            </p>
-          </div>
-
-          {/* SLEEK GLASS SEARCH WIDGET BAR MATCHING USER IMAGE */}
-          <form
-            onSubmit={handleHeroSearch}
-            className="max-w-5xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl shadow-slate-950 backdrop-blur-xl"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
-              {/* Location Input */}
-              <div className="relative flex items-center bg-slate-950/80 hover:bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">📍</span>
-                <input
-                  type="text"
-                  value={heroLocation}
-                  onChange={(e) => setHeroLocation(e.target.value)}
-                  placeholder={t("wherePlaceholder")}
-                  className="w-full bg-transparent text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
-                />
-              </div>
-
-              {/* Price Filter Select */}
-              <div className="relative flex items-center bg-slate-950/80 hover:bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">💰</span>
-                <select
-                  value={heroPrice}
-                  onChange={(e) => setHeroPrice(e.target.value)}
-                  className="w-full bg-transparent text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-slate-900 [&>option]:text-white"
-                >
-                  <option value="">{t("anyPrice")}</option>
-                  <option value="25000">{t("under25k")}</option>
-                  <option value="50000">{t("between25k50k")}</option>
-                  <option value="100000">{t("above50k")}</option>
-                </select>
-              </div>
-
-              {/* Rooms Select */}
-              <div className="relative flex items-center bg-slate-950/80 hover:bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">🛏️</span>
-                <select
-                  value={heroRooms}
-                  onChange={(e) => setHeroRooms(e.target.value)}
-                  className="w-full bg-transparent text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-slate-900 [&>option]:text-white"
-                >
-                  <option value="">{t("rooms")}</option>
-                  <option value="1">{t("bedStudio")}</option>
-                  <option value="2">{t("twoBeds")}</option>
-                  <option value="3">{t("threeBeds")}</option>
-                  <option value="4">{t("fourPlusBeds")}</option>
-                </select>
-              </div>
-
-              {/* Search Action Button */}
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
-              >
-                {t("searchButton")}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </section>
-
       {/* PLATFORM HIGHLIGHTS */}
-      <section className="bg-white py-16">
+      <section className="bg-white dark:bg-slate-900 py-16 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-10 flex items-end justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
                 {t("platformHighlights")}
               </h2>
-              <p className="mt-1 text-slate-600">
+              <p className="mt-1 text-slate-600 dark:text-slate-400">
                 {t("platformHighlightsSubtitle")}
               </p>
             </div>
@@ -365,21 +359,21 @@ export default function HomePage() {
                 key={highlight.id}
                 className="cursor-default"
               >
-                <Card className="card-hover overflow-hidden h-full flex flex-col">
-                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100">
-                    <highlight.icon className="h-12 w-12 text-emerald-600" />
+                <Card className="card-hover overflow-hidden h-full flex flex-col bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
+                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 dark:from-emerald-950/40 dark:to-slate-800">
+                    <highlight.icon className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
                   </div>
 
                   <CardContent className="p-4 flex-1">
-                    <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider">
+                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                       {highlight.category}
                     </p>
 
-                    <h3 className="mt-2 font-bold text-slate-900 text-lg">
+                    <h3 className="mt-2 font-bold text-slate-900 dark:text-white text-lg">
                       {highlight.name}
                     </h3>
 
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                       {highlight.desc}
                     </p>
                   </CardContent>
@@ -409,12 +403,11 @@ export default function HomePage() {
       <SecurityGuaranteeSection />
 
       {/* FULL WIDTH ANIMATED COUNTER SECTION */}
-      <section className="w-full relative overflow-hidden bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 py-16 md:py-20 border-y border-emerald-800/30">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#022c22_1px,transparent_1px),linear-gradient(to_bottom,#022c22_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-25 pointer-events-none" />
-        <div className="absolute inset-0 bg-emerald-950/20 backdrop-blur-[1px]" />
+      <section className="w-full relative overflow-hidden bg-slate-100 dark:bg-slate-900/90 py-16 md:py-20 border-y border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#022c22_1px,transparent_1px),linear-gradient(to_bottom,#022c22_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30 dark:opacity-25 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 items-center justify-center divide-x-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 items-center justify-center divide-x-0 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800">
             {counterData.map((item, idx) => (
               <div key={idx} className={idx > 0 ? "pt-6 md:pt-0" : ""}>
                 <CounterItem
@@ -428,20 +421,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section with a Green Background Layout */}
+      {/* CTA Section */}
       <div className="mt-28 mx-auto max-w-5xl px-4 sm:px-6 relative z-20">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900/40 via-emerald-950/50 to-slate-950 border border-emerald-500/20 p-8 md:p-16 text-center shadow-2xl backdrop-blur-sm">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50 via-emerald-100/60 to-teal-50 dark:from-emerald-900/40 dark:via-emerald-950/50 dark:to-slate-950 border border-emerald-300/60 dark:border-emerald-500/20 p-8 md:p-16 text-center shadow-xl dark:shadow-2xl backdrop-blur-sm transition-colors">
           <div className="absolute -left-20 -top-20 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
           <div className="absolute -right-20 -bottom-20 w-72 h-72 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="inline-flex h-1 w-16 bg-emerald-400/50 rounded-full mb-8 mx-auto" />
+            <div className="inline-flex h-1 w-16 bg-emerald-500 rounded-full mb-8 mx-auto" />
 
-            <h3 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t("ctaTitle")}
             </h3>
 
-            <p className="mt-4 text-emerald-100/80 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
+            <p className="mt-4 text-slate-600 dark:text-emerald-100/80 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
               {t("ctaSubtitle")}
             </p>
 
@@ -449,10 +442,10 @@ export default function HomePage() {
               <Link href="/auth/register">
                 <Button
                   size="lg"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-8 py-6 rounded-2xl text-base shadow-xl hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group border-0"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-6 rounded-2xl text-base shadow-xl hover:shadow-emerald-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group border-0"
                 >
                   {t("ctaButton")}
-                  <ArrowRight className="h-5 w-5 text-slate-950 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </div>
@@ -463,7 +456,7 @@ export default function HomePage() {
       {/* Clean, Rounded & Minimalist About Us Section with Scroll-Triggered Text Animations */}
       <section
         ref={aboutSectionRef}
-        className="mt-28 max-w-[95vw] mx-auto bg-slate-50/90 text-black border border-slate-200/80 rounded-[32px] overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 items-stretch"
+        className="mt-28 max-w-[95vw] mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[32px] overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 items-stretch"
       >
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -485,8 +478,8 @@ export default function HomePage() {
             className={`space-y-2 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
             style={{ animationDelay: "100ms" }}
           >
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 block">{t("aboutBadge")}</span>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-black">
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">{t("aboutBadge")}</span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
               {t("aboutTitle")}
             </h2>
           </div>
@@ -496,26 +489,26 @@ export default function HomePage() {
             style={{ animationDelay: "350ms" }}
           >
             <div className="space-y-1">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">{t("ourMission")}</h3>
-              <p className="text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">{t("ourMission")}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 {t("ourMissionDesc")}
               </p>
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">{t("ourVision")}</h3>
-              <p className="text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">{t("ourVision")}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 {t("ourVisionDesc")}
               </p>
             </div>
           </div>
 
           <div
-            className={`space-y-2 pt-2 border-t border-slate-200 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
+            className={`space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
             style={{ animationDelay: "850ms" }}
           >
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">{t("services")}</h4>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-900 font-medium">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("services")}</h4>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-800 dark:text-slate-200 font-medium">
               {[t("residentialRentals"), t("tenantRelocation"), t("digitalLeases")].map((s: string, i: number) => (
                 <li key={i} className="flex items-center gap-2">✓ {s}</li>
               ))}
@@ -523,14 +516,14 @@ export default function HomePage() {
           </div>
 
           <div
-            className={`pt-6 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-6 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
+            className={`pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6 scroll-item ${isAboutVisible ? "animate-scroll-active" : ""}`}
             style={{ animationDelay: "1100ms" }}
           >
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">{t("contact247")}</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 block">{t("contact247")}</span>
               <a
                 href="tel:+251911819145"
-                className="text-xl font-extrabold text-black hover:underline block mt-0.5"
+                className="text-xl font-extrabold text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 block mt-0.5 transition-colors"
               >
                 +251 911 819 145
               </a>
@@ -539,7 +532,7 @@ export default function HomePage() {
             <Link href="/auth/register">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-black hover:bg-slate-800 text-white font-bold px-8 py-5 rounded-xl text-sm transition-all shadow-md"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-5 rounded-xl text-sm transition-all shadow-md shadow-emerald-600/25"
               >
                 {t("findYourHomeNow")}
               </Button>
@@ -548,7 +541,7 @@ export default function HomePage() {
         </div>
 
         {/* RIGHT COLUMN: Static Full-Height Video Frame with Custom Play Button */}
-        <div className="w-full lg:col-span-5 relative min-h-[380px] lg:min-h-full bg-slate-200 border-t lg:border-t-0 lg:border-l border-slate-200 flex items-center justify-center group cursor-pointer overflow-hidden">
+        <div className="w-full lg:col-span-5 relative min-h-[380px] lg:min-h-full bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 flex items-center justify-center group cursor-pointer overflow-hidden">
           <video
             autoPlay
             loop
@@ -570,14 +563,14 @@ export default function HomePage() {
 
       {/* SERVICE BOOKING */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <div className="rounded-3xl bg-slate-900 p-8 text-white sm:p-12">
+        <div className="rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 text-slate-900 dark:text-white sm:p-12 transition-colors shadow-sm">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div>
-              <h2 className="text-3xl font-bold">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                 {t("smartMoveInTitle")}
               </h2>
 
-              <p className="mt-4 text-slate-300">
+              <p className="mt-4 text-slate-600 dark:text-slate-300">
                 {t("smartMoveInDesc")}
               </p>
 
@@ -585,7 +578,7 @@ export default function HomePage() {
                 {[t("moveInCleaning"), t("propertyInspection"), t("tenantMoving")].map((s) => (
                   <span
                     key={s}
-                    className="rounded-full bg-white/10 px-4 py-2 text-sm font-medium"
+                    className="rounded-full bg-emerald-50 dark:bg-white/10 border border-emerald-200/80 dark:border-transparent px-4 py-2 text-sm font-medium text-emerald-800 dark:text-emerald-300"
                   >
                     {s}
                   </span>
@@ -595,18 +588,18 @@ export default function HomePage() {
 
             <div className="flex justify-center gap-6">
               <div className="text-center">
-                <Truck className="mx-auto h-10 w-10 text-emerald-400" />
-                <p className="mt-2 text-sm">{t("tenantMoving")}</p>
+                <Truck className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("tenantMoving")}</p>
               </div>
 
               <div className="text-center">
-                <Shield className="mx-auto h-10 w-10 text-emerald-400" />
-                <p className="mt-2 text-sm">{t("digitalLeases")}</p>
+                <Shield className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("digitalLeases")}</p>
               </div>
 
               <div className="text-center">
-                <Wrench className="mx-auto h-10 w-10 text-emerald-400" />
-                <p className="mt-2 text-sm">{t("propertyInspection")}</p>
+                <Wrench className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("propertyInspection")}</p>
               </div>
             </div>
           </div>
@@ -620,23 +613,23 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS — PREMIUM PROCESS SECTION */}
-      <section className="w-full bg-white py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-100 shadow-sm my-16">
+      <section className="w-full bg-white dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200/80 dark:border-slate-800 shadow-sm my-16 transition-colors">
         {/* Subtle background texture */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none" />
-        <div className="absolute -top-32 -left-32 w-80 h-80 bg-emerald-100 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-100 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           {/* Header */}
           <div className="text-center mb-16 md:mb-20">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-xs font-semibold text-emerald-700 tracking-wide uppercase mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 tracking-wide uppercase mb-4">
               <Sparkles className="h-3.5 w-3.5" />
               {t("howItWorksBadge")}
             </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
               {t("howItWorksTitle")}
             </h2>
-            <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto mt-4 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-2xl mx-auto mt-4 leading-relaxed">
               {t("howItWorksSubtitle")}
             </p>
           </div>
@@ -644,7 +637,7 @@ export default function HomePage() {
           {/* Steps Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 relative">
             {/* Connecting line (desktop only) */}
-            <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-blue-200 via-emerald-200 to-purple-200 z-0" />
+            <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-emerald-200 via-teal-200 to-cyan-200 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 z-0" />
 
             {[
               { step: "01", title: t("step1Title"), description: t("step1Desc") },
@@ -665,15 +658,15 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 className="relative z-10 group"
               >
-                <div className="bg-white border border-slate-200 hover:border-slate-300 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 h-full flex flex-col">
+                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full flex flex-col">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <StepIcon className="w-6 h-6 text-white" />
                   </div>
                   <span className={`text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-3`}>
                     Step {item.step}
                   </span>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">{item.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed flex-1">{item.description}</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">{item.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed flex-1">{item.description}</p>
                   <div className={`mt-6 h-1 w-12 rounded-full bg-gradient-to-r ${gradient} opacity-40 group-hover:opacity-100 group-hover:w-full transition-all duration-500`} />
                 </div>
               </motion.div>
@@ -683,7 +676,7 @@ export default function HomePage() {
           {/* Bottom CTA */}
           <div className="text-center mt-16">
             <Link href="/auth/register">
-              <Button className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 py-3 rounded-xl text-sm transition-all shadow-lg hover:-translate-y-0.5 group">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/25 hover:-translate-y-0.5 group">
                 {t("startRentingToday")}
                 <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
@@ -692,11 +685,10 @@ export default function HomePage() {
         </div>
       </section>
 
-
       {/* IMPRESSIVE FULL-WIDTH APP DOWNLOAD SECTION */}
-      <section className="w-full bg-white py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-100 shadow-sm">
-        {/* Fine grid design layer overlay - adjusted for white background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-60 pointer-events-none" />
+      <section className="w-full bg-white dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors">
+        {/* Fine grid design layer overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#94a3b8_1px,transparent_1px),linear-gradient(to_bottom,#94a3b8_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-10 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -704,14 +696,14 @@ export default function HomePage() {
             {/* LEFT COLUMN: TEXTS & DOWNLOAD CALL TO ACTIONS */}
             <div className="w-full lg:col-span-6 space-y-8 text-center lg:text-left">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full bg-lime-50 border border-lime-200 px-4 py-1.5 text-xs font-semibold text-lime-700 tracking-wide uppercase mx-auto lg:mx-0">
-                  <Smartphone className="h-3.5 w-3.5 text-lime-600" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 tracking-wide uppercase mx-auto lg:mx-0">
+                  <Smartphone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                   {t("appBadge")}
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                   {t("appTitle")}
                 </h2>
-                <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">
+                <p className="text-slate-600 dark:text-slate-300 text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">
                   {t("appSubtitle")}
                 </p>
               </div>
@@ -724,8 +716,8 @@ export default function HomePage() {
                   t("feature4Title"),
                   t("smartMoveInTitle")
                 ].map((text: string, i: number) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-slate-700">
-                    <CheckCircle2 className="h-4 w-4 text-lime-500 shrink-0" />
+                  <div key={i} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                     <span>{text}</span>
                   </div>
                 ))}
@@ -736,9 +728,9 @@ export default function HomePage() {
                 {/* Google Play Button */}
                 <a
                   href="#play-store"
-                  className="flex items-center gap-3 bg-slate-900 border border-slate-900 hover:border-lime-500/50 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl transition-all shadow-lg group hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex items-center gap-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-800 text-white px-6 py-3 rounded-2xl transition-all shadow-lg group hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <svg className="w-6 h-6 fill-current text-white group-hover:text-lime-400 transition-colors" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 fill-current text-white group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24">
                     <path d="M3,5.27V18.73L16.55,12L3,5.27M17.87,11.33L14.3,9.5L3.63,4.12C3.43,4.02 3.22,3.97 3,4V4C3.41,4 3.8,4.13 4.13,4.35L17.87,11.33M17.87,12.67L4.13,19.65C3.8,19.87 3.41,20 3,20V20C3.22,20.03 3.43,19.98 3.63,19.88L14.3,14.5L17.87,12.67M20.33,12L16.5,10.12V13.88L20.33,12C20.76,11.79 21,11.4 21,11C21,10.6 20.76,10.21 20.33,12Z" />
                   </svg>
                   <div className="text-left">
@@ -750,9 +742,9 @@ export default function HomePage() {
                 {/* App Store Button */}
                 <a
                   href="#app-store"
-                  className="flex items-center gap-3 bg-slate-900 border border-slate-900 hover:border-lime-500/50 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl transition-all shadow-lg group hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex items-center gap-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-800 text-white px-6 py-3 rounded-2xl transition-all shadow-lg group hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <svg className="w-6 h-6 fill-current text-white group-hover:text-lime-400 transition-colors" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 fill-current text-white group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24">
                     <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z" />
                   </svg>
                   <div className="text-left">
@@ -891,8 +883,8 @@ export default function HomePage() {
       </section>
 
       {/* VENDOR CTA */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/40 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-slate-800 shadow-xl my-16">
-        {/* Professional subtle grid overlay */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50/40 to-teal-50 dark:from-slate-900 dark:via-slate-950 dark:to-emerald-950/40 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-xl my-16 transition-colors">
+        {/* Subtle grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-5 pointer-events-none" />
 
         {/* Ambient background glow */}
@@ -903,25 +895,25 @@ export default function HomePage() {
 
             {/* Left: Text Content and Info Badges */}
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400 tracking-wide uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-400 tracking-wide uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {t("vendorCta.badge")}
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+              <h3 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
                 {t("vendorCta.title")}
               </h3>
 
-              <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
                 {t("vendorCta.subtitle")}
               </p>
             </div>
 
-            {/* Right: Premium Dynamic Action Call */}
+            {/* Right: Action Button */}
             <div className="shrink-0">
               <Link href="/auth/register">
                 <Button
-                  className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0"
+                  className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {t("vendorCta.buttonText")}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -932,183 +924,112 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+           {/* MEET OUR AGENTS SECTION */}
+      {agents.length > 0 && (
+        <section className="w-full bg-white dark:bg-slate-900 py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-200/80 dark:border-slate-800 shadow-2xl my-16 transition-colors">
+          {/* Ambient Background Accents */}
+          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* MEET OUR TEAM SECTION */}
-      <section className="w-full bg-white py-20 md:py-28 relative overflow-hidden rounded-[40px] md:rounded-[60px] border border-slate-100 shadow-2xl my-16">
-        {/* Premium Ambient Background Accents (Softened for white background) */}
-        <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-emerald-100 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-50 rounded-full blur-[120px] pointer-events-none" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Grid overlay layer (Adjusted for white background) */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-50 pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 md:mb-24">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-600 tracking-wide uppercase">
-              {t("team.badge")}
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-              {t("team.title")}
-            </h2>
-            <p className="text-slate-600 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-              {t("team.subtitle")}
-            </p>
-          </div>
-
-          {/* Team — Desktop Grid (hidden on mobile) */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {(cmsConfig?.cms_meet_the_minds || [
-              {
-                name: "Nathan Embakom",
-                role: "Chief Executive Officer",
-                dept: "Executive Leadership",
-                bio: "Ex-fintech architect directing corporate tech growth and secure ecosystem partnerships across East Africa.",
-              },
-              {
-                name: "Amara Belay",
-                role: "Chief Technology Officer",
-                dept: "Engineering",
-                bio: "Specialist in high-scale cloud clusters, data structures, and core real-time telemetry streaming platforms.",
-              },
-              {
-                name: "Dawit Kebede",
-                role: "Head of Product Infrastructure",
-                dept: "Product Management",
-                bio: "Translates high-level vendor marketplace visions into intuitive, user-centric system interfaces.",
-              },
-              {
-                name: "Selam Kebede",
-                role: "VP of Logistics Operations",
-                dept: "Operations",
-                bio: "Optimizes end-to-end multi-party shipping pipelines, supply network visibility, and automated merchant routing.",
-              },
-            ]).map((member: any, i: number) => (
-              <div
-                key={i}
-                className="group relative flex flex-col justify-between bg-white border border-slate-200 hover:border-emerald-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10"
-              >
-                <div>
-                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 relative mb-5 border border-slate-100">
-                    <img src={member.photo || `https://i.pravatar.cc/300?u=${member.name}`} alt={member.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                      <p className="text-xs text-white leading-relaxed italic font-medium">
-                        "{member.bio || member.role}"
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                    {member.dept || "Team"}
-                  </span>
-                  <h4 className="text-lg font-bold text-slate-900 tracking-tight mt-3 group-hover:text-emerald-600 transition-colors duration-200">
-                    {member.name}
-                  </h4>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    {member.role}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 border-t border-slate-100 mt-6 pt-4 text-slate-400">
-                  <a href="#linkedin" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                    <FaLinkedin className="h-4 w-4" />
-                  </a>
-                  <a href="#twitter" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                    <FaXTwitter className="h-4 w-4" />
-                  </a>
-                  <a href="#email" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </div>
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 md:mb-20">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 tracking-wide uppercase">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                {t("team.badge")}
               </div>
-            ))}
-          </div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                {t("team.title")}
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+                {t("team.subtitle")}
+              </p>
+            </div>
 
-          {/* Team — Mobile Auto-Scrolling Marquee (hidden on sm+) */}
-          <div className="sm:hidden overflow-hidden w-full relative">
-            <div className="absolute top-0 left-0 bottom-0 w-6 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
-            <motion.div
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ ease: "linear", duration: 18, repeat: Infinity }}
-              className="flex w-max gap-5"
-            >
-              {[...Array(2)].flatMap((_, dupeIdx) =>
-                (cmsConfig?.cms_meet_the_minds || [
-                  {
-                    name: "Michael Yohannes",
-                    role: "Co-Founder & Chief Executive Officer",
-                    dept: "Executive Leadership",
-                    bio: "Ex-fintech architect directing corporate tech growth and secure ecosystem partnerships across East Africa.",
-                  },
-                  {
-                    name: "Amara Belay",
-                    role: "Chief Technology Officer",
-                    dept: "Engineering",
-                    bio: "Specialist in high-scale cloud clusters, data structures, and core real-time telemetry streaming platforms.",
-                  },
-                  {
-                    name: "Dawit Kebede",
-                    role: "Head of Product Infrastructure",
-                    dept: "Product Management",
-                    bio: "Translates high-level vendor marketplace visions into intuitive, user-centric system interfaces.",
-                  },
-                  {
-                    name: "Selam Kebede",
-                    role: "VP of Logistics Operations",
-                    dept: "Operations",
-                    bio: "Optimizes end-to-end multi-party shipping pipelines, supply network visibility, and automated merchant routing.",
-                  },
-                ]).map((member: any, i: number) => (
+            {/* Agents Grid (Consistent Card CSS matching platform design tokens) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center max-w-5xl mx-auto">
+              {agents.map((agent: any, i: number) => {
+                const initials = agent.initials || (agent.name ? agent.name.slice(0, 2).toUpperCase() : "DT");
+                return (
                   <div
-                    key={`${dupeIdx}-${i}`}
-                    className="flex-shrink-0 w-[280px] group relative flex flex-col justify-between bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
+                    key={agent.id || i}
+                    className="group relative bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-1 shadow-md shadow-slate-900/5"
                   >
-                    <div>
-                      <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 relative mb-5 border border-slate-100">
-                        <img src={member.photo || `https://i.pravatar.cc/300?u=${member.name}`} alt={member.name} className="w-full h-full object-cover" />
+                    <div className="flex flex-col items-center text-center">
+                      {/* Top Tag */}
+                      <div className="w-full flex items-center justify-between mb-6">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                          {agent.dept || "Verified Agent"}
+                        </span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-emerald-500" />
+                          {agent.zone || agent.region || "Addis Ababa"}
+                        </span>
                       </div>
-                      <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                        {member.dept || "Team"}
-                      </span>
-                      <h4 className="text-lg font-bold text-slate-900 tracking-tight mt-3">
-                        {member.name}
-                      </h4>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        {member.role}
+
+                      {/* Circular Initial Avatar / Photo with Emerald Ring */}
+                      <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-2 border-emerald-500 flex items-center justify-center font-black text-2xl shadow-sm mb-4 group-hover:scale-105 transition-transform duration-300">
+                        {agent.photo ? (
+                          <img src={agent.photo} alt={agent.name} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          initials
+                        )}
+                      </div>
+
+                      {/* Agent Name & Role */}
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                        {agent.name}
+                      </h3>
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                        {agent.role || "Certified Real Estate Agent"}
+                      </p>
+
+                      {/* Bio */}
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+                        "{agent.bio || 'Official verified Delala agent managing verified residential properties and rental agreements across Addis Ababa.'}"
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 border-t border-slate-100 mt-6 pt-4 text-slate-400">
-                      <a href="#linkedin" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                        <FaLinkedin className="h-4 w-4" />
+
+                    {/* Contact Actions */}
+                    <div className="pt-5 mt-6 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                      <a
+                        href={`mailto:${agent.email || 'agent@ethiodellala.et'}`}
+                        className="inline-flex items-center gap-1.5 font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>{agent.email || 'Email Agent'}</span>
                       </a>
-                      <a href="#twitter" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                        <FaXTwitter className="h-4 w-4" />
-                      </a>
-                      <a href="#email" className="hover:text-emerald-600 transition-colors duration-200 no-underline">
-                        <Mail className="h-4 w-4" />
+                      <a
+                        href={`tel:${agent.phone || '+251911000004'}`}
+                        className="inline-flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                        <span>{agent.phone || 'Call'}</span>
                       </a>
                     </div>
                   </div>
-                ))
-              )}
-            </motion.div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="py-20 overflow-hidden bg-white border-y border-slate-100">
+      <section className="py-20 overflow-hidden bg-white dark:bg-slate-950 border-y border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 mb-12 text-center space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-700 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
             {t("partners.title")}
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{t("partners.title")}</h2>
-          <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto">{t("partners.subtitle")}</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{t("partners.title")}</h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl mx-auto">{t("partners.subtitle")}</p>
         </div>
 
         <div className="relative overflow-hidden w-full">
           {/* Edge fade gradients */}
-          <div className="absolute top-0 left-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 left-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
 
           <motion.div
             className="flex gap-6 w-max"
@@ -1122,7 +1043,7 @@ export default function HomePage() {
             {[...partners, ...partners, ...partners].map((partner, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-52 h-24 bg-white border border-slate-200/80 rounded-2xl p-4 flex items-center justify-center shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-300 group"
+                className="flex-shrink-0 w-52 h-24 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-center shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-300 group"
               >
                 <img
                   src={partner.logo}

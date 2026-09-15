@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, ShieldCheck, Footprints, GraduationCap, Building2, ArrowRight, Star } from "lucide-react";
+import { MapPin, ShieldCheck, Footprints, ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -97,16 +97,16 @@ export default function NeighborhoodGuideSection() {
   const activeHood = neighborhoodsData.find(n => n.id === activeId) || neighborhoodsData[0];
 
   return (
-    <section className="bg-white py-24 text-slate-900 border-t border-slate-200">
+    <section className="bg-white dark:bg-slate-900 py-24 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-xs font-bold text-emerald-700 uppercase tracking-widest">
-            <MapPin className="h-4 w-4 text-emerald-600" /> {t("neighborhoods.badge")}
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-widest">
+            <MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> {t("neighborhoods.badge")}
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
             {t("neighborhoods.title")}
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
             {t("neighborhoods.subtitle")}
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function NeighborhoodGuideSection() {
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeId === hood.id
                   ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 scale-105"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white border border-transparent dark:border-slate-700"
               }`}
             >
               {hood.name}
@@ -136,14 +136,14 @@ export default function NeighborhoodGuideSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-lg"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-lg transition-colors"
           >
             {/* Image Showcase (6 columns) */}
-            <div className="lg:col-span-6 relative h-80 sm:h-96 rounded-2xl overflow-hidden shadow-xl">
+            <div className="lg:col-span-6 relative h-80 sm:h-96 rounded-2xl overflow-hidden shadow-xl border border-slate-200/80 dark:border-slate-800">
               <img src={activeHood.image} alt={activeHood.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent p-6 flex flex-col justify-end text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent p-6 flex flex-col justify-end text-white">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{activeHood.city}</span>
-                <h3 className="text-2xl sm:text-3xl font-black">{activeHood.name}</h3>
+                <h3 className="text-2xl sm:text-3xl font-black text-white">{activeHood.name}</h3>
                 <p className="text-xs text-slate-300 mt-1">{activeHood.tagline}</p>
               </div>
             </div>
@@ -151,38 +151,38 @@ export default function NeighborhoodGuideSection() {
             {/* Neighborhood Stats & Breakdown (6 columns) */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <h4 className="text-xl font-bold text-slate-900">Neighborhood Overview</h4>
-                <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white">Neighborhood Overview</h4>
+                <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
                   {activeHood.description}
                 </p>
               </div>
 
               {/* Stats Bar */}
-              <div className="grid grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-slate-200 text-center shadow-sm">
+              <div className="grid grid-cols-3 gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-center shadow-sm">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.avgRent")}</span>
-                  <span className="text-base font-black text-emerald-600 mt-1 block">{formatCurrency(activeHood.avgRentEtb)}</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">{t("neighborhoods.avgRent")}</span>
+                  <span className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-1 block">{formatCurrency(activeHood.avgRentEtb)}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.safety")}</span>
-                  <span className="text-base font-black text-slate-900 mt-1 flex items-center justify-center gap-1">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" /> {activeHood.safetyScore}%
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">{t("neighborhoods.safety")}</span>
+                  <span className="text-base font-black text-slate-900 dark:text-white mt-1 flex items-center justify-center gap-1">
+                    <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> {activeHood.safetyScore}%
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">{t("neighborhoods.walkability")}</span>
-                  <span className="text-base font-black text-slate-900 mt-1 flex items-center justify-center gap-1">
-                    <Footprints className="h-4 w-4 text-blue-600" /> {activeHood.walkScore}/100
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">{t("neighborhoods.walkability")}</span>
+                  <span className="text-base font-black text-slate-900 dark:text-white mt-1 flex items-center justify-center gap-1">
+                    <Footprints className="h-4 w-4 text-blue-600 dark:text-blue-400" /> {activeHood.walkScore}/100
                   </span>
                 </div>
               </div>
 
               {/* Key Highlights */}
               <div>
-                <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Key Highlights</h5>
+                <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">Key Highlights</h5>
                 <div className="grid grid-cols-2 gap-2">
                   {activeHood.keyHighlights.map((h, i) => (
-                    <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800">
+                    <div key={i} className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200">
                       <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0" />
                       <span>{h}</span>
                     </div>
@@ -191,8 +191,8 @@ export default function NeighborhoodGuideSection() {
               </div>
 
               <div className="pt-2">
-                <Link href={`/browse-houses?q=${encodeURIComponent(activeHood.name)}`}>
-                  <Button className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 shadow-md">
+                <Link href={`/public/properties?q=${encodeURIComponent(activeHood.name)}`}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer">
                     {t("neighborhoods.exploreIn")} {activeHood.name} <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
