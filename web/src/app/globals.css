@@ -28,6 +28,19 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   transition: background-color 0.25s ease, color 0.25s ease;
+  background-image: linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+  background-attachment: fixed;
+}
+
+.dark body,
+html.dark body {
+  background-color: #0b1329;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+  background-attachment: fixed;
 }
 
 body, header, footer, section, div, p, h1, h2, h3, h4, span, a, button, input, select, textarea {
@@ -40,20 +53,29 @@ body, header, footer, section, div, p, h1, h2, h3, h4, span, a, button, input, s
   background-color: #f8fafc;
   background-image: linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
                     linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
-  background-size: 4rem 4rem;
+  background-size: 3rem 3rem;
 }
 
-.dark .gradient-hero {
+.dark .gradient-hero,
+.dark.gradient-hero {
   background-color: #0b1329;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 4rem 4rem;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 3rem 3rem;
 }
 
 .dark-grid-bg {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 4rem 4rem;
+  background-image: linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+}
+
+.dark .dark-grid-bg,
+.dark.dark-grid-bg {
+  background-color: #0b1329;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 3rem 3rem;
 }
 
 .card-hover {

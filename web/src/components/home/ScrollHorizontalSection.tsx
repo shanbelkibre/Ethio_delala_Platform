@@ -7,12 +7,27 @@ import {
   Bed,
   Bath,
   Maximize2,
-  Sparkles,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
+  Building2,
+  Building,
+  Trees,
+  Coffee,
+  Home as HomeIcon,
+  GraduationCap,
+  Waves,
+  Sun,
+  Banknote,
+  Coins,
+  Wallet,
+  CreditCard,
+  Gem,
+  BedDouble,
+  Sofa,
+  Castle,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SearchableSelect, SelectOption } from "@/components/ui/SearchableSelect";
 import { formatCurrency } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
@@ -99,6 +114,36 @@ export default function ScrollHorizontalSection() {
   const [searchLocation, setSearchLocation] = useState("");
   const [searchPrice, setSearchPrice] = useState("");
   const [searchRooms, setSearchRooms] = useState("");
+
+  const locationOptions: SelectOption[] = [
+    { value: "", label: tHome("wherePlaceholder") },
+    { value: "Bole", label: "Bole Medhaniallem", description: "Commercial & Expatriate Hub, Addis Ababa", icon: <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Kazanchis", label: "Kazanchis Diplomatic Quarter", description: "UNECA & Govt Ministries, Addis Ababa", icon: <Building className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Old Airport", label: "Old Airport Embassy Enclave", description: "Quiet Luxury Gated Villas, Addis Ababa", icon: <Trees className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Bole Atlas", label: "Bole Atlas & Cameroon St", description: "Cafes & Expat Studio Flats, Addis Ababa", icon: <Coffee className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "CMC", label: "CMC & Sunshine Real Estate", description: "Modern Family Residential Compounds, Addis Ababa", icon: <HomeIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Sarbet", label: "Sarbet & Bisrate Gabriel", description: "Residential & International Schools, Addis Ababa", icon: <GraduationCap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Hawassa", label: "Lakefront Promenade", description: "Serene Lakeview Resort Living, Hawassa", icon: <Waves className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "Adama", label: "Expressway Business Quarter", description: "Warm Weather & Fast Commute, Adama", icon: <Sun className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+  ];
+
+  const priceOptions: SelectOption[] = [
+    { value: "", label: tHome("anyPrice") },
+    { value: "25000", label: tHome("under25k"), description: "Budget Studio & 1-Bed Flats", icon: <Coins className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "50000", label: tHome("between25k50k"), description: "Standard 2-3 Bedroom Apartments", icon: <Banknote className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "100000", label: "50,000 - 100,000 ETB", description: "Executive Condos & Duplexes", icon: <Wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "200000", label: "100,000 - 200,000 ETB", description: "Diplomatic Villas & Penthouses", icon: <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "200001", label: tHome("above50k"), description: "Ultra-Luxury Diplomatic Compounds", icon: <Gem className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+  ];
+
+  const roomOptions: SelectOption[] = [
+    { value: "", label: tHome("rooms") },
+    { value: "1", label: tHome("bedStudio"), description: "Single Renter & Expat Studio", icon: <Sofa className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "2", label: tHome("twoBeds"), description: "Couple or Small Family Apartment", icon: <Bed className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "3", label: tHome("threeBeds"), description: "Spacious 3-Bed Family Condo", icon: <BedDouble className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "4", label: tHome("fourPlusBeds"), description: "4-Bed Family Townhouse", icon: <HomeIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+    { value: "5", label: "5+ Bedrooms Villa", description: "Diplomatic Multi-Story Compound", icon: <Castle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
+  ];
 
   const featuredHousesList: FeaturedHouse[] = [
     {
@@ -273,90 +318,60 @@ export default function ScrollHorizontalSection() {
           ))}
         </div>
 
-        {/* INTEGRATED MODERN SEARCH WIDGET & POPULAR LOCATIONS */}
+        {/* INTEGRATED MODERN SEARCH TOOLBAR WITH CENTRAL SEARCHABLE SELECT */}
         <div className="mt-12 space-y-5 pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
           <form
             onSubmit={handleSearch}
-            className="w-full bg-white/95 dark:bg-[#111a33]/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-xl dark:shadow-2xl backdrop-blur-xl transition-all"
+            className="w-full bg-white/95 dark:bg-[#111a33]/80 border border-slate-200/90 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-sm dark:shadow-none backdrop-blur-xl transition-all"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
-              {/* Location Input */}
-              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">📍</span>
-                <input
-                  type="text"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  placeholder={tHome("wherePlaceholder")}
-                  className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
-                />
-              </div>
+              {/* Location Select */}
+              <SearchableSelect
+                options={locationOptions}
+                value={searchLocation}
+                onChange={(val) => setSearchLocation(val)}
+                placeholder={tHome("wherePlaceholder")}
+                icon={<MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                searchPlaceholder="Filter neighborhood..."
+                searchThreshold={5}
+              />
 
               {/* Price Filter Select */}
-              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">💰</span>
-                <select
-                  value={searchPrice}
-                  onChange={(e) => setSearchPrice(e.target.value)}
-                  className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
-                >
-                  <option value="">{tHome("anyPrice")}</option>
-                  <option value="25000">{tHome("under25k")}</option>
-                  <option value="50000">{tHome("between25k50k")}</option>
-                  <option value="100000">{tHome("above50k")}</option>
-                </select>
-              </div>
+              <SearchableSelect
+                options={priceOptions}
+                value={searchPrice}
+                onChange={(val) => setSearchPrice(val)}
+                placeholder={tHome("anyPrice")}
+                icon={<DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                searchPlaceholder="Filter price..."
+                searchThreshold={5}
+              />
 
               {/* Rooms Select */}
-              <div className="relative flex items-center bg-slate-50 hover:bg-slate-100/80 dark:bg-[#0b1329]/90 dark:hover:bg-[#0b1329] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 transition-all focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <span className="text-lg mr-3 select-none">🛏️</span>
-                <select
-                  value={searchRooms}
-                  onChange={(e) => setSearchRooms(e.target.value)}
-                  className="w-full bg-transparent text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none cursor-pointer [&>option]:bg-white dark:[&>option]:bg-[#0b1329] [&>option]:text-slate-900 dark:[&>option]:text-white"
-                >
-                  <option value="">{tHome("rooms")}</option>
-                  <option value="1">{tHome("bedStudio")}</option>
-                  <option value="2">{tHome("twoBeds")}</option>
-                  <option value="3">{tHome("threeBeds")}</option>
-                  <option value="4">{tHome("fourPlusBeds")}</option>
-                </select>
-              </div>
+              <SearchableSelect
+                options={roomOptions}
+                value={searchRooms}
+                onChange={(val) => setSearchRooms(val)}
+                placeholder={tHome("rooms")}
+                icon={<Bed className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                searchPlaceholder="Filter rooms..."
+                searchThreshold={5}
+              />
 
               {/* Search Action Button */}
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-md shadow-emerald-600/25 hover:shadow-emerald-600/35 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
               >
                 {tHome("searchButton")}
               </Button>
             </div>
           </form>
-
-          {/* Popular Locations Quick Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1">
-              {t("popularNeighborhoods")}
-            </span>
-            {["Bole", "Kazanchis", "Old Airport", "Hawassa", "Adama"].map((city) => (
-              <button
-                key={city}
-                type="button"
-                onClick={() => {
-                  setSearchLocation(city);
-                  router.push(`/browse-houses?q=${encodeURIComponent(city)}`);
-                }}
-                className="bg-slate-100 hover:bg-emerald-50 dark:bg-[#111a33]/80 dark:hover:bg-emerald-950/60 border border-slate-200/90 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-semibold px-3.5 py-1.5 rounded-full backdrop-blur-md transition-all duration-200 flex items-center gap-1.5 shadow-sm hover:shadow-md cursor-pointer"
-              >
-                <MapPin className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-                <span>{city}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
       </div>
     </section>
   );
 }
+

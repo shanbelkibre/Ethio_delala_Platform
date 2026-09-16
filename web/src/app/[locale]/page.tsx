@@ -36,6 +36,7 @@ import NeighborhoodGuideSection from "@/components/home/NeighborhoodGuideSection
 import EcosystemPortalSection from "@/components/home/EcosystemPortalSection";
 import SecurityGuaranteeSection from "@/components/home/SecurityGuaranteeSection";
 import ScrollHorizontalSection from "@/components/home/ScrollHorizontalSection";
+import { GlowingLineDivider } from "@/components/ui/GlowingLineDivider";
 
 import { defaultCmsConfig } from "@/lib/cms";
 
@@ -170,7 +171,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors flex flex-col w-full min-h-screen">
+    <div className="bg-slate-50 dark:bg-[#0b1329] dark-grid-bg text-slate-900 dark:text-slate-100 transition-colors flex flex-col w-full min-h-screen">
 
       {/* ========================================================================= */}
       {/* 1. WELCOME & SEARCH DIVISION                                              */}
@@ -230,16 +231,16 @@ export default function HomePage() {
               {/* RIGHT SIDE: IMPRESSIVE HUMAN HERO IMAGE PORTRAIT SHOWCASE (5 Columns) */}
               <div className="lg:col-span-5 relative mt-6 lg:mt-0">
                 <div className="relative mx-auto max-w-md sm:max-w-lg">
-                  {/* Photo Container Frame */}
-                  <div className="relative h-[380px] sm:h-[440px] rounded-3xl overflow-hidden bg-white/90 dark:bg-[#111a33]/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-2xl flex items-center justify-center">
+                  {/* Photo Container Frame (Single Clean Border, No Heavy External Shadow) */}
+                  <div className="relative h-[380px] sm:h-[440px] rounded-3xl overflow-hidden bg-white/90 dark:bg-[#111a33]/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center">
                     <img
                       src="/images/ethiopian_woman_seller_white_bg.png"
                       alt="Ethiopian Property Host & Owner"
-                      className="w-full h-full object-contain drop-shadow-md"
+                      className="w-full h-full object-contain"
                     />
 
                     {/* Verified Partner Badge */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full shadow-lg text-center shrink-0">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full text-center shrink-0">
                       <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                         <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         {t("verifiedHost")}
@@ -311,6 +312,11 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* ANIMATED GLOWING SEPARATOR LINE 1 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
+        <GlowingLineDivider duration={4} />
       </div>
 
       {/* ========================================================================= */}
@@ -426,6 +432,11 @@ export default function HomePage() {
         </section>
       </div>
 
+      {/* ANIMATED GLOWING SEPARATOR LINE 2 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
+        <GlowingLineDivider duration={4.5} />
+      </div>
+
       {/* ========================================================================= */}
       {/* 3. DISPLAY EXISTING HOUSES & NEIGHBORHOODS DIVISION                      */}
       {/* ========================================================================= */}
@@ -522,6 +533,11 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* ANIMATED GLOWING SEPARATOR LINE 3 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
+        <GlowingLineDivider duration={5} />
       </div>
 
       {/* ========================================================================= */}
