@@ -58,26 +58,26 @@ export default function ContactSection() {
                 <Input 
                   placeholder={t("fullName")} 
                   value={formData.name}
-                  onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                 />
                 <Input 
                   placeholder={t("emailAddress")} 
                   type="email" 
                   value={formData.email}
-                  onChange={(e: any) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
               <Input 
                 placeholder={t("subject")} 
                 value={formData.subject}
-                onChange={(e: any) => setFormData({ ...formData, subject: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, subject: e.target.value })}
               />
               <textarea 
                 placeholder={t("messagePlaceholder")} 
                 rows={5} 
                 className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-[#0b1329]/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all resize-none text-sm"
                 value={formData.message}
-                onChange={(e: any) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
                 required
               />
               <button 
@@ -108,7 +108,7 @@ export default function ContactSection() {
 }
 
 // Reusable UI Components
-const Input = ({ placeholder, type = "text", value, onChange }: { placeholder: string, type?: string, value?: string, onChange?: any }) => (
+const Input = ({ placeholder, type = "text", value, onChange }: { placeholder: string, type?: string, value?: string, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
   <input 
     type={type} 
     placeholder={placeholder} 

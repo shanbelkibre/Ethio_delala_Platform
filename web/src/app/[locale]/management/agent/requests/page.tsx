@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { agentService, type AgentRequest } from '@/features/agent';
 import { Link } from '@/i18n/routing';
+import { ClipboardList } from 'lucide-react';
 
 export default function AgentRequestsPage() {
   const [requests, setRequests] = useState<AgentRequest[]>([]);
@@ -24,7 +25,7 @@ export default function AgentRequestsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Regional Requests</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Tenant and buyer inquiries in your region</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Rental and sale requests awaiting broker/agent assistance</p>
           </div>
           <Link
             href="/agent/dashboard"
@@ -40,7 +41,9 @@ export default function AgentRequestsPage() {
           </div>
         ) : requests.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">📋</p>
+            <div className="flex justify-center mb-4 text-emerald-500">
+              <ClipboardList className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">No active requests in your region.</p>
           </div>
         ) : (

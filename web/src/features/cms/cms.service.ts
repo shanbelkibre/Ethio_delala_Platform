@@ -4,6 +4,8 @@ import { CmsConfig } from './cms.types';
 export const cmsService = {
   getConfig: () => apiClient.get('/cms'),
   updateConfig: (data: Partial<CmsConfig>) => apiClient.put('/cms', data),
+  saveConfigKey: (key: string, value: string) => apiClient.patch('/config', { key, value }),
 };
 
 export default cmsService;
+

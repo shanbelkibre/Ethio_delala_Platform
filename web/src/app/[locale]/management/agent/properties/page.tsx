@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { agentService, type AgentProperty } from '@/features/agent';
 import { Link } from '@/i18n/routing';
+import { Building2 } from 'lucide-react';
 
 export default function AgentPropertiesPage() {
   const [properties, setProperties] = useState<AgentProperty[]>([]);
@@ -24,7 +25,7 @@ export default function AgentPropertiesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Regional Properties</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Properties under your regional jurisdiction</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Properties listed in your assigned region</p>
           </div>
           <Link
             href="/agent/dashboard"
@@ -40,7 +41,9 @@ export default function AgentPropertiesPage() {
           </div>
         ) : properties.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">🏠</p>
+            <div className="flex justify-center mb-4 text-emerald-500">
+              <Building2 className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">No properties listed in your region yet.</p>
           </div>
         ) : (

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { propertyService } from '@/features/properties';
+import { propertyService, type Property } from '@/features/properties';
 import { MapPin, ShieldCheck, Bed, Bath, Maximize } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -14,13 +14,16 @@ export default function PropertyDetailPage() {
   const t = useTranslations('property');
   const tCommon = useTranslations('common');
   const { id } = useParams<{ id: string }>();
-  const [property, setProperty] = useState<any>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
     propertyService.getPropertyById(id)
-      .then((res) => { if (res.success && res.data) setProperty(res.data.property); })
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; data?: { property?: Property } };
+        if (data?.success && data?.data?.property) setProperty(data.data.property);
+      })
       .catch(() => setProperty(null))
       .finally(() => setLoading(false));
   }, [id]);

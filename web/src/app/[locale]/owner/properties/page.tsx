@@ -3,18 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { propertyService } from '@/features/properties';
+import { Building2 } from 'lucide-react';
+import { propertyService, type Property } from '@/features/properties';
 
 export default function OwnerPropertiesPage() {
   const t = useTranslations('owner');
   const tCommon = useTranslations('common');
   const tProp = useTranslations('property');
-  const [properties, setProperties] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     propertyService.getMyProperties()
-      .then((res) => { if (res.success && res.data) setProperties(res.data.properties || []); })
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; data?: { properties?: Property[] } };
+        if (data?.success && data?.data) setProperties(data.data.properties || []);
+      })
       .catch(() => setProperties([]))
       .finally(() => setLoading(false));
   }, []);
@@ -39,7 +43,9 @@ export default function OwnerPropertiesPage() {
           </div>
         ) : properties.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800">
-            <p className="text-5xl mb-4">🏠</p>
+            <div className="flex justify-center mb-4 text-emerald-500">
+              <Building2 className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold text-slate-800 dark:text-slate-200">{t('noProperties')}</p>
             <p className="text-slate-500 dark:text-slate-400 mt-1 mb-6">{t('createListingHint')}</p>
             <Link href="/owner/properties/create"
@@ -64,7 +70,7 @@ export default function OwnerPropertiesPage() {
                 {properties.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
                     <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-150">{p.title}</td>
-                    <td className="px-6 py-4 text-xs font-semibold">{p.propertyType} ({p.listingType || p.transactionType})</td>
+                    <td className="px-6 py-4 text-xs font-semibold">{p.propertyType} ({p.listingType})</td>
                     <td className="px-6 py-4 font-semibold text-emerald-700 dark:text-emerald-400">ETB {p.price?.toLocaleString()}</td>
                     <td className="px-6 py-4">{p.city}, {p.areaName}</td>
                     <td className="px-6 py-4">

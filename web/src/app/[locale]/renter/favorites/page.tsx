@@ -3,22 +3,30 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { Heart } from 'lucide-react';
 import { favoriteService } from '@/features/favorites';
 import { PropertyCard } from '@/features/properties/components/PropertyCard';
+import { type Property } from '@/features/properties';
 import { LoadingSpinner } from '@/components/feedback';
+
+interface FavoriteItem {
+  id: string;
+  property?: Property;
+}
 
 export default function RenterFavoritesPage() {
   const t = useTranslations('renter');
   const tProp = useTranslations('property');
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     favoriteService
       .getMyFavorites()
-      .then((res) => {
-        if (res.success && res.data) {
-          setFavorites(res.data.favorites || []);
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; data?: { favorites?: FavoriteItem[] } };
+        if (data?.success && data?.data) {
+          setFavorites(data.data.favorites || []);
         }
       })
       .catch(() => setFavorites([]))
@@ -35,7 +43,9 @@ export default function RenterFavoritesPage() {
           <LoadingSpinner />
         ) : favorites.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">❤️</p>
+            <div className="flex justify-center mb-4 text-rose-500">
+              <Heart className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">{t('noSavedProperties')}</p>
             <Link
               href="/public/properties"
@@ -46,8 +56,8 @@ export default function RenterFavoritesPage() {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favorites.map((fav: any) => (
-              <PropertyCard key={fav.id} property={fav.property || fav} />
+            {favorites.map((fav) => (
+              <PropertyCard key={fav.id} property={fav.property || (fav as unknown as Property)} />
             ))}
           </div>
         )}

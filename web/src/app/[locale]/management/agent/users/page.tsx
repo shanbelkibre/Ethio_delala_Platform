@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { agentService, type AgentUser } from '@/features/agent';
 import { Link } from '@/i18n/routing';
+import { Users } from 'lucide-react';
 
 export default function AgentUsersPage() {
   const [users, setUsers] = useState<AgentUser[]>([]);
@@ -21,17 +22,9 @@ export default function AgentUsersPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4">
       <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Regional Users</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Users registered within your assigned regional boundary</p>
-          </div>
-          <Link
-            href="/agent/dashboard"
-            className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
-          >
-            ← Back to Dashboard
-          </Link>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Regional Users</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Directory of buyers, tenants, and owners active in your assigned region.</p>
         </div>
 
         {loading ? (
@@ -40,7 +33,9 @@ export default function AgentUsersPage() {
           </div>
         ) : users.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">👥</p>
+            <div className="flex justify-center mb-4 text-emerald-500">
+              <Users className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">No registered users in your region yet.</p>
           </div>
         ) : (

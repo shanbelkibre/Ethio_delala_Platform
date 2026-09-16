@@ -1,10 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Banknote } from 'lucide-react';
 import { saleService } from '@/features/sale-requests';
 
+interface SaleOfferItem {
+  id: string;
+  status: string;
+  createdAt: string;
+  message?: string;
+  property?: { title?: string };
+  buyer?: { name?: string; email?: string };
+}
+
 export default function OwnerSaleRequestsPage() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<SaleOfferItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -12,8 +22,8 @@ export default function OwnerSaleRequestsPage() {
 
   async function fetchRequests() {
     try {
-      const res = await saleService.getMyRequests('owner');
-      if (res.success) setRequests(res.data.requests || []);
+      const res = await saleService.getMyRequests('owner') as { success?: boolean; data?: { requests?: SaleOfferItem[] } };
+      if (res?.success && res?.data) setRequests(res.data.requests || []);
     } catch { setRequests([]); }
     finally { setLoading(false); }
   }
@@ -21,15 +31,16 @@ export default function OwnerSaleRequestsPage() {
   async function handleAction(id: string, action: 'accept' | 'reject') {
     setError('');
     try {
-      const res = action === 'accept' 
+      const res = (action === 'accept' 
         ? await saleService.acceptRequest(id) 
-        : await saleService.rejectRequest(id);
-      if (res.success) {
+        : await saleService.rejectRequest(id)) as { success?: boolean };
+      if (res?.success) {
         alert(`Offer ${action === 'accept' ? 'accepted' : 'rejected'} successfully!`);
         fetchRequests();
       }
-    } catch (err: any) {
-      setError(err.error?.message || 'Failed to update request.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      setError(errorObj?.error?.message || 'Failed to update request.');
     }
   }
 
@@ -49,7 +60,9 @@ export default function OwnerSaleRequestsPage() {
           <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" /></div>
         ) : requests.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">💰</p>
+            <div className="flex justify-center mb-4 text-amber-500">
+              <Banknote className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">No purchase offers received yet.</p>
           </div>
         ) : (

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { reviewService } from "@/features/reviews";
 
 interface ReviewItem {
   id: string;
@@ -16,23 +17,21 @@ interface ReviewItem {
   image?: string;
 }
 
-export default function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
+export default function Testimonials({ testimonials = [] }: { testimonials?: ReviewItem[] }) {
   const t = useTranslations("home.testimonials");
-  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [reviews, setReviews] = useState<ReviewItem[]>(testimonials);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     // Retrieve authentic reviews directly from the database Review table
-    fetch("/api/reviews")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.reviews) && data.reviews.length > 0) {
-          setReviews(data.reviews);
+    reviewService.getPublicReviews()
+      .then((res: { success?: boolean; data?: { reviews?: ReviewItem[] }; reviews?: ReviewItem[] }) => {
+        const list = res?.reviews || res?.data?.reviews;
+        if (Array.isArray(list) && list.length > 0) {
+          setReviews(list);
         }
       })
-      .catch((err) => {
-        console.error("Failed to load reviews from database:", err);
-      });
+      .catch(() => {});
   }, []);
 
   if (reviews.length === 0) return null;

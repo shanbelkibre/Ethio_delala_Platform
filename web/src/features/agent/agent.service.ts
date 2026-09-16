@@ -1,6 +1,7 @@
 import { apiClient } from '../../services/api-client';
 
 export const agentService = {
+  getPublicAgents: () => apiClient.get('/agents'),
   getDashboardStats: () => apiClient.get('/agent/stats'),
   getRegionalProperties: () => apiClient.get('/agent/properties'),
   getRegionalRequests: () => apiClient.get('/agent/requests'),
@@ -9,3 +10,4 @@ export const agentService = {
 };
 
 export default agentService;
+

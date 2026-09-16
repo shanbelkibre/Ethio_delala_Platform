@@ -144,8 +144,9 @@ export default function CreatePropertyPage() {
       } else {
         setError(res.message || 'Creation failed');
       }
-    } catch (err: any) {
-      setError(err.error?.message || err.message || 'Failed to submit property. Check subscription status.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || 'Failed to submit property. Check subscription status.');
     } finally {
       setLoading(false);
     }

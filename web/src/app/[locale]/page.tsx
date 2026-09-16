@@ -37,6 +37,8 @@ import EcosystemPortalSection from "@/components/home/EcosystemPortalSection";
 import SecurityGuaranteeSection from "@/components/home/SecurityGuaranteeSection";
 import ScrollHorizontalSection from "@/components/home/ScrollHorizontalSection";
 import { GlowingLineDivider } from "@/components/ui/GlowingLineDivider";
+import { cmsService, type CmsConfig } from "@/features/cms";
+import { adminService } from "@/features/admin";
 
 import { defaultCmsConfig } from "@/lib/cms";
 
@@ -98,7 +100,7 @@ export default function HomePage() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("home");
-  const [cmsConfig, setCmsConfig] = useState<any>(null);
+  const [cmsConfig, setCmsConfig] = useState<CmsConfig | null>(null);
   const [dbStats, setDbStats] = useState<{
     yearsExperience: number;
     verifiedProperties: number;
@@ -119,23 +121,39 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    fetch("/api/cms").then(res => res.json()).then(data => {
-      if (data?.config && Object.keys(data.config).length > 0) {
-        setCmsConfig(data.config);
-      }
-    }).catch(console.error);
+    cmsService.getConfig()
+      .then((res: unknown) => {
+        const data = res as { config?: CmsConfig };
+        if (data?.config && Object.keys(data.config).length > 0) {
+          setCmsConfig(data.config);
+        }
+      })
+      .catch(() => {});
 
-    fetch("/api/stats").then(res => res.json()).then(data => {
-      if (data?.success && data.stats) {
-        setDbStats(data.stats);
-      }
-    }).catch(console.error);
+    adminService.getPublicStats()
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; stats?: { yearsExperience: number; verifiedProperties: number; satisfiedTenants: number; completedBookings: number; }; data?: { stats?: { yearsExperience: number; verifiedProperties: number; satisfiedTenants: number; completedBookings: number; } } };
+        const stats = data?.stats || data?.data?.stats;
+        if (stats) {
+          setDbStats(stats);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Map of icon name strings -> React components for CMS-driven icons
-  const iconMap: Record<string, React.ComponentType<any>> = { Store, Wrench, CreditCard, Smartphone, Calendar, Users, Briefcase, Truck };
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    Store,
+    Wrench,
+    CreditCard,
+    Smartphone,
+    Calendar,
+    Users,
+    Briefcase,
+    Truck,
+  };
 
-  const hero = cmsConfig?.cms_hero || {};
+  const hero = cmsConfig?.cms_hero || defaultCmsConfig.cms_hero;
   const platformHighlights = [
     { id: "0", icon: Store, category: t("residentialRentals"), name: t("addisLuxuryApts"), desc: t("addisLuxuryDesc") },
     { id: "1", icon: Wrench, category: t("villasAndHouses"), name: t("gatedFamilyHomes"), desc: t("gatedFamilyDesc") },
@@ -157,11 +175,11 @@ export default function HomePage() {
     { value: dbStats?.completedBookings ?? 0, label: t("completedBookingsCount"), icon: Briefcase },
   ];
 
-  const cta = cmsConfig?.cms_cta || {};
-  const about = cmsConfig?.cms_about || {};
-  const howItWorks = cmsConfig?.cms_how_it_works || {};
-  const appSection = cmsConfig?.cms_app_section || {};
-  const vendorCta = cmsConfig?.cms_vendor_cta || {};
+  const cta = cmsConfig?.cms_cta || defaultCmsConfig.cms_cta;
+  const about = cmsConfig?.cms_about || defaultCmsConfig.cms_about;
+  const howItWorks = cmsConfig?.cms_how_it_works || defaultCmsConfig.cms_how_it_works;
+  const appSection = cmsConfig?.cms_app_section || defaultCmsConfig.cms_app_section;
+  const vendorCta = cmsConfig?.cms_vendor_cta || defaultCmsConfig.cms_vendor_cta;
   const partners = [
     { name: "INSA", logo: "/logos/insa.png" },
     { name: "Safaricom", logo: "/logos/safaricom.png" },
@@ -348,7 +366,7 @@ export default function HomePage() {
                 { step: "02", title: t("step2Title"), description: t("step2Desc") },
                 { step: "03", title: t("step3Title"), description: t("step3Desc") },
                 { step: "04", title: t("step4Title"), description: t("step4Desc") },
-              ].map((item: any, i: number) => {
+              ].map((item, i) => {
                 const gradients = ["from-blue-500 to-cyan-500", "from-emerald-500 to-teal-500", "from-amber-500 to-orange-500", "from-purple-500 to-pink-500"];
                 const icons = [Store, Wrench, CreditCard, Truck];
                 const gradient = gradients[i % 4];

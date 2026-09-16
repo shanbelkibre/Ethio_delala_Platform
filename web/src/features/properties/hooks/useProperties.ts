@@ -22,8 +22,9 @@ export function useProperties(initialFilters: PropertyFilters = { page: 1, limit
       } else {
         setProperties([]);
       }
-    } catch (err: any) {
-      setError(err?.error?.message || 'Failed to fetch properties');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      setError(errorObj?.error?.message || 'Failed to fetch properties');
       setProperties([]);
     } finally {
       setLoading(false);

@@ -2,27 +2,28 @@
 
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { Building2 } from 'lucide-react';
 import { Property } from '../property.types';
 
 interface PropertyCardProps {
-  property: Property | any;
+  property: Property;
 }
 
 export function PropertyCard({ property: p }: PropertyCardProps) {
   const t = useTranslations('property');
-  const primaryImage = p.images?.find((img: any) => img.isPrimary)?.url || p.images?.[0]?.url;
+  const primaryImage = p.images?.find((img) => img.isPrimary)?.url || p.images?.[0]?.url;
 
   return (
     <Link
       href={`/public/properties/${p.id}`}
       className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 transition-shadow flex flex-col"
     >
-      <div className="bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-950/40 dark:to-teal-950/40 h-48 flex items-center justify-center text-5xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-950/40 dark:to-teal-950/40 h-48 flex items-center justify-center relative overflow-hidden">
         {primaryImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={primaryImage} alt={p.title} className="w-full h-full object-cover" />
         ) : (
-          <span>🏠</span>
+          <Building2 className="w-12 h-12 text-emerald-600/50 dark:text-emerald-400/40" />
         )}
       </div>
       <div className="p-5 flex-1 flex flex-col justify-between">

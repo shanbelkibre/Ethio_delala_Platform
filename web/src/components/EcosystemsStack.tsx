@@ -22,7 +22,7 @@ interface FeatureCardProps {
   title: string;
   description: string;
   features: string[];
-  icon: any;
+  icon: React.ElementType<{ className?: string }>;
   gradientClass: string;
   cardBg: string;
   borderClass: string;

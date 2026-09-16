@@ -1,6 +1,7 @@
 import { apiClient } from '../../services/api-client';
 
 export const adminService = {
+  getPublicStats: () => apiClient.get('/stats'),
   getStats: () => apiClient.get('/admin/stats'),
   getAuditLogs: () => apiClient.get('/admin/audit-logs'),
   getProperties: () => apiClient.get('/admin/properties'),

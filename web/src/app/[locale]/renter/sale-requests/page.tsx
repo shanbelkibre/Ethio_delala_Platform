@@ -1,15 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Banknote } from 'lucide-react';
 import { saleService } from '@/features/sale-requests';
 
+interface SaleRequestItem {
+  id: string;
+  status: string;
+  createdAt: string;
+  property?: { title?: string };
+  owner?: { name?: string; email?: string };
+}
+
 export default function RenterPurchaseRequestsPage() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<SaleRequestItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     saleService.getMyRequests('buyer')
-      .then((res) => { if (res.success) setRequests(res.data.requests || []); })
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; data?: { requests?: SaleRequestItem[] } };
+        if (data?.success && data?.data) setRequests(data.data.requests || []);
+      })
       .catch(() => setRequests([]))
       .finally(() => setLoading(false));
   }, []);
@@ -24,8 +36,10 @@ export default function RenterPurchaseRequestsPage() {
           <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" /></div>
         ) : requests.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">💰</p>
-            <p className="text-lg font-bold">You haven't sent any offers yet.</p>
+            <div className="flex justify-center mb-4 text-emerald-500">
+              <Banknote className="w-12 h-12 stroke-[1.5]" />
+            </div>
+            <p className="text-lg font-bold">You haven&apos;t sent any offers yet.</p>
           </div>
         ) : (
           <div className="space-y-4">

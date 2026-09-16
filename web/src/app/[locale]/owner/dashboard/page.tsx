@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 
+import { Building2, ClipboardList, Banknote, MessageSquare } from 'lucide-react';
+
 export default function OwnerDashboardPage() {
   const t = useTranslations('owner');
   const { user, isAuthenticated } = useAuthStore();
@@ -25,18 +27,25 @@ export default function OwnerDashboardPage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           {[
-            { label: t('myProperties'), value: '0', icon: '🏠', href: '/owner/properties' },
-            { label: t('incomingRentalRequests'), value: '0', icon: '📋', href: '/owner/rental-requests' },
-            { label: t('incomingSaleRequests'), value: '0', icon: '💰', href: '/owner/sale-requests' },
-            { label: t('messages'), value: '0', icon: '💬', href: '/owner/messages' },
-          ].map((item) => (
-            <Link key={item.label} href={item.href}
-              className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-              <p className="text-3xl mb-3">{item.icon}</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{item.value}</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.label}</p>
-            </Link>
-          ))}
+            { label: t('myProperties'), value: '0', icon: Building2, iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40', href: '/owner/properties' },
+            { label: t('incomingRentalRequests'), value: '0', icon: ClipboardList, iconColor: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40', href: '/owner/rental-requests' },
+            { label: t('incomingSaleRequests'), value: '0', icon: Banknote, iconColor: 'text-amber-500 bg-amber-50 dark:bg-amber-950/40', href: '/owner/sale-requests' },
+            { label: t('messages'), value: '0', icon: MessageSquare, iconColor: 'text-purple-500 bg-purple-50 dark:bg-purple-950/40', href: '/owner/messages' },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} href={item.href}
+                className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow flex flex-col justify-between">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${item.iconColor}`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{item.value}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{item.label}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
         <div className="flex gap-4">
           <Link href="/owner/properties/create"

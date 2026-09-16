@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { agentService, type AgentReport } from '@/features/agent';
 import { Link } from '@/i18n/routing';
+import { Flag } from 'lucide-react';
 
 export default function AgentReportsPage() {
   const [reports, setReports] = useState<AgentReport[]>([]);
@@ -23,8 +24,8 @@ export default function AgentReportsPage() {
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Regional Reports</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Disputes and complaints filed in your region</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Dispute Reports</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Disputes and complaints filed by users in your assigned region</p>
           </div>
           <Link
             href="/agent/dashboard"
@@ -40,7 +41,9 @@ export default function AgentReportsPage() {
           </div>
         ) : reports.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">🚩</p>
+            <div className="flex justify-center mb-4 text-amber-500">
+              <Flag className="w-12 h-12 stroke-[1.5]" />
+            </div>
             <p className="text-lg font-bold">No active dispute reports in your region.</p>
           </div>
         ) : (

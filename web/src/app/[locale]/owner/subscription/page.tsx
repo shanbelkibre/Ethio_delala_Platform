@@ -38,8 +38,9 @@ export default function OwnerSubscriptionPage() {
         alert('Simulation: Payment initialized via Chapa and completed successfully!');
         fetchSubscriptionInfo();
       }
-    } catch (err: any) {
-      alert(err.error?.message || 'Failed to subscribe.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      alert(errorObj?.error?.message || 'Failed to subscribe.');
     } finally {
       setSubscribing(null);
     }

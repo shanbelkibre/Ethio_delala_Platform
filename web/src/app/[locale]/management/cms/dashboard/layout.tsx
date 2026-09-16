@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getSession, clearAuthCookie } from "@/lib/auth";
-import Link from "next/link";
 import { LogOut, LayoutDashboard } from "lucide-react";
 
 export default async function CMSLayout({

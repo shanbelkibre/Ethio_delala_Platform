@@ -3,10 +3,43 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash, Upload, Save, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Plus,
+  Trash,
+  Upload,
+  Save,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Palette,
+  Navigation,
+  Sparkles,
+  Layers,
+  Flame,
+  BarChart3,
+  Megaphone,
+  Building2,
+  HelpCircle,
+  Smartphone,
+  Store,
+  Users,
+  Handshake,
+  MessageSquareQuote,
+  LayoutTemplate
+} from "lucide-react";
+import { cmsService, type CmsConfig } from "@/features/cms";
+import { defaultCmsConfig } from "@/lib/cms";
 
 // ----------- HELPERS -----------
-function Txt({ label, value, onChange, multiline = false, placeholder = "" }: any) {
+interface TxtProps {
+  label?: string;
+  value?: string;
+  onChange: (value: string) => void;
+  multiline?: boolean;
+  placeholder?: string;
+}
+
+function Txt({ label, value, onChange, multiline = false, placeholder = "" }: TxtProps) {
   const cls = "w-full border border-slate-200 p-2 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400";
   return (
     <div className="space-y-1">
@@ -19,26 +52,32 @@ function Txt({ label, value, onChange, multiline = false, placeholder = "" }: an
   );
 }
 
-function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+interface SectionProps {
+  title: string;
+  icon?: React.ElementType<{ className?: string }>;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+function Section({ title, icon: Icon, children, defaultOpen = true }: SectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <Card className="border border-slate-200 shadow-sm">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 rounded-t-xl transition-colors"
-      >
-        <h2 className="text-base font-bold text-slate-800">{title}</h2>
-        {open ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
-      </button>
-      {open && <CardContent className="pt-0 pb-6 px-6 border-t border-slate-100 space-y-4">{children}</CardContent>}
+      <CardHeader className="cursor-pointer select-none flex flex-row items-center justify-between py-4" onClick={() => setOpen(!open)}>
+        <div className="flex items-center gap-2.5">
+          {Icon && <Icon className="w-5 h-5 text-emerald-600" />}
+          <CardTitle className="text-base font-bold text-slate-800">{title}</CardTitle>
+        </div>
+        {open ? <ChevronUp className="h-5 w-5 text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-400" />}
+      </CardHeader>
+      {open && <CardContent className="space-y-4 pt-0">{children}</CardContent>}
     </Card>
   );
 }
 
 // ----------- MAIN COMPONENT -----------
 export default function CMSDashboard() {
-  const [config, setConfig] = useState<Record<string, any>>({});
+  const [config, setConfig] = useState<CmsConfig>(defaultCmsConfig);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -47,27 +86,28 @@ export default function CMSDashboard() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch("/api/cms");
-      if (res.ok) {
-        const data = await res.json();
-        setConfig(data.config);
+      const res = await cmsService.getConfig() as { config?: CmsConfig };
+      if (res?.config) {
+        setConfig({ ...defaultCmsConfig, ...res.config });
       }
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch {
+      // Ignore network error on init
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSave = async (key: string, value: any) => {
+  const handleSave = async (key: string, value: unknown) => {
     setSaving(key);
     try {
-      const res = await fetch("/api/config", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, value: JSON.stringify(value) }),
-      });
-      if (res.ok) alert("✅ Saved successfully!");
-      else alert("❌ Failed to save.");
-    } catch { alert("❌ Network error."); }
-    finally { setSaving(null); }
+      const res = await cmsService.saveConfigKey(key, JSON.stringify(value)) as { success?: boolean };
+      if (res?.success) alert("Saved successfully!");
+      else alert("Failed to save.");
+    } catch {
+      alert("Network error.");
+    } finally {
+      setSaving(null);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,14 +124,18 @@ export default function CMSDashboard() {
     finally { setUploading(false); }
   };
 
-  const setKey = (key: string, val: any) => setConfig(c => ({ ...c, [key]: val }));
-  const setNested = (key: string, field: string, val: any) =>
-    setConfig(c => ({ ...c, [key]: { ...(c[key] || {}), [field]: val } }));
+  const setKey = <K extends keyof CmsConfig>(key: K, val: CmsConfig[K]) =>
+    setConfig(c => ({ ...c, [key]: val }));
+  const setNested = <K extends keyof CmsConfig>(key: K, field: string, val: unknown) =>
+    setConfig(c => ({
+      ...c,
+      [key]: { ...(c[key] as Record<string, unknown> || {}), [field]: val }
+    }));
 
-  const SaveBtn = ({ cmsKey }: { cmsKey: string }) => (
+  const SaveBtn = ({ cmsKey }: { cmsKey: keyof CmsConfig }) => (
     <Button
       disabled={saving === cmsKey}
-      onClick={() => handleSave(cmsKey, config[cmsKey])}
+      onClick={() => handleSave(String(cmsKey), config[cmsKey])}
       className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
     >
       {saving === cmsKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -125,7 +169,7 @@ export default function CMSDashboard() {
       </div>
 
       {/* ====== THEME COLORS ====== */}
-      <Section title="🎨 Theme Colors">
+      <Section title="Theme Colors" icon={Palette}>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { label: "Primary Color", field: "primaryColor" },
@@ -160,7 +204,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== NAVBAR ====== */}
-      <Section title="🔗 Navbar">
+      <Section title="Navbar Configuration" icon={Navigation}>
         <div className="grid grid-cols-2 gap-4">
           <Txt label="Site Name" value={config.cms_navbar?.siteName} onChange={(v: string) => setNested("cms_navbar", "siteName", v)} placeholder="Delala Rentals" />
           <Txt label="Site Tagline" value={config.cms_navbar?.siteTagline} onChange={(v: string) => setNested("cms_navbar", "siteTagline", v)} placeholder="Ethiopian Home Rental Platform" />
@@ -177,7 +221,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== HERO ====== */}
-      <Section title="🚀 Hero Section">
+      <Section title="Hero Section" icon={Sparkles}>
         <div className="space-y-3">
           <Txt label="Badge Text" value={config.cms_hero?.badge} onChange={(v: string) => setNested("cms_hero", "badge", v)} placeholder="Ethiopia's Premier Home Rental Platform" />
           <Txt label="Headline Title" value={config.cms_hero?.title} onChange={(v: string) => setNested("cms_hero", "title", v)} multiline placeholder="Find & Rent Your Next Dream Home in Ethiopia" />
@@ -238,32 +282,32 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== FEATURES ====== */}
-      <Section title="✨ Features Section (4 Cards)">
-        {(config.cms_features || []).map((f: any, i: number) => (
+      <Section title="Features Section (4 Cards)" icon={Layers}>
+        {(config.cms_features || []).map((f, i) => (
           <div key={i} className="p-4 border border-slate-200 rounded-xl space-y-3 bg-slate-50">
             <p className="text-xs font-bold text-slate-500 uppercase">Card {i + 1}</p>
             <div className="grid grid-cols-2 gap-3">
               <Txt label="Title" value={f.title} onChange={(v: string) => {
-                const arr = [...config.cms_features]; arr[i] = { ...arr[i], title: v }; setKey("cms_features", arr);
+                const arr = [...(config.cms_features || [])]; arr[i] = { ...arr[i], title: v }; setKey("cms_features", arr);
               }} />
               <Txt label="Icon Name" value={f.icon} onChange={(v: string) => {
-                const arr = [...config.cms_features]; arr[i] = { ...arr[i], icon: v }; setKey("cms_features", arr);
+                const arr = [...(config.cms_features || [])]; arr[i] = { ...arr[i], icon: v }; setKey("cms_features", arr);
               }} placeholder="Store / Wrench / CreditCard / Smartphone" />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <Txt label="Image URL (Overrides Icon)" value={f.image} onChange={(v: string) => {
-                  const arr = [...config.cms_features]; arr[i] = { ...arr[i], image: v }; setKey("cms_features", arr);
+                  const arr = [...(config.cms_features || [])]; arr[i] = { ...arr[i], image: v }; setKey("cms_features", arr);
                 }} placeholder="https://..." />
               </div>
               <div className="mt-6">
                 <UploadBtn onUploaded={url => {
-                  const arr = [...config.cms_features]; arr[i] = { ...arr[i], image: url }; setKey("cms_features", arr);
+                  const arr = [...(config.cms_features || [])]; arr[i] = { ...arr[i], image: url }; setKey("cms_features", arr);
                 }} />
               </div>
             </div>
             <Txt label="Description" value={f.desc} multiline onChange={(v: string) => {
-              const arr = [...config.cms_features]; arr[i] = { ...arr[i], desc: v }; setKey("cms_features", arr);
+              const arr = [...(config.cms_features || [])]; arr[i] = { ...arr[i], desc: v }; setKey("cms_features", arr);
             }} />
           </div>
         ))}
@@ -271,38 +315,38 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== PLATFORM HIGHLIGHTS ====== */}
-      <Section title="🌟 Platform Highlights">
-        {(config.cms_platform_highlights || []).map((h: any, i: number) => (
+      <Section title="Platform Highlights" icon={Flame}>
+        {(config.cms_platform_highlights || []).map((h, i) => (
           <div key={i} className="p-4 border border-slate-200 rounded-xl space-y-3 bg-slate-50">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-slate-500 uppercase">Highlight {i + 1}</p>
               <Button variant="danger" size="sm" onClick={() => {
-                const arr = (config.cms_platform_highlights || []).filter((_: any, idx: number) => idx !== i);
+                const arr = (config.cms_platform_highlights || []).filter((_, idx) => idx !== i);
                 setKey("cms_platform_highlights", arr);
               }}><Trash className="w-3 h-3" /></Button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Txt label="Category" value={h.category} onChange={(v: string) => {
-                const arr = [...config.cms_platform_highlights]; arr[i] = { ...arr[i], category: v }; setKey("cms_platform_highlights", arr);
+                const arr = [...(config.cms_platform_highlights || [])]; arr[i] = { ...arr[i], category: v }; setKey("cms_platform_highlights", arr);
               }} />
               <Txt label="Name" value={h.name} onChange={(v: string) => {
-                const arr = [...config.cms_platform_highlights]; arr[i] = { ...arr[i], name: v }; setKey("cms_platform_highlights", arr);
+                const arr = [...(config.cms_platform_highlights || [])]; arr[i] = { ...arr[i], name: v }; setKey("cms_platform_highlights", arr);
               }} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <Txt label="Image URL (Overrides Icon)" value={h.image} onChange={(v: string) => {
-                  const arr = [...config.cms_platform_highlights]; arr[i] = { ...arr[i], image: v }; setKey("cms_platform_highlights", arr);
+                  const arr = [...(config.cms_platform_highlights || [])]; arr[i] = { ...arr[i], image: v }; setKey("cms_platform_highlights", arr);
                 }} placeholder="https://..." />
               </div>
               <div className="mt-6">
                 <UploadBtn onUploaded={url => {
-                  const arr = [...config.cms_platform_highlights]; arr[i] = { ...arr[i], image: url }; setKey("cms_platform_highlights", arr);
+                  const arr = [...(config.cms_platform_highlights || [])]; arr[i] = { ...arr[i], image: url }; setKey("cms_platform_highlights", arr);
                 }} />
               </div>
             </div>
             <Txt label="Description" value={h.desc} multiline onChange={(v: string) => {
-              const arr = [...config.cms_platform_highlights]; arr[i] = { ...arr[i], desc: v }; setKey("cms_platform_highlights", arr);
+              const arr = [...(config.cms_platform_highlights || [])]; arr[i] = { ...arr[i], desc: v }; setKey("cms_platform_highlights", arr);
             }} />
           </div>
         ))}
@@ -315,21 +359,21 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== COUNTER STATS ====== */}
-      <Section title="📊 Statistics Counters">
-        {(config.cms_counters || []).map((c: any, i: number) => (
+      <Section title="Statistics Counters" icon={BarChart3}>
+        {(config.cms_counters || []).map((c, i) => (
           <div key={i} className="flex items-center gap-4 p-3 border border-slate-200 rounded-xl bg-slate-50">
             <div className="flex-1">
               <Txt label="Value (number)" value={String(c.value)} onChange={(v: string) => {
-                const arr = [...config.cms_counters]; arr[i] = { ...arr[i], value: Number(v) || 0 }; setKey("cms_counters", arr);
+                const arr = [...(config.cms_counters || [])]; arr[i] = { ...arr[i], value: Number(v) || 0 }; setKey("cms_counters", arr);
               }} />
             </div>
             <div className="flex-1">
               <Txt label="Label" value={c.label} onChange={(v: string) => {
-                const arr = [...config.cms_counters]; arr[i] = { ...arr[i], label: v }; setKey("cms_counters", arr);
+                const arr = [...(config.cms_counters || [])]; arr[i] = { ...arr[i], label: v }; setKey("cms_counters", arr);
               }} />
             </div>
             <Button variant="danger" size="sm" className="mt-4" onClick={() => {
-              setKey("cms_counters", config.cms_counters.filter((_: any, idx: number) => idx !== i));
+              setKey("cms_counters", (config.cms_counters || []).filter((_, idx) => idx !== i));
             }}><Trash className="w-4 h-4" /></Button>
           </div>
         ))}
@@ -342,7 +386,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== CTA SECTION ====== */}
-      <Section title="📣 CTA Banner Section">
+      <Section title="CTA Banner Section" icon={Megaphone}>
         <div className="space-y-3">
           <Txt label="Title" value={config.cms_cta?.title} onChange={(v: string) => setNested("cms_cta", "title", v)} multiline />
           <Txt label="Subtitle" value={config.cms_cta?.subtitle} onChange={(v: string) => setNested("cms_cta", "subtitle", v)} multiline />
@@ -355,7 +399,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== ABOUT US ====== */}
-      <Section title="🏢 About Us Section">
+      <Section title="About Us Section" icon={Building2}>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <Txt label="Badge" value={config.cms_about?.badge} onChange={(v: string) => setNested("cms_about", "badge", v)} />
@@ -394,7 +438,7 @@ export default function CMSDashboard() {
                     }}
                   />
                   <Button variant="danger" size="sm" onClick={() => {
-                    const arr = (config.cms_about?.services || []).filter((_: any, idx: number) => idx !== i);
+                    const arr = (config.cms_about?.services || []).filter((_, idx) => idx !== i);
                     setNested("cms_about", "services", arr);
                   }}><Trash className="w-3 h-3" /></Button>
                 </div>
@@ -409,7 +453,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== HOW IT WORKS ====== */}
-      <Section title="⚙️ How Delala Works">
+      <Section title="How Delala Works" icon={HelpCircle}>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <Txt label="Badge" value={config.cms_how_it_works?.badge} onChange={(v: string) => setNested("cms_how_it_works", "badge", v)} />
@@ -421,7 +465,7 @@ export default function CMSDashboard() {
             <Txt label="CTA Button Link" value={config.cms_how_it_works?.ctaLink} onChange={(v: string) => setNested("cms_how_it_works", "ctaLink", v)} />
           </div>
           <p className="text-xs font-bold text-slate-500 uppercase mt-2">Steps</p>
-          {(config.cms_how_it_works?.steps || []).map((step: any, i: number) => (
+          {(config.cms_how_it_works?.steps || []).map((step, i) => (
             <div key={i} className="p-4 border border-slate-200 rounded-xl space-y-2 bg-slate-50">
               <p className="text-xs font-bold text-slate-400">Step {i + 1}</p>
               <div className="grid grid-cols-2 gap-2">
@@ -445,7 +489,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== APP DOWNLOAD ====== */}
-      <Section title="📱 App Download Section">
+      <Section title="App Download Section" icon={Smartphone}>
         <div className="space-y-3">
           <Txt label="Badge" value={config.cms_app_section?.badge} onChange={(v: string) => setNested("cms_app_section", "badge", v)} />
           <div className="grid grid-cols-2 gap-3">
@@ -472,7 +516,7 @@ export default function CMSDashboard() {
                     }}
                   />
                   <Button variant="danger" size="sm" onClick={() => {
-                    const arr = (config.cms_app_section?.features || []).filter((_: any, idx: number) => idx !== i);
+                    const arr = (config.cms_app_section?.features || []).filter((_, idx) => idx !== i);
                     setNested("cms_app_section", "features", arr);
                   }}><Trash className="w-3 h-3" /></Button>
                 </div>
@@ -487,7 +531,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== VENDOR CTA ====== */}
-      <Section title="🏪 Vendor CTA Section">
+      <Section title="Vendor CTA Section" icon={Store}>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <Txt label="Badge" value={config.cms_vendor_cta?.badge} onChange={(v: string) => setNested("cms_vendor_cta", "badge", v)} />
@@ -503,37 +547,37 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== MEET THE MINDS ====== */}
-      <Section title="👥 Meet the Minds (Team)">
-        {(config.cms_meet_the_minds || []).map((member: any, i: number) => (
+      <Section title="Meet the Minds (Team)" icon={Users}>
+        {(config.cms_meet_the_minds || []).map((member, i) => (
           <div key={member.id || i} className="flex items-start gap-4 p-4 border border-slate-200 rounded-xl bg-slate-50">
             <div className="flex-shrink-0">
               {member.photo && <img src={member.photo} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow" alt="" />}
               <UploadBtn onUploaded={url => {
-                const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], photo: url }; setKey("cms_meet_the_minds", arr);
+                const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], photo: url }; setKey("cms_meet_the_minds", arr);
               }} />
             </div>
             <div className="flex-1 grid grid-cols-2 gap-3">
               <Txt label="Name" value={member.name} onChange={(v: string) => {
-                const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], name: v }; setKey("cms_meet_the_minds", arr);
+                const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], name: v }; setKey("cms_meet_the_minds", arr);
               }} />
               <Txt label="Role / Title" value={member.role} onChange={(v: string) => {
-                const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], role: v }; setKey("cms_meet_the_minds", arr);
+                const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], role: v }; setKey("cms_meet_the_minds", arr);
               }} />
               <Txt label="Department" value={member.dept} onChange={(v: string) => {
-                const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], dept: v }; setKey("cms_meet_the_minds", arr);
+                const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], dept: v }; setKey("cms_meet_the_minds", arr);
               }} />
               <Txt label="LinkedIn URL" value={member.linkedin} onChange={(v: string) => {
-                const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], linkedin: v }; setKey("cms_meet_the_minds", arr);
+                const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], linkedin: v }; setKey("cms_meet_the_minds", arr);
               }} />
               <div className="col-span-2">
                 <Txt label="Bio" value={member.bio} multiline onChange={(v: string) => {
-                  const arr = [...config.cms_meet_the_minds]; arr[i] = { ...arr[i], bio: v }; setKey("cms_meet_the_minds", arr);
+                  const arr = [...(config.cms_meet_the_minds || [])]; arr[i] = { ...arr[i], bio: v }; setKey("cms_meet_the_minds", arr);
                 }} />
               </div>
             </div>
             <Button variant="danger" size="sm" onClick={() => {
-              setKey("cms_meet_the_minds", config.cms_meet_the_minds.filter((_: any, idx: number) => idx !== i));
-            }}><Trash className="w-4 h-4" /></Button>
+              setKey("cms_meet_the_minds", (config.cms_meet_the_minds || []).filter((_, idx) => idx !== i));
+            }}><Trash className="w-3 h-3" /></Button>
           </div>
         ))}
         <div className="flex gap-3">
@@ -545,21 +589,21 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== PARTNER COMPANIES ====== */}
-      <Section title="🤝 Partner Companies">
-        {(config.cms_partner_companies || []).map((partner: any, i: number) => (
+      <Section title="Partner Companies" icon={Handshake}>
+        {(config.cms_partner_companies || []).map((partner, i) => (
           <div key={partner.id || i} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-slate-50">
             {partner.logo && <img src={partner.logo} className="h-12 w-24 object-contain rounded border bg-white p-1" alt="" />}
             <div className="flex-1">
               <Txt label="Company Name" value={partner.name} onChange={(v: string) => {
-                const arr = [...config.cms_partner_companies]; arr[i] = { ...arr[i], name: v }; setKey("cms_partner_companies", arr);
+                const arr = [...(config.cms_partner_companies || [])]; arr[i] = { ...arr[i], name: v }; setKey("cms_partner_companies", arr);
               }} />
             </div>
             <UploadBtn onUploaded={url => {
-              const arr = [...config.cms_partner_companies]; arr[i] = { ...arr[i], logo: url }; setKey("cms_partner_companies", arr);
+              const arr = [...(config.cms_partner_companies || [])]; arr[i] = { ...arr[i], logo: url }; setKey("cms_partner_companies", arr);
             }} />
             <Button variant="danger" size="sm" onClick={() => {
-              setKey("cms_partner_companies", config.cms_partner_companies.filter((_: any, idx: number) => idx !== i));
-            }}><Trash className="w-4 h-4" /></Button>
+              setKey("cms_partner_companies", (config.cms_partner_companies || []).filter((_, idx) => idx !== i));
+            }}><Trash className="w-3 h-3" /></Button>
           </div>
         ))}
         <div className="flex gap-3">
@@ -571,31 +615,31 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== TESTIMONIALS ====== */}
-      <Section title="💬 Our Clients Say! (Testimonials)">
-        {(config.cms_testimonials || []).map((t: any, i: number) => (
+      <Section title="Client Testimonials" icon={MessageSquareQuote}>
+        {(config.cms_testimonials || []).map((t, i) => (
           <div key={t.id || i} className="p-4 border border-slate-200 rounded-xl space-y-3 bg-slate-50">
             <div className="flex items-center gap-4">
               {t.image && <img src={t.image} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow" alt="" />}
               <UploadBtn onUploaded={url => {
-                const arr = [...config.cms_testimonials]; arr[i] = { ...arr[i], image: url }; setKey("cms_testimonials", arr);
+                const arr = [...(config.cms_testimonials || [])]; arr[i] = { ...arr[i], image: url }; setKey("cms_testimonials", arr);
               }} />
-              <Button variant="danger" size="sm" className="ml-auto" onClick={() => setKey("cms_testimonials", config.cms_testimonials.filter((_: any, idx: number) => idx !== i))}>
+              <Button variant="danger" size="sm" className="ml-auto" onClick={() => setKey("cms_testimonials", (config.cms_testimonials || []).filter((_, idx) => idx !== i))}>
                 <Trash className="w-4 h-4 mr-1" /> Remove
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <Txt label="Name" value={t.name} onChange={(v: string) => {
-                const arr = [...config.cms_testimonials]; arr[i] = { ...arr[i], name: v }; setKey("cms_testimonials", arr);
+                const arr = [...(config.cms_testimonials || [])]; arr[i] = { ...arr[i], name: v }; setKey("cms_testimonials", arr);
               }} />
               <Txt label="Role" value={t.role} onChange={(v: string) => {
-                const arr = [...config.cms_testimonials]; arr[i] = { ...arr[i], role: v }; setKey("cms_testimonials", arr);
+                const arr = [...(config.cms_testimonials || [])]; arr[i] = { ...arr[i], role: v }; setKey("cms_testimonials", arr);
               }} />
               <Txt label="Company" value={t.company} onChange={(v: string) => {
-                const arr = [...config.cms_testimonials]; arr[i] = { ...arr[i], company: v }; setKey("cms_testimonials", arr);
+                const arr = [...(config.cms_testimonials || [])]; arr[i] = { ...arr[i], company: v }; setKey("cms_testimonials", arr);
               }} />
             </div>
             <Txt label="Testimonial Content" value={t.content} multiline onChange={(v: string) => {
-              const arr = [...config.cms_testimonials]; arr[i] = { ...arr[i], content: v }; setKey("cms_testimonials", arr);
+              const arr = [...(config.cms_testimonials || [])]; arr[i] = { ...arr[i], content: v }; setKey("cms_testimonials", arr);
             }} />
           </div>
         ))}
@@ -608,7 +652,7 @@ export default function CMSDashboard() {
       </Section>
 
       {/* ====== FOOTER ====== */}
-      <Section title="🦶 Footer Configuration">
+      <Section title="Footer Configuration" icon={LayoutTemplate}>
         <div className="grid grid-cols-2 gap-4">
           <Txt label="Address" value={config.cms_footer?.address} onChange={(v: string) => setNested("cms_footer", "address", v)} />
           <Txt label="Phone" value={config.cms_footer?.phone} onChange={(v: string) => setNested("cms_footer", "phone", v)} />
@@ -632,7 +676,7 @@ export default function CMSDashboard() {
                   }}
                 />
                 <Button variant="danger" size="sm" onClick={() => {
-                  const arr = (config.cms_footer?.services || []).filter((_: any, idx: number) => idx !== i);
+                  const arr = (config.cms_footer?.services || []).filter((_, idx) => idx !== i);
                   setNested("cms_footer", "services", arr);
                 }}><Trash className="w-3 h-3" /></Button>
               </div>

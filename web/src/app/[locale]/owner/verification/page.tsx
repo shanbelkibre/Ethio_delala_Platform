@@ -38,8 +38,9 @@ export default function OwnerVerificationPage() {
       } else {
         setError(res.message || 'Upload failed');
       }
-    } catch (err: any) {
-      setError(err.error?.message || 'Verification upload failed.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      setError(errorObj?.error?.message || 'Verification upload failed.');
     } finally {
       setIdLoading(false);
     }
@@ -64,8 +65,9 @@ export default function OwnerVerificationPage() {
       } else {
         setError(res.message || 'Upload failed');
       }
-    } catch (err: any) {
-      setError(err.error?.message || 'License upload failed.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      setError(errorObj?.error?.message || 'License upload failed.');
     } finally {
       setLicLoading(false);
     }

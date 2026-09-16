@@ -2,20 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { propertyService } from '@/features/properties';
+import { propertyService, type Property } from '@/features/properties';
 import { PropertyCard } from '@/features/properties/components/PropertyCard';
 import { LoadingSpinner, EmptyState } from '@/components/feedback';
 
 export default function PropertiesPage() {
   const t = useTranslations('property');
-  const [properties, setProperties] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     propertyService
       .getPublicProperties({ page: 1, limit: 12 })
-      .then((res) => {
-        if (res.success && res.data) setProperties(res.data.properties || []);
+      .then((res: unknown) => {
+        const data = res as { success?: boolean; data?: { properties?: Property[] } };
+        if (data?.success && data?.data?.properties) setProperties(data.data.properties);
       })
       .catch(() => setProperties([]))
       .finally(() => setLoading(false));
@@ -29,13 +30,12 @@ export default function PropertiesPage() {
           <LoadingSpinner />
         ) : properties.length === 0 ? (
           <EmptyState
-            icon="🏠"
             title={t('noPropertiesAvailableYet')}
             description={t('checkBackSoon')}
           />
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((p: any) => (
+            {properties.map((p) => (
               <PropertyCard key={p.id} property={p} />
             ))}
           </div>

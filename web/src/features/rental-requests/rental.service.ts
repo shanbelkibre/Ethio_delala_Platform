@@ -1,9 +1,9 @@
 import { apiClient } from '../../services/api-client';
 
 export const rentalService = {
-  createRentalRequest: (propertyId: string, data: any) =>
+  createRentalRequest: (propertyId: string, data: Record<string, unknown>) =>
     apiClient.post('/rentals/' + propertyId + '/requests', data),
-  createRequest: (propertyId: string, data: any) =>
+  createRequest: (propertyId: string, data: Record<string, unknown>) =>
     apiClient.post('/rentals/' + propertyId + '/requests', data),
   getMyRequests: (role?: 'owner' | 'renter') =>
     apiClient.get('/rentals/requests?role=' + (role || 'renter')),
