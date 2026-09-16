@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/services/api';
+import { adminService, type AdminUser } from '@/features/admin';
+// import { Users } from 'lucide-react';
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/users', true)
-      .then((res) => { if (res.success) setUsers(res.data.users || []); })
+    adminService.getUsers()
+      .then((res: { success?: boolean; data?: { users?: AdminUser[] } }) => {
+        if (res?.success) setUsers(res.data?.users || []);
+      })
       .catch(() => setUsers([]))
       .finally(() => setLoading(false));
   }, []);

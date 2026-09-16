@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { propertyService } from '@/services/property.service';
+import { propertyService } from '@/features/properties';
 import { MapPin, ShieldCheck, Bed, Bath, Maximize } from 'lucide-react';
 import dynamic from 'next/dynamic';
 

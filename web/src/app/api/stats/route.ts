@@ -12,8 +12,8 @@ export async function GET() {
       return NextResponse.json({ success: true, stats: data.data || null });
     }
     return NextResponse.json({ success: false, stats: null, message: "Failed to fetch stats" }, { status: res.status });
-  } catch (err: any) {
-    console.error("Backend stats API error:", err);
-    return NextResponse.json({ success: false, stats: null, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to fetch stats";
+    return NextResponse.json({ success: false, stats: null, error: errorMessage }, { status: 500 });
   }
 }

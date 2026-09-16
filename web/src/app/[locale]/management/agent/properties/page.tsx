@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { agentService } from '@/features/agent';
-import Link from 'next/link';
+import { agentService, type AgentProperty } from '@/features/agent';
+import { Link } from '@/i18n/routing';
 
 export default function AgentPropertiesPage() {
-  const [properties, setProperties] = useState<any[]>([]);
+  const [properties, setProperties] = useState<AgentProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     agentService
       .getRegionalProperties()
-      .then((res) => {
-        if (res.success && res.data) setProperties(res.data.properties || []);
+      .then((res: { success?: boolean; data?: { properties?: AgentProperty[] } }) => {
+        if (res?.success && res.data) setProperties(res.data.properties || []);
       })
       .catch(() => setProperties([]))
       .finally(() => setLoading(false));

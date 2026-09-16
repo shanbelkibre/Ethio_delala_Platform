@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { rentalService } from '@/services/rental.service';
+import { rentalService } from '@/features/rental-requests';
 
 export default function OwnerRentalRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { propertyService } from '@/services/property.service';
+import { propertyService } from '@/features/properties';
 
 export default function OwnerPropertiesPage() {
   const t = useTranslations('owner');

@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { agentService } from '@/features/agent';
-import Link from 'next/link';
+import { agentService, type AgentRequest } from '@/features/agent';
+import { Link } from '@/i18n/routing';
 
 export default function AgentRequestsPage() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<AgentRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     agentService
       .getRegionalRequests()
-      .then((res) => {
-        if (res.success && res.data) setRequests(res.data.requests || []);
+      .then((res: { success?: boolean; data?: { requests?: AgentRequest[] } }) => {
+        if (res?.success && res.data) setRequests(res.data.requests || []);
       })
       .catch(() => setRequests([]))
       .finally(() => setLoading(false));
@@ -64,7 +64,7 @@ export default function AgentRequestsPage() {
                         {r.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{new Date(r.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</td>
                   </tr>
                 ))}
               </tbody>

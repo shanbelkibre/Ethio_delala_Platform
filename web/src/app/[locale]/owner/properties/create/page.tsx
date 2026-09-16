@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
-import { propertyService } from '@/services/property.service';
-import { verificationService } from '@/services/verification.service';
-import { apiClient } from '@/services/api';
+import { propertyService } from '@/features/properties';
+import { verificationService } from '@/features/verification';
+import { profileService } from '@/features/profile';
 import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
@@ -40,9 +40,13 @@ export default function CreatePropertyPage() {
 
   useEffect(() => {
     // Fetch profile to see if user is already verified
-    apiClient.get('/users/me', true)
-      .then((res) => { if (res.success) setUserProfile(res.data.user || res.data); })
-      .catch(console.error);
+    profileService.getMe()
+      .then((res: { success?: boolean; data?: { user?: { isIdentityVerified?: boolean }; isIdentityVerified?: boolean } }) => {
+        if (res?.success && res.data) {
+          setUserProfile(res.data.user || res.data);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const isVerified = userProfile?.isIdentityVerified;

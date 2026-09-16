@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { Building2, Users, ClipboardList, Flag, UserCheck, MapPin } from 'lucide-react';
-import { agentService } from '@/features/agent';
+import { agentService, type AgentDashboardStats } from '@/features/agent';
 
 export default function AgentDashboardPage() {
   const t = useTranslations('agent');
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AgentDashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,8 +21,8 @@ export default function AgentDashboardPage() {
     }
     agentService
       .getDashboardStats()
-      .then((res) => {
-        if (res.success && res.data) setStats(res.data);
+      .then((res: { success?: boolean; data?: AgentDashboardStats }) => {
+        if (res?.success && res.data) setStats(res.data);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

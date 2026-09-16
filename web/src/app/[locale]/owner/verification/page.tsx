@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/hooks/useAuthStore';
-import { verificationService } from '@/services/verification.service';
+import { verificationService } from '@/features/verification';
 
 export default function OwnerVerificationPage() {
   const { user } = useAuthStore();

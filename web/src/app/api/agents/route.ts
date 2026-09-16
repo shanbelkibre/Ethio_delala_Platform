@@ -12,8 +12,8 @@ export async function GET() {
       return NextResponse.json({ success: true, agents: data.data || [] });
     }
     return NextResponse.json({ success: false, agents: [], message: "Failed to fetch agents" }, { status: res.status });
-  } catch (err: any) {
-    console.error("Backend agents API error:", err);
-    return NextResponse.json({ success: false, agents: [], error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to fetch agents";
+    return NextResponse.json({ success: false, agents: [], error: errorMessage }, { status: 500 });
   }
 }

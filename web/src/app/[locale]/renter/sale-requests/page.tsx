@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { saleService } from '@/services/sale.service';
+import { saleService } from '@/features/sale-requests';
 
 export default function RenterPurchaseRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);

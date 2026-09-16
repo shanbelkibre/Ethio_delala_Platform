@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/services/api';
+import { adminService, type AdminIdentityDoc, type AdminLicense } from '@/features/admin';
 
 export default function AdminVerificationQueuePage() {
-  const [identityDocs, setIdentityDocs] = useState<any[]>([]);
-  const [licenses, setLicenses] = useState<any[]>([]);
+  const [identityDocs, setIdentityDocs] = useState<AdminIdentityDoc[]>([]);
+  const [licenses, setLicenses] = useState<AdminLicense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -13,8 +13,8 @@ export default function AdminVerificationQueuePage() {
 
   async function fetchPendingDocs() {
     try {
-      const res = await apiClient.get('/verification/pending', true);
-      if (res.success) {
+      const res = await adminService.getPendingVerifications() as { success?: boolean; data?: { identityDocuments?: AdminIdentityDoc[]; licenses?: AdminLicense[] } };
+      if (res?.success && res.data) {
         setIdentityDocs(res.data.identityDocuments || []);
         setLicenses(res.data.licenses || []);
       }
@@ -27,17 +27,14 @@ export default function AdminVerificationQueuePage() {
   async function handleReview(id: string, type: 'identity' | 'license', status: 'VERIFIED' | 'REJECTED') {
     setError('');
     try {
-      const endpoint = type === 'identity' 
-        ? `/verification/identity/${id}/review` 
-        : `/verification/license/${id}/review`;
-      
-      const res = await apiClient.patch(endpoint, { status }, true);
-      if (res.success) {
+      const res = await adminService.reviewVerification(id, type, status) as { success?: boolean };
+      if (res?.success) {
         alert('Document status updated successfully!');
         fetchPendingDocs();
       }
-    } catch (err: any) {
-      setError(err.error?.message || 'Failed to update document status.');
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'error' in err ? (err as { error?: { message?: string } }).error?.message : 'Failed to update document status.';
+      setError(msg || 'Failed to update document status.');
     }
   }
 

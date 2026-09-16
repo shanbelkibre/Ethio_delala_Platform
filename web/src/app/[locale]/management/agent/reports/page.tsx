@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { agentService } from '@/features/agent';
-import Link from 'next/link';
+import { agentService, type AgentReport } from '@/features/agent';
+import { Link } from '@/i18n/routing';
 
 export default function AgentReportsPage() {
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<AgentReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     agentService
       .getReports()
-      .then((res) => {
-        if (res.success && res.data) setReports(res.data.reports || []);
+      .then((res: { success?: boolean; data?: { reports?: AgentReport[] } }) => {
+        if (res?.success && res.data) setReports(res.data.reports || []);
       })
       .catch(() => setReports([]))
       .finally(() => setLoading(false));
@@ -64,7 +64,7 @@ export default function AgentReportsPage() {
                         {r.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{new Date(r.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '-'}</td>
                   </tr>
                 ))}
               </tbody>

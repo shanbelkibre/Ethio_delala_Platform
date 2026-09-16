@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { subscriptionService } from '@/services/subscription.service';
+import { subscriptionService } from '@/features/subscriptions';
 
 export default function OwnerSubscriptionPage() {
   const t = useTranslations('owner');

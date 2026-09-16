@@ -45,7 +45,7 @@ import { defaultCmsConfig } from "@/lib/cms";
 interface CounterItemProps {
   value: number;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const CounterNumber = ({ value }: { value: number }) => {

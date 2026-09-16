@@ -1,18 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { agentService } from '@/features/agent';
-import Link from 'next/link';
+import { agentService, type AgentUser } from '@/features/agent';
+import { Link } from '@/i18n/routing';
 
 export default function AgentUsersPage() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<AgentUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     agentService
       .getRegionalUsers()
-      .then((res) => {
-        if (res.success && res.data) setUsers(res.data.users || []);
+      .then((res: { success?: boolean; data?: { users?: AgentUser[] } }) => {
+        if (res?.success && res.data) setUsers(res.data.users || []);
       })
       .catch(() => setUsers([]))
       .finally(() => setLoading(false));

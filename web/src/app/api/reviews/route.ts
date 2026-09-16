@@ -12,8 +12,8 @@ export async function GET() {
       return NextResponse.json({ success: true, reviews: data.data || [] });
     }
     return NextResponse.json({ success: false, reviews: [], message: "Failed to fetch reviews" }, { status: res.status });
-  } catch (err: any) {
-    console.error("Backend reviews API error:", err);
-    return NextResponse.json({ success: false, reviews: [], error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to fetch reviews";
+    return NextResponse.json({ success: false, reviews: [], error: errorMessage }, { status: 500 });
   }
 }

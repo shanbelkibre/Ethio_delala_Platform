@@ -10,8 +10,6 @@ import {
   Zap,
   FileText,
   Wallet,
-  CheckCircle2,
-  Sparkles,
   LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -65,7 +63,6 @@ interface FeatureCardProps {
   desc: string;
   linkHref: string;
   linkText: string;
-  tag?: string;
 }
 
 function PortalFeatureCard({
@@ -75,18 +72,12 @@ function PortalFeatureCard({
   desc,
   linkHref,
   linkText,
-  tag = "Verified",
 }: FeatureCardProps) {
   return (
     <div className={portalStyles.card}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className={portalStyles.iconBadge(iconColor)}>
-            <Icon className="h-6 w-6" />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-100 dark:border-slate-800 flex items-center gap-1">
-            <CheckCircle2 className="h-3 w-3 text-emerald-500" /> {tag}
-          </span>
+        <div className={portalStyles.iconBadge(iconColor)}>
+          <Icon className="h-6 w-6" />
         </div>
 
         <h3 className={portalStyles.cardTitle}>{title}</h3>
@@ -118,7 +109,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50",
       linkHref: "/public/properties",
       linkText: t("exploreHomes"),
-      tag: "100% Inspected",
     },
     {
       title: t("tenant2Title"),
@@ -127,7 +117,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50",
       linkHref: "/public/properties",
       linkText: t("exploreHomes"),
-      tag: "Digital Lease",
     },
     {
       title: t("tenant3Title"),
@@ -136,7 +125,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50",
       linkHref: "/public/properties",
       linkText: t("exploreHomes"),
-      tag: "Chapa Escrow",
     },
   ];
 
@@ -148,7 +136,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50",
       linkHref: "/auth/register",
       linkText: t("listYourProperty"),
-      tag: "Instant Payout",
     },
     {
       title: t("landlord2Title"),
@@ -157,7 +144,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50",
       linkHref: "/auth/register",
       linkText: t("listYourProperty"),
-      tag: "ID Verified",
     },
     {
       title: t("landlord3Title"),
@@ -166,7 +152,6 @@ export default function EcosystemPortalSection() {
       iconColor: "bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/50",
       linkHref: "/auth/register",
       linkText: t("listYourProperty"),
-      tag: "24/7 Portal",
     },
   ];
 

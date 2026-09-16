@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/services/api';
+import { adminService, type AdminPayment } from '@/features/admin';
+import { CreditCard } from 'lucide-react';
 
 export default function AdminPaymentsPage() {
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/admin/payments', true)
-      .then((res) => { if (res.success) setPayments(res.data.payments || []); })
+    adminService.getPayments()
+      .then((res: { success?: boolean; data?: { payments?: AdminPayment[] } }) => {
+        if (res?.success) setPayments(res.data?.payments || []);
+      })
       .catch(() => setPayments([]))
       .finally(() => setLoading(false));
   }, []);
@@ -22,7 +25,9 @@ export default function AdminPaymentsPage() {
           <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" /></div>
         ) : payments.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 text-center py-20 rounded-2xl border border-slate-150 dark:border-slate-800 text-slate-500">
-            <p className="text-5xl mb-4">💳</p>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+              <CreditCard className="h-8 w-8" />
+            </div>
             <p className="text-lg font-bold">No payments recorded yet.</p>
           </div>
         ) : (

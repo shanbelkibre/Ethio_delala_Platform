@@ -1,31 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/services/api';
+import { adminService, type AdminProperty } from '@/features/admin';
 
 export default function AdminPropertiesPage() {
-  const [properties, setProperties] = useState<any[]>([]);
+  const [properties, setProperties] = useState<AdminProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchProperties(); }, []);
 
   async function fetchProperties() {
     try {
-      const res = await apiClient.get('/admin/properties', true);
-      if (res.success) setProperties(res.data.properties || []);
+      const res = await adminService.getProperties() as { success?: boolean; data?: { properties?: AdminProperty[] } };
+      if (res?.success) setProperties(res.data?.properties || []);
     } catch { setProperties([]); }
     finally { setLoading(false); }
   }
 
   async function handleApprove(id: string) {
     try {
-      const res = await apiClient.patch(`/properties/${id}/status`, { status: 'APPROVED' }, true);
-      if (res.success) {
+      const res = await adminService.updatePropertyStatus(id, 'APPROVED') as { success?: boolean };
+      if (res?.success) {
         alert('Property approved successfully!');
         fetchProperties();
       }
-    } catch (err: any) {
-      alert(err.error?.message || 'Failed to update property status.');
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'error' in err ? (err as { error?: { message?: string } }).error?.message : 'Failed to update property status.';
+      alert(msg || 'Failed to update property status.');
     }
   }
 
