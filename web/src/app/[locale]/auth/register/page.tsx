@@ -16,6 +16,7 @@ import {
   Link as LinkIcon,
   X,
 } from 'lucide-react';
+import { authService } from '@/features/auth';
 
 type SelectedRole = 'RENTER' | 'OWNER';
 
@@ -132,41 +133,37 @@ export default function RegisterPage() {
     const fullName = [firstName.trim(), middleName.trim(), lastName.trim()].filter(Boolean).join(' ');
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          middleName: middleName.trim() || undefined,
-          lastName: lastName.trim() || undefined,
-          name: fullName,
-          email: email.trim().toLowerCase(),
-          phone: phone.replace(/[\s\-\(\)]/g, '').trim(),
-          password,
-          roles: [selectedRole],
-          gender: selectedRole === 'RENTER' ? gender || undefined : undefined,
-          dateOfBirth: selectedRole === 'RENTER' ? dateOfBirth || undefined : undefined,
-          maritalStatus: selectedRole === 'RENTER' ? maritalStatus || undefined : undefined,
-          profileImageUrl: profileImageUrl.trim() || undefined,
-          region: region || undefined,
-          zone: zone.trim() || undefined,
-          wereda: wereda.trim() || undefined,
-          kebele: kebele.trim() || undefined,
-        }),
-      });
-      const data = await res.json();
+      const res = await authService.register({
+        firstName: firstName.trim(),
+        middleName: middleName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        name: fullName,
+        email: email.trim().toLowerCase(),
+        phone: phone.replace(/[\s\-\(\)]/g, '').trim(),
+        password,
+        roles: [selectedRole],
+        gender: selectedRole === 'RENTER' ? gender || undefined : undefined,
+        dateOfBirth: selectedRole === 'RENTER' ? dateOfBirth || undefined : undefined,
+        maritalStatus: selectedRole === 'RENTER' ? maritalStatus || undefined : undefined,
+        profileImageUrl: profileImageUrl.trim() || undefined,
+        region: region || undefined,
+        zone: zone.trim() || undefined,
+        wereda: wereda.trim() || undefined,
+        kebele: kebele.trim() || undefined,
+      }) as { success?: boolean; data?: { user?: { email: string } }; error?: { message?: string }; message?: string };
 
-      if (!res.ok) {
-        setError(data.error?.message || data.message || 'Registration failed');
+      if (!res?.success) {
+        setError(res?.error?.message || res?.message || 'Registration failed');
         setLoading(false);
         return;
       }
 
-      const { user } = data.data;
+      const targetEmail = res?.data?.user?.email || email.trim().toLowerCase();
       // Redirect to OTP verification page preserving locale prefix
-      router.push(`/auth/verify?target=${encodeURIComponent(user.email)}`);
-    } catch {
-      setError(tValidation('required'));
+      router.push(`/auth/verify?target=${encodeURIComponent(targetEmail)}`);
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || tValidation('required'));
       setLoading(false);
     }
   }

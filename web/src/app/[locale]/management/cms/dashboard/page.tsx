@@ -28,6 +28,7 @@ import {
   LayoutTemplate
 } from "lucide-react";
 import { cmsService, type CmsConfig } from "@/features/cms";
+import { uploadService } from "@/features/upload";
 import { defaultCmsConfig } from "@/lib/cms";
 
 // ----------- HELPERS -----------
@@ -114,12 +115,9 @@ export default function CMSDashboard() {
     const file = e.target.files?.[0];
     if (!file) return null;
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      return data.url as string;
+      const res = await uploadService.uploadFile(file);
+      return res?.url || res?.fileUrl || null;
     } catch { alert("Upload failed."); return null; }
     finally { setUploading(false); }
   };

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Mail, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { authService } from '@/features/auth';
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth');
@@ -17,24 +18,20 @@ export default function ForgotPasswordPage() {
     setMessage('');
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
+      const res = await authService.forgotPassword(email) as { success?: boolean; message?: string; error?: { message?: string } };
 
-      if (!res.ok) {
+      if (!res?.success) {
         setStatus('error');
-        setMessage(data.error?.message || data.message || 'Failed to request password reset');
+        setMessage(res?.error?.message || res?.message || 'Failed to request password reset');
         return;
       }
 
       setStatus('success');
-      setMessage(data.message || 'Password reset link has been sent to your email.');
-    } catch {
+      setMessage(res?.message || 'Password reset link has been sent to your email.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
       setStatus('error');
-      setMessage('Network error. Please check your connection and try again.');
+      setMessage(errorObj?.error?.message || errorObj?.message || 'Network error. Please check your connection and try again.');
     }
   }
 

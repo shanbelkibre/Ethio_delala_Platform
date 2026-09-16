@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useRouter, Link } from '@/i18n/routing';
 import { Lock, Eye, EyeOff, CheckCircle2, ShieldCheck, ArrowRight, KeyRound } from 'lucide-react';
+import { authService } from '@/features/auth';
 
 function ResetPasswordForm() {
   const t = useTranslations('auth');
@@ -46,28 +47,24 @@ function ResetPasswordForm() {
     setMessage('');
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      });
-      const data = await res.json();
+      const res = await authService.resetPassword({ token, password }) as { success?: boolean; message?: string; error?: { message?: string } };
 
-      if (!res.ok) {
+      if (!res?.success) {
         setStatus('error');
-        setMessage(data.error?.message || data.message || 'Password reset failed');
+        setMessage(res?.error?.message || res?.message || 'Password reset failed');
         return;
       }
 
       setStatus('success');
-      setMessage(data.message || 'Password reset successfully! Redirecting to sign in...');
+      setMessage(res?.message || 'Password reset successfully! Redirecting to sign in...');
 
       setTimeout(() => {
         router.push('/auth/login');
       }, 2500);
-    } catch {
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
       setStatus('error');
-      setMessage('Network error. Please try again.');
+      setMessage(errorObj?.error?.message || errorObj?.message || 'Network error. Please try again.');
     }
   }
 

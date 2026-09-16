@@ -6,6 +6,8 @@ import { useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
+import { authService, type AuthResponse } from '@/features/auth';
+
 export default function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
@@ -22,19 +24,14 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailOrPhone, password }),
-      });
-      const data = await res.json();
+      const res = await authService.login({ emailOrPhone, password }) as { success?: boolean; data?: AuthResponse; error?: { message?: string }; message?: string };
 
-      if (!res.ok) {
-        setError(data.error?.message || data.message || 'Invalid credentials');
+      if (!res?.success || !res?.data) {
+        setError(res?.error?.message || res?.message || 'Invalid credentials');
         return;
       }
 
-      const { user, tokens } = data.data;
+      const { user, tokens } = res.data;
       setAuth(user, tokens.accessToken, tokens.refreshToken);
 
       if (user.roles?.includes('ADMIN')) {
@@ -46,8 +43,9 @@ export default function LoginPage() {
       } else {
         router.push('/renter/dashboard');
       }
-    } catch {
-      setError('Connection failed. Please check your credentials and try again.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || 'Connection failed. Please check your credentials and try again.');
     } finally {
       setLoading(false);
     }

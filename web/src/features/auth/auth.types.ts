@@ -27,3 +27,25 @@ export interface AuthResponse {
     refreshToken: string;
   };
 }
+
+export interface VerifyPhoneInput {
+  phoneOrEmail: string;
+  code: string;
+}
+
+export interface SendOtpInput {
+  phoneOrEmail: string;
+}
+
+export interface ForgotPasswordInput {
+  email: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  password: string;
+}
+
+export interface RefreshTokenInput {
+  refreshToken: string;
+}

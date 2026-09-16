@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 
+import { authService, type AuthResponse } from "@/features/auth";
+
 export default function CMSLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -18,26 +20,24 @@ export default function CMSLoginPage() {
     setError("");
 
     const form = new FormData(e.currentTarget);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          emailOrPhone: form.get("email"),
-          password: form.get("password"),
-        }),
-      });
+    const email = String(form.get("email") || "");
+    const password = String(form.get("password") || "");
 
-      const data = await res.json();
-      if (!res.ok) {
-        const errMsg = data.error?.message || data.message || "Login failed";
+    try {
+      const res = await authService.login({
+        emailOrPhone: email,
+        password: password,
+      }) as { success?: boolean; data?: AuthResponse; error?: { message?: string }; message?: string };
+
+      if (!res?.success || !res?.data) {
+        const errMsg = res?.error?.message || res?.message || "Login failed";
         setError(errMsg);
         setLoading(false);
         return;
       }
 
       // Check user roles array (e.g. ['ADMIN'])
-      const user = data.data?.user;
+      const user = res.data?.user;
       const roles = user?.roles || [];
       
       if (roles.includes("ADMIN")) {
@@ -47,8 +47,9 @@ export default function CMSLoginPage() {
         setError("Unauthorized. CMS Access is restricted to Administrators.");
         setLoading(false);
       }
-    } catch (err) {
-      setError("Network error. Could not reach backend.");
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || "Network error. Could not reach backend.");
       setLoading(false);
     }
   }

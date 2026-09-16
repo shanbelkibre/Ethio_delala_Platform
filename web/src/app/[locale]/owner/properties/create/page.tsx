@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/routing';
 import { propertyService } from '@/features/properties';
 import { verificationService } from '@/features/verification';
 import { profileService } from '@/features/profile';
+import { uploadService } from '@/features/upload';
 import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
@@ -14,7 +15,7 @@ export default function CreatePropertyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<Record<string, unknown> | null>(null);
 
   // Form fields
   const [title, setTitle] = useState('');
@@ -49,7 +50,7 @@ export default function CreatePropertyPage() {
       .catch(() => {});
   }, []);
 
-  const isVerified = userProfile?.isIdentityVerified;
+  const isVerified = Boolean(userProfile?.isIdentityVerified);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -103,16 +104,16 @@ export default function CreatePropertyPage() {
       }
 
       for (const file of imageFilesToUpload) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json();
-          uploadedUrls.push(uploadData.data?.url || uploadData.url);
-        } else {
+        try {
+          const uploadData = await uploadService.uploadFile(file);
+          if (uploadData?.url || uploadData?.fileUrl) {
+            uploadedUrls.push(uploadData.url || uploadData.fileUrl || '');
+          } else {
+            setError('Failed to upload property images.');
+            setLoading(false);
+            return;
+          }
+        } catch {
           setError('Failed to upload property images.');
           setLoading(false);
           return;

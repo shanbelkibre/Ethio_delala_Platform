@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 
+import { authService } from '@/features/auth';
+
 function VerifyForm() {
   const t = useTranslations('auth');
   const router = useRouter();
@@ -23,15 +25,10 @@ function VerifyForm() {
     setSuccess('');
 
     try {
-      const res = await fetch('/api/auth/verify-phone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneOrEmail: target, code }),
-      });
-      const data = await res.json();
+      const res = await authService.verifyPhone({ phoneOrEmail: target, code }) as { success?: boolean; message?: string; error?: { message?: string } };
       
-      if (!res.ok) {
-        setError(data.error?.message || data.message || 'OTP verification failed');
+      if (!res?.success) {
+        setError(res?.error?.message || res?.message || 'OTP verification failed');
         setLoading(false);
         return;
       }
@@ -41,8 +38,9 @@ function VerifyForm() {
       setTimeout(() => {
         router.push('/auth/login');
       }, 2000);
-    } catch {
-      setError('Connection failed. Please try again.');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || 'Connection failed. Please try again.');
       setLoading(false);
     }
   }
