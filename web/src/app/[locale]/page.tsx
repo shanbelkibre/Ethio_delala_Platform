@@ -32,11 +32,8 @@ import Testimonials from "@/components/Testimonials";
 import Chatbot from "@/components/Chatbot";
 import ContactSection from "@/components/ContactSection";
 import LandlordSellerCtaSection from "@/components/home/LandlordSellerCtaSection";
-import NeighborhoodGuideSection from "@/components/home/NeighborhoodGuideSection";
 import EcosystemPortalSection from "@/components/home/EcosystemPortalSection";
-import SecurityGuaranteeSection from "@/components/home/SecurityGuaranteeSection";
 import ScrollHorizontalSection from "@/components/home/ScrollHorizontalSection";
-import { GlowingLineDivider } from "@/components/ui/GlowingLineDivider";
 import { cmsService, type CmsConfig } from "@/features/cms";
 import { adminService } from "@/features/admin";
 
@@ -154,12 +151,6 @@ export default function HomePage() {
   };
 
   const hero = cmsConfig?.cms_hero || defaultCmsConfig.cms_hero;
-  const platformHighlights = [
-    { id: "0", icon: Store, category: t("residentialRentals"), name: t("addisLuxuryApts"), desc: t("addisLuxuryDesc") },
-    { id: "1", icon: Wrench, category: t("villasAndHouses"), name: t("gatedFamilyHomes"), desc: t("gatedFamilyDesc") },
-    { id: "2", icon: CreditCard, category: t("moveInServices"), name: t("tenantRelocation"), desc: t("tenantRelocationDesc") },
-    { id: "3", icon: Smartphone, category: t("digitalLeases"), name: t("chapaVerification"), desc: t("chapaVerificationDesc") },
-  ];
 
   const features = [
     { icon: Store, title: t("feature1Title"), desc: t("feature1Desc") },
@@ -179,7 +170,6 @@ export default function HomePage() {
   const about = cmsConfig?.cms_about || defaultCmsConfig.cms_about;
   const howItWorks = cmsConfig?.cms_how_it_works || defaultCmsConfig.cms_how_it_works;
   const appSection = cmsConfig?.cms_app_section || defaultCmsConfig.cms_app_section;
-  const vendorCta = cmsConfig?.cms_vendor_cta || defaultCmsConfig.cms_vendor_cta;
   const partners = [
     { name: "INSA", logo: "/logos/insa.png" },
     { name: "Safaricom", logo: "/logos/safaricom.png" },
@@ -289,52 +279,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* PLATFORM HIGHLIGHTS */}
-        <section className="bg-slate-100/80 dark:bg-[#0b1329] dark-grid-bg py-16 border-t border-slate-200 dark:border-slate-800/80 transition-colors text-slate-900 dark:text-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="mb-10 flex items-end justify-between">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-                  {t("platformHighlights")}
-                </h2>
-                <p className="mt-1 text-slate-600 dark:text-slate-400">
-                  {t("platformHighlightsSubtitle")}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {platformHighlights.map((highlight) => (
-                <div key={highlight.id} className="cursor-default">
-                  <Card className="card-hover overflow-hidden h-full flex flex-col bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border-slate-200 dark:border-slate-800/80 rounded-3xl text-slate-900 dark:text-white shadow-lg">
-                    <div className="flex h-40 items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-100/60 dark:from-emerald-950/40 dark:to-[#111a33]/60">
-                      <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                        <highlight.icon className="h-8 w-8" />
-                      </div>
-                    </div>
-                    <CardContent className="p-5 flex-1">
-                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                        {highlight.category}
-                      </p>
-                      <h3 className="mt-2 font-bold text-slate-900 dark:text-white text-lg">
-                        {highlight.name}
-                      </h3>
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {highlight.desc}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* ANIMATED GLOWING SEPARATOR LINE 1 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
-        <GlowingLineDivider duration={4} />
       </div>
 
       {/* ========================================================================= */}
@@ -409,50 +353,6 @@ export default function HomePage() {
 
         {/* TENANT & LANDLORD ECOSYSTEM PORTAL */}
         <EcosystemPortalSection />
-
-        {/* DELALA RENT GUARANTEE & ESCROW PROTECTION */}
-        <SecurityGuaranteeSection />
-
-        {/* VENDOR & PARTNER B2B CTA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-100 dark:from-emerald-950 dark:via-slate-900 dark:to-emerald-950 py-12 md:py-16 rounded-[24px] md:rounded-[40px] border border-emerald-200 dark:border-emerald-800/60 shadow-xl my-16 transition-colors text-slate-900 dark:text-white">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2.5rem_2.5rem] opacity-15 pointer-events-none" />
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
-
-          <div className="mx-auto max-w-5xl px-6 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center lg:text-left">
-              <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800/60 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300 tracking-wide uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {t("vendorCta.badge")}
-                </div>
-
-                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                  {t("vendorCta.title")}
-                </h3>
-
-                <p className="text-slate-600 dark:text-slate-300 text-sm md:text-base leading-relaxed">
-                  {t("vendorCta.subtitle")}
-                </p>
-              </div>
-
-              <div className="shrink-0">
-                <Link href="/auth/register">
-                  <Button
-                    className="group relative inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    {t("vendorCta.buttonText")}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* ANIMATED GLOWING SEPARATOR LINE 2 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
-        <GlowingLineDivider duration={4.5} />
       </div>
 
       {/* ========================================================================= */}
@@ -461,9 +361,6 @@ export default function HomePage() {
       <div id="existing-houses-section" className="w-full relative">
         {/* SCROLL-DRIVEN PINNED HORIZONTAL MOVEMENT SHOWCASE */}
         <ScrollHorizontalSection />
-
-        {/* ETHIOPIAN NEIGHBORHOODS & CITY LIVING GUIDE */}
-        <NeighborhoodGuideSection />
 
         {/* LANDLORD SELLER CTA SECTION */}
         <LandlordSellerCtaSection />
@@ -551,11 +448,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </div>
-
-      {/* ANIMATED GLOWING SEPARATOR LINE 3 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full my-4">
-        <GlowingLineDivider duration={5} />
       </div>
 
       {/* ========================================================================= */}
