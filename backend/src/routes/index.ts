@@ -14,6 +14,9 @@ import adminRoutes from '../modules/admin/admin.routes';
 import { uploadPublic } from '../middleware/upload.middleware';
 import { CloudinaryService } from '../services/cloudinary.service';
 import cmsRoutes from '../modules/cms/cms.routes';
+import reviewRoutes from '../modules/reviews/review.routes';
+import agentRoutes from '../modules/agents/agent.routes';
+import statsRoutes from '../modules/stats/stats.routes';
 
 const router = Router();
 
@@ -78,5 +81,8 @@ router.post('/upload', uploadPublic.single('file'), async (req, res, next) => {
   }
 });
 router.use('/cms', cmsRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/agents', agentRoutes);
+router.use('/stats', statsRoutes);
 
 export default router;

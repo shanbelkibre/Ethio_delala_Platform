@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import {
   Store,
@@ -21,7 +22,7 @@ interface FeatureCardProps {
   title: string;
   description: string;
   features: string[];
-  icon: any;
+  icon: React.ElementType<{ className?: string }>;
   gradientClass: string;
   cardBg: string;
   borderClass: string;
@@ -104,6 +105,8 @@ const FeatureCard = ({
 };
 
 export default function EcosystemsStack() {
+  const t = useTranslations("home");
+
   return (
     <section className="relative w-full pt-24 pb-32 bg-slate-950 overflow-visible">
       {/* Sticky Header Section */}
@@ -117,15 +120,15 @@ export default function EcosystemsStack() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold mb-4 border border-emerald-500/20 animate-pulse">
             <Sparkles className="h-3.5 w-3.5" />
-            Connected Digital Infrastructure
+            {t("ecosystems.badge")}
           </div>
           
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
-            One Platform. <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-indigo-400 to-amber-400">Four Connected Ecosystems</span>
+            {t("ecosystems.title")}
           </h2>
           
           <p className="mt-6 text-lg md:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto">
-            Delala Home Rentals unifies home rentals, tenant services, landlord management, and Chapa rental contracts into a single intelligent digital infrastructure.
+            {t("ecosystems.subtitle")}
           </p>
         </motion.div>
       </div>
@@ -135,13 +138,13 @@ export default function EcosystemsStack() {
         
         {/* Section 1: Home Rental Marketplace */}
         <FeatureCard
-          title="Home Rental Marketplace"
-          description="Browse verified apartments, luxury villas, studio flats, townhouses, and commercial rentals across Addis Ababa with direct landlord inquiries."
+          title={t("ecosystems.eco1Title")}
+          description={t("ecosystems.eco1Desc")}
           features={[
-            "Verified Listings",
-            "Smart Search & Filters",
-            "Virtual & In-Person Tours",
-            "Direct Landlord Chat",
+            t("ecosystems.eco1Feat1"),
+            t("ecosystems.eco1Feat2"),
+            t("ecosystems.eco1Feat3"),
+            t("ecosystems.eco1Feat4"),
           ]}
           icon={Store}
           gradientClass="from-emerald-500 to-teal-500"
@@ -197,13 +200,13 @@ export default function EcosystemsStack() {
 
         {/* Section 2: Tenant & Move-In Services */}
         <FeatureCard
-          title="Tenant & Move-In Services"
-          description="On-demand property inspection, move-in deep cleaning, tenant relocation logistics, locksmith, and home repair services."
+          title={t("ecosystems.eco2Title")}
+          description={t("ecosystems.eco2Desc")}
           features={[
-            "Property Inspection",
-            "Move-In Deep Cleaning",
-            "Tenant Relocation",
-            "Verified Handymen",
+            t("ecosystems.eco2Feat1"),
+            t("ecosystems.eco2Feat2"),
+            t("ecosystems.eco2Feat3"),
+            t("ecosystems.eco2Feat4"),
           ]}
           icon={Wrench}
           gradientClass="from-indigo-500 to-violet-500"
@@ -273,13 +276,13 @@ export default function EcosystemsStack() {
 
         {/* Section 3: Landlord & Agent Portal */}
         <FeatureCard
-          title="Landlord & Agent Portal"
-          description="Comprehensive management dashboard for homeowners, landlords, and real estate agents to list units, vet tenants, collect rent, and manage leases."
+          title={t("ecosystems.eco3Title")}
+          description={t("ecosystems.eco3Desc")}
           features={[
-            "Property Listing Hub",
-            "Rental Yield Analytics",
-            "Automated Rent Collection",
-            "Digital Lease Contracts",
+            t("ecosystems.eco3Feat1"),
+            t("ecosystems.eco3Feat2"),
+            t("ecosystems.eco3Feat3"),
+            t("ecosystems.eco3Feat4"),
           ]}
           icon={BarChart3}
           gradientClass="from-amber-500 to-orange-500"
@@ -353,13 +356,13 @@ export default function EcosystemsStack() {
 
         {/* Section 4: Chapa Payment & Lease Hub */}
         <FeatureCard
-          title="Chapa Payment & Lease Hub"
-          description="Centralized lease contract & payment engine powered by Chapa for instant rent transfers, security deposit escrow, digital receipts, and audit logs."
+          title={t("ecosystems.eco4Title")}
+          description={t("ecosystems.eco4Desc")}
           features={[
-            "Tenant Background Check",
-            "Digital Lease Generator",
-            "Chapa Rent Gateway",
-            "Escrow & Security Deposit",
+            t("ecosystems.eco4Feat1"),
+            t("ecosystems.eco4Feat2"),
+            t("ecosystems.eco4Feat3"),
+            t("ecosystems.eco4Feat4"),
           ]}
           icon={Shield}
           gradientClass="from-slate-600 to-zinc-800"

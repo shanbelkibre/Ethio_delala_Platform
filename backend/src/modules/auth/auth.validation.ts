@@ -11,11 +11,22 @@ export const strongPasswordSchema = z
 
 export const registerSchema = z.object({
   body: z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
+    firstName: z.string().min(2, 'First name must be at least 2 characters').optional(),
+    middleName: z.string().optional().nullable(),
+    lastName: z.string().optional().nullable(),
+    name: z.string().min(2, 'Name must be at least 2 characters').optional(),
     email: z.string().email('Invalid email address'),
     phone: z.string().min(10, 'Phone number must be at least 10 digits'),
     password: strongPasswordSchema,
     roles: z.array(z.nativeEnum(Role)).optional(),
+    gender: z.string().optional().nullable(),
+    dateOfBirth: z.string().optional().nullable(),
+    maritalStatus: z.string().optional().nullable(),
+    profileImageUrl: z.string().optional().nullable(),
+    region: z.string().optional().nullable(),
+    zone: z.string().optional().nullable(),
+    wereda: z.string().optional().nullable(),
+    kebele: z.string().optional().nullable(),
   }),
 });
 

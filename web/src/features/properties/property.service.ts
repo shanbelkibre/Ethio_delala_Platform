@@ -22,9 +22,9 @@ export const propertyService = {
     return apiClient.get('/users/me/properties' + (queryString ? `?${queryString}` : ''));
   },
 
-  createProperty: (data: any) => apiClient.post('/properties', data),
+  createProperty: (data: Record<string, unknown> | FormData) => apiClient.post('/properties', data),
 
-  updateProperty: (id: string, data: any) => apiClient.put('/properties/' + id, data),
+  updateProperty: (id: string, data: Record<string, unknown> | FormData) => apiClient.put('/properties/' + id, data),
 
   deleteProperty: (id: string) => apiClient.delete('/properties/' + id),
 };

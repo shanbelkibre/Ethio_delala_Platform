@@ -24,9 +24,7 @@ exports.verifyNationalIdSchema = zod_1.z.object({
     body: zod_1.z.object({
         nationalIdNumber: zod_1.z
             .string()
-            .min(8, 'National ID must be at least 8 characters')
-            .max(20, 'National ID must not exceed 20 characters')
-            .regex(/^[A-Za-z0-9-]+$/, 'Invalid National ID (Fayda) format'),
+            .regex(/^(?:\d{12}|\d{16})$/, 'National ID must be exactly 12 digits (FIN) or 16 digits (FAN)'),
         consent: zod_1.z.boolean().refine((val) => val === true, {
             message: 'User consent is required for automated National ID e-KYC verification',
         }),

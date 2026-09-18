@@ -1,61 +1,114 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { reviewService } from "@/features/reviews";
 
-export default function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
-  const displayTestimonials = testimonials.length > 0 ? testimonials : [
-    { name: "Client Name", role: "Profession", company: "Company", content: "Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit.", image: "" },
-  ];
+interface ReviewItem {
+  id: string;
+  name: string;
+  initials?: string;
+  role?: string;
+  company?: string;
+  content: string;
+  rating?: number;
+  image?: string;
+}
+
+export default function Testimonials({ testimonials = [] }: { testimonials?: ReviewItem[] }) {
+  const t = useTranslations("home.testimonials");
+  const [reviews, setReviews] = useState<ReviewItem[]>(testimonials);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    // Retrieve authentic reviews directly from the database Review table
+    reviewService.getPublicReviews()
+      .then((res: { success?: boolean; data?: { reviews?: ReviewItem[] }; reviews?: ReviewItem[] }) => {
+        const list = res?.reviews || res?.data?.reviews;
+        if (Array.isArray(list) && list.length > 0) {
+          setReviews(list);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  if (reviews.length === 0) return null;
+
+  // Helper to get initials
+  const getInitials = (item: ReviewItem) => {
+    if (item.initials) return item.initials;
+    if (!item.name) return "TA";
+    const parts = item.name.trim().split(" ");
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return item.name.slice(0, 2).toUpperCase();
+  };
+
+  // Repeated items array for smooth continuous carousel
+  const carouselItems = [...reviews, ...reviews, ...reviews, ...reviews];
 
   return (
-    <section className="py-20 bg-white">
-      {/* Container with enhanced shadow and blue-tinted filter */}
-      <div className="max-w-7xl mx-auto px-6 py-16 border border-slate-100 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)] bg-blue-50/30">
+    <section className="py-20 bg-slate-50 dark:bg-[#0b1329] dark-grid-bg transition-colors overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h4 className="text-blue-600 font-bold uppercase tracking-widest text-sm mb-2">Testimonial</h4>
-          <h2 className="text-4xl font-black text-slate-900">Our Clients Say!</h2>
+        {/* Section Header */}
+        <div className="text-center mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300/60 dark:border-emerald-800/60 px-4 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">
+            {t("badge")}
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+            {t("title")}
+          </h2>
         </div>
 
-        {/* Animated Testimonial Marquee */}
-        <div className="overflow-hidden w-full relative">
-          {/* Edge gradients for smooth fade out */}
-          <div className="absolute top-0 left-0 bottom-0 w-8 md:w-24 bg-gradient-to-r from-[#eff6ff] to-transparent z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 bottom-0 w-8 md:w-24 bg-gradient-to-l from-[#eff6ff] to-transparent z-10 pointer-events-none" />
-          
+        {/* Animated Testimonial Marquee (Decreased speed for easy reading + Pause on Hover) */}
+        <div 
+          className="overflow-hidden w-full relative py-4"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <motion.div 
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ ease: "linear", duration: 15, repeat: Infinity }}
-            className="flex w-max gap-8"
+            animate={isHovered ? {} : { x: ["0%", "-50%"] }}
+            transition={{ ease: "linear", duration: 50, repeat: Infinity }}
+            className="flex w-max gap-8 items-start cursor-grab active:cursor-grabbing px-4"
           >
-            {[...displayTestimonials, ...displayTestimonials].map((t, i) => (
-              <div key={i} className="flex flex-col items-center w-[320px] md:w-[400px] flex-shrink-0">
-              {/* Individual Card with deep shadow */}
-              <div className={`p-8 mb-6 w-full border border-slate-100 shadow-xl 
-                rounded-t-3xl rounded-bl-3xl 
-                ${i === 1 ? "bg-blue-600 text-white" : "bg-white text-slate-800"}`}
-              >
-                <p className="text-center leading-relaxed font-medium">{t.content}</p>
-              </div>
-              
-              {/* Profile Image & Info */}
-              <div className="text-center">
-                <img 
-                  src={t.image || `https://i.pravatar.cc/150?u=${t.name.replace(' ', '')}`} 
-                  alt={t.name} 
-                  className="w-16 h-16 rounded-full mx-auto mb-4 border-4 border-white shadow-lg object-cover" 
-                />
-                <h5 className="font-bold text-slate-900">{t.name}</h5>
-                <p className="text-sm text-slate-500 mb-2">{t.role}</p>
-                <div className="flex justify-center text-orange-400">
-                  {[...Array(5)].map((_, index) => <Star key={index} size={14} fill="currentColor" />)}
+            {carouselItems.map((item, i) => {
+              const initials = getInitials(item);
+
+              return (
+                <div key={`${item.id}-${i}`} className="flex flex-col items-center w-[360px] sm:w-[420px] flex-shrink-0">
+                  {/* Chat-Bubble Testimonial Card (Consistent CSS across all items) */}
+                  <div className="p-7 sm:p-8 mb-6 w-full rounded-3xl rounded-br-none bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 text-slate-800 dark:text-slate-200 shadow-md hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 min-h-[160px] flex items-center justify-center text-center">
+                    <p className="leading-relaxed font-medium text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                      "{item.content}"
+                    </p>
+                  </div>
+                  
+                  {/* Reviewer Profile: Circular Avatar with Initials & Emerald Ring Border */}
+                  <div className="text-center flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-2 border-emerald-500 flex items-center justify-center font-black text-base shadow-sm mb-3">
+                      {initials}
+                    </div>
+
+                    <h5 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">
+                      {item.name}
+                    </h5>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                      {item.role || item.company || "Tenant in Addis Ababa"}
+                    </p>
+
+                    {/* 5 Stars Rating Display */}
+                    <div className="flex justify-center text-amber-400 gap-1 mt-2">
+                      {[...Array(item.rating || 5)].map((_, starIdx) => (
+                        <Star key={starIdx} size={15} fill="currentColor" />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
           </motion.div>
         </div>
       </div>

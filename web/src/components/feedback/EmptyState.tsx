@@ -1,9 +1,10 @@
 import * as React from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { Building2 } from 'lucide-react';
 
 export interface EmptyStateProps {
-  icon?: string | React.ReactNode;
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   actionText?: string;
@@ -12,7 +13,7 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon = '🏠',
+  icon,
   title,
   description,
   actionText,
@@ -26,7 +27,9 @@ export function EmptyState({
         className
       )}
     >
-      <div className="text-5xl mb-4">{icon}</div>
+      <div className="flex justify-center mb-4 text-slate-400 dark:text-slate-500">
+        {icon || <Building2 className="w-12 h-12 stroke-[1.5]" />}
+      </div>
       <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h3>
       {description && <p className="mt-1 text-sm max-w-md mx-auto">{description}</p>}
       {actionText && actionHref && (

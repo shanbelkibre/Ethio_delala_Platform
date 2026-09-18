@@ -19,6 +19,9 @@ const admin_routes_1 = __importDefault(require("../modules/admin/admin.routes"))
 const upload_middleware_1 = require("../middleware/upload.middleware");
 const cloudinary_service_1 = require("../services/cloudinary.service");
 const cms_routes_1 = __importDefault(require("../modules/cms/cms.routes"));
+const review_routes_1 = __importDefault(require("../modules/reviews/review.routes"));
+const agent_routes_1 = __importDefault(require("../modules/agents/agent.routes"));
+const stats_routes_1 = __importDefault(require("../modules/stats/stats.routes"));
 const router = (0, express_1.Router)();
 // Base API Index Route
 router.get('/', (req, res) => {
@@ -79,4 +82,7 @@ router.post('/upload', upload_middleware_1.uploadPublic.single('file'), async (r
     }
 });
 router.use('/cms', cms_routes_1.default);
+router.use('/reviews', review_routes_1.default);
+router.use('/agents', agent_routes_1.default);
+router.use('/stats', stats_routes_1.default);
 exports.default = router;

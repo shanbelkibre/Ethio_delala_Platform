@@ -46,16 +46,16 @@ axiosInstance.interceptors.response.use(
 );
 
 export const apiClient = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.get<any, T>(url, config),
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-    axiosInstance.post<any, T>(url, data, config),
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-    axiosInstance.put<any, T>(url, data, config),
-  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-    axiosInstance.patch<any, T>(url, data, config),
-  delete: <T = any>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.delete<any, T>(url, config),
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.get(url, config) as unknown as Promise<T>,
+  post: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.post(url, data, config) as unknown as Promise<T>,
+  put: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.put(url, data, config) as unknown as Promise<T>,
+  patch: <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.patch(url, data, config) as unknown as Promise<T>,
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.delete(url, config) as unknown as Promise<T>,
 };
 
 export default apiClient;

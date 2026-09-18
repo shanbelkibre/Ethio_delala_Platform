@@ -1,32 +1,56 @@
 import * as React from 'react';
-import { cn } from '@/lib/utils';
+import { SearchableSelect, SelectOption } from '@/components/ui/SearchableSelect';
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  options: Array<{ value: string; label: string }>;
+export interface SelectProps {
+  options: Array<{ value: string; label: string; description?: string; icon?: React.ReactNode }>;
   placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement> | string) => void;
+  className?: string;
+  disabled?: boolean;
+  name?: string;
+  id?: string;
+  searchThreshold?: number;
 }
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, options, placeholder, ...props }, ref) => {
-    return (
-      <select
-        ref={ref}
-        className={cn(
-          'w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all',
-          className
-        )}
-        {...props}
-      >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    );
-  }
-);
+export const Select: React.FC<SelectProps> = ({
+  options,
+  placeholder,
+  value = '',
+  onChange,
+  className,
+  disabled,
+  searchThreshold = 5,
+  id,
+}) => {
+  const formattedOptions: SelectOption[] = options.map((opt) => ({
+    value: opt.value,
+    label: opt.label,
+    description: opt.description,
+    icon: opt.icon,
+  }));
 
-Select.displayName = 'Select';
+  const handleChange = (selectedVal: string) => {
+    if (onChange) {
+      const syntheticEvent = {
+        target: { value: selectedVal },
+      } as React.ChangeEvent<HTMLSelectElement>;
+      onChange(syntheticEvent);
+    }
+  };
+
+  return (
+    <SearchableSelect
+      id={id}
+      options={formattedOptions}
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className={className}
+      disabled={disabled}
+      searchThreshold={searchThreshold}
+    />
+  );
+};
+
 export default Select;

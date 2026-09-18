@@ -1,11 +1,22 @@
 import { Role } from '../../constants/roles';
 
 export interface RegisterDTO {
-  name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  name?: string;
   email: string;
   phone: string;
   password: string;
   roles?: Role[];
+  gender?: string | null;
+  dateOfBirth?: string | Date | null;
+  maritalStatus?: string | null;
+  profileImageUrl?: string | null;
+  region?: string | null;
+  zone?: string | null;
+  wereda?: string | null;
+  kebele?: string | null;
 }
 
 export interface LoginDTO {

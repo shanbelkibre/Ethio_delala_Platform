@@ -132,11 +132,10 @@ export const defaultCmsConfig = {
   ],
   cms_partner_companies: [
     { id: "1", name: "INSA", logo: "/logos/insa.png" },
-    { id: "2", name: "Ethiopian Airlines", logo: "/logos/ethiopian.png" },
-    { id: "3", name: "Safaricom", logo: "/logos/safaricom.png" },
-    { id: "4", name: "Huawei", logo: "/logos/huawei.png" },
-    { id: "5", name: "CBE", logo: "/logos/cbe.png" },
-    { id: "6", name: "Ethio Telecom", logo: "/logos/ethio.png" },
+    { id: "2", name: "Safaricom", logo: "/logos/safaricom.png" },
+    { id: "3", name: "CBE", logo: "/logos/cbe.png" },
+    { id: "4", name: "Ethio Telecom", logo: "/logos/ethio.png" },
+    { id: "5", name: "Chapa", logo: "/logos/chapa.png" },
   ],
   cms_testimonials: [
     {

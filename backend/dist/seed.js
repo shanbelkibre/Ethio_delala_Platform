@@ -482,22 +482,43 @@ async function seed() {
     // ============================================================
     // 16. REVIEW
     // ============================================================
-    console.log('Creating review...');
-    const existingReview = await database_1.prisma.review.findUnique({
+    console.log('Creating reviews from real tenants...');
+    await database_1.prisma.review.upsert({
         where: {
             userId_propertyId: {
                 userId: renter.id,
                 propertyId: rentProperty.id,
             },
         },
+        update: {
+            rating: 5,
+            comment: 'Finding an apartment in Addis Ababa used to take weeks of hassle with brokers. With Delala Home Rentals, I inspected and moved into my 2-bedroom home in 3 days!',
+        },
+        create: {
+            userId: renter.id,
+            propertyId: rentProperty.id,
+            rating: 5,
+            comment: 'Finding an apartment in Addis Ababa used to take weeks of hassle with brokers. With Delala Home Rentals, I inspected and moved into my 2-bedroom home in 3 days!',
+        },
     });
-    if (!existingReview) {
-        await database_1.prisma.review.create({
-            data: {
-                userId: renter.id,
-                propertyId: rentProperty.id,
+    // Additional reviews
+    if (saleProperty) {
+        await database_1.prisma.review.upsert({
+            where: {
+                userId_propertyId: {
+                    userId: agent.id,
+                    propertyId: saleProperty.id,
+                },
+            },
+            update: {
                 rating: 5,
-                comment: 'Excellent property with a good location and modern facilities.',
+                comment: 'Verified property deeds and digital contract signing was smooth and 100% transparent. Highly recommended for renters and buyers.',
+            },
+            create: {
+                userId: agent.id,
+                propertyId: saleProperty.id,
+                rating: 5,
+                comment: 'Verified property deeds and digital contract signing was smooth and 100% transparent. Highly recommended for renters and buyers.',
             },
         });
     }

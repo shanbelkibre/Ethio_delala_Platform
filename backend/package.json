@@ -4,7 +4,8 @@
   "description": "Node.js REST API main backend for Ethiopian House Rental Platform",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "nodemon",
+    "dev:tsnd": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
@@ -39,10 +40,23 @@
     "@types/multer": "^1.4.13",
     "@types/node": "^20.19.43",
     "@types/swagger-ui-express": "^4.1.8",
+    "nodemon": "^3.1.14",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.23.12",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts,json",
+    "ignore": [
+      "src/**/*.spec.ts",
+      "node_modules"
+    ],
+    "exec": "ts-node src/server.ts",
+    "delay": 500
   }
 }

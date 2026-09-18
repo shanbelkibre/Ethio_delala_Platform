@@ -20,8 +20,9 @@ export function useProperty(id: string | undefined) {
       } else {
         setProperty(null);
       }
-    } catch (err: any) {
-      setError(err?.error?.message || 'Failed to fetch property details');
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string } };
+      setError(errorObj?.error?.message || 'Failed to fetch property details');
       setProperty(null);
     } finally {
       setLoading(false);
