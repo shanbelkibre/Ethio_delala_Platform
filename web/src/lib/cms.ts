@@ -158,9 +158,3 @@ export const defaultCmsConfig = {
   },
 };
 
-const ALL_CMS_KEYS = Object.keys(defaultCmsConfig);
-
-export async function getCmsConfig() {
-  return defaultCmsConfig;
-}
-

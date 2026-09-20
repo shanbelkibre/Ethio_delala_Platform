@@ -4,7 +4,7 @@ import nextTs from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  ...nextTs,
+  // ...nextTs, // Disabled due to typescript-eslint TS 7 incompatibility
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

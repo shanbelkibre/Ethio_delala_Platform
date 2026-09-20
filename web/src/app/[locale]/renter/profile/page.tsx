@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { apiClient } from '@/services/api';
+import { apiClient } from '@/services/api-client';
 import { ShieldCheck, ShieldAlert, User } from 'lucide-react';
 
 export default function RenterProfilePage() {
@@ -13,7 +13,7 @@ export default function RenterProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/users/me', true)
+    apiClient.get('/users/me')
       .then((res) => { if (res.success) setProfile(res.data.user || res.data); })
       .catch(console.error)
       .finally(() => setLoading(false));
