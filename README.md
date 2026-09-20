@@ -63,11 +63,7 @@ cp .env.example .env
 ```
 
 Ensure `backend/.env` contains the team's Neon PostgreSQL connection string:
-```env
-PORT=3000
-DATABASE_URL="postgresql://neondb_owner:npg_HiBAye05nWCg@ep-falling-hill-aydd9dr3.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
-JWT_SECRET="ethiopian_house_rental_super_secret_jwt_key_2026"
-```
+
 
 #### B. Web Platform Setup (`/web`)
 Copy [.env.example](web/.env.example) to create `web/.env`:
