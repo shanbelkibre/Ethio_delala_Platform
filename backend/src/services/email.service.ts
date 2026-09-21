@@ -11,11 +11,14 @@ export class EmailService {
       user: env.SMTP_EMAIL,
       pass: env.SMTP_PASSWORD,
     },
+    connectionTimeout: 5000, // 5 seconds max connection attempt
+    greetingTimeout: 5000,
+    socketTimeout: 5000,
   });
 
   static async sendOtpEmail(toEmail: string, otpCode: string): Promise<boolean> {
     const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded-lg: 12px; background-color: #ffffff;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
         <div style="text-align: center; margin-bottom: 24px;">
           <h2 style="color: #059669; margin: 0; font-size: 24px;">Delala Platform Verification</h2>
           <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Ethiopia's Premier Real Estate & Property Platform</p>
@@ -40,6 +43,7 @@ export class EmailService {
       return true;
     } catch (error) {
       logger.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
+      logger.info(`🔑 [EMAIL OTP FALLBACK] Code for ${toEmail} is: ${otpCode}`);
       return false;
     }
   }
@@ -72,6 +76,7 @@ export class EmailService {
       return true;
     } catch (error) {
       logger.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
+      logger.info(`🔗 [PASSWORD RESET LINK FALLBACK] User: ${toEmail} | Link: ${resetLink} | Token: ${token}`);
       return false;
     }
   }

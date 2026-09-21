@@ -7,6 +7,7 @@ import { useAuthStore } from '@/hooks/useAuthStore';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
 import { authService, type AuthResponse } from '@/features/auth';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -46,6 +47,43 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const errorObj = err as { error?: { message?: string }; message?: string };
       setError(errorObj?.error?.message || errorObj?.message || 'Connection failed. Please check your credentials and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleSuccess(idToken: string) {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = (await authService.googleAuth({ idToken })) as {
+        success?: boolean;
+        data?: AuthResponse;
+        error?: { message?: string };
+        message?: string;
+      };
+
+      if (!res?.success || !res?.data) {
+        setError(res?.error?.message || res?.message || 'Google sign-in failed');
+        return;
+      }
+
+      const { user, tokens } = res.data;
+      setAuth(user, tokens.accessToken, tokens.refreshToken);
+
+      if (user.roles?.includes('ADMIN')) {
+        router.push('/management/admin/dashboard');
+      } else if (user.roles?.includes('AGENT')) {
+        router.push('/management/agent/dashboard');
+      } else if (user.roles?.includes('OWNER')) {
+        router.push('/owner/dashboard');
+      } else {
+        router.push('/renter/dashboard');
+      }
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || 'Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -131,7 +169,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center"
+            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center cursor-pointer"
           >
             {loading ? (
               <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -140,6 +178,28 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white dark:bg-slate-900 px-3 text-slate-400 font-semibold">
+              {t('or')}
+            </span>
+          </div>
+        </div>
+
+        {/* Continue with Google Button */}
+        <div className="w-full flex justify-center">
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+            text="continue_with"
+            disabled={loading}
+          />
+        </div>
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-sm text-slate-600 dark:text-slate-400">

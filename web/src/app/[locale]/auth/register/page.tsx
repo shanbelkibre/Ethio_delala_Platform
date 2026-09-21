@@ -16,7 +16,9 @@ import {
   Link as LinkIcon,
   X,
 } from 'lucide-react';
-import { authService } from '@/features/auth';
+import { authService, type AuthResponse } from '@/features/auth';
+import { useAuthStore } from '@/hooks/useAuthStore';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 type SelectedRole = 'RENTER' | 'OWNER';
 
@@ -43,10 +45,12 @@ export default function RegisterPage() {
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Core required fields
   const [selectedRole, setSelectedRole] = useState<SelectedRole>('RENTER');
+  const [registerMethod, setRegisterMethod] = useState<'email' | 'phone'>('email');
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -103,6 +107,46 @@ export default function RegisterPage() {
     }
   }
 
+  async function handleGoogleSuccess(idToken: string) {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = (await authService.googleAuth({
+        idToken,
+        role: selectedRole,
+      })) as {
+        success?: boolean;
+        data?: AuthResponse;
+        error?: { message?: string };
+        message?: string;
+      };
+
+      if (!res?.success || !res?.data) {
+        setError(res?.error?.message || res?.message || 'Google registration failed');
+        return;
+      }
+
+      const { user, tokens } = res.data;
+      setAuth(user, tokens.accessToken, tokens.refreshToken);
+
+      if (user.roles?.includes('ADMIN')) {
+        router.push('/management/admin/dashboard');
+      } else if (user.roles?.includes('AGENT')) {
+        router.push('/management/agent/dashboard');
+      } else if (user.roles?.includes('OWNER')) {
+        router.push('/owner/dashboard');
+      } else {
+        router.push('/renter/dashboard');
+      }
+    } catch (err: unknown) {
+      const errorObj = err as { error?: { message?: string }; message?: string };
+      setError(errorObj?.error?.message || errorObj?.message || 'Google registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
@@ -111,11 +155,11 @@ export default function RegisterPage() {
       setError(tValidation('firstNameRequired'));
       return;
     }
-    if (!email.trim()) {
+    if (registerMethod === 'email' && !email.trim()) {
       setError(tValidation('emailRequired'));
       return;
     }
-    if (!phone.trim()) {
+    if (registerMethod === 'phone' && !phone.trim()) {
       setError(tValidation('phoneRequired'));
       return;
     }
@@ -138,8 +182,8 @@ export default function RegisterPage() {
         middleName: middleName.trim() || undefined,
         lastName: lastName.trim() || undefined,
         name: fullName,
-        email: email.trim().toLowerCase(),
-        phone: phone.replace(/[\s\-\(\)]/g, '').trim(),
+        email: email.trim() ? email.trim().toLowerCase() : undefined,
+        phone: phone.trim() ? phone.replace(/[\s\-\(\)]/g, '').trim() : undefined,
         password,
         roles: [selectedRole],
         gender: selectedRole === 'RENTER' ? gender || undefined : undefined,
@@ -150,7 +194,7 @@ export default function RegisterPage() {
         zone: zone.trim() || undefined,
         wereda: wereda.trim() || undefined,
         kebele: kebele.trim() || undefined,
-      }) as { success?: boolean; data?: { user?: { email: string } }; error?: { message?: string }; message?: string };
+      }) as { success?: boolean; data?: { user?: { email?: string; phone?: string } }; error?: { message?: string }; message?: string };
 
       if (!res?.success) {
         setError(res?.error?.message || res?.message || 'Registration failed');
@@ -158,9 +202,12 @@ export default function RegisterPage() {
         return;
       }
 
-      const targetEmail = res?.data?.user?.email || email.trim().toLowerCase();
-      // Redirect to OTP verification page preserving locale prefix
-      router.push(`/auth/verify?target=${encodeURIComponent(targetEmail)}`);
+      const target = registerMethod === 'email'
+        ? (res?.data?.user?.email || email.trim().toLowerCase())
+        : (res?.data?.user?.phone || phone.replace(/[\s\-\(\)]/g, '').trim());
+
+      // Redirect to OTP verification page preserving locale prefix and method
+      router.push(`/auth/verify?target=${encodeURIComponent(target)}&type=${registerMethod}`);
     } catch (err: unknown) {
       const errorObj = err as { error?: { message?: string }; message?: string };
       setError(errorObj?.error?.message || errorObj?.message || tValidation('required'));
@@ -249,11 +296,51 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {/* Registration Method Selection */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              {tAuth('registerMethod')}
+            </label>
+            <div className="grid grid-cols-2 gap-3 mb-1">
+              <button
+                type="button"
+                onClick={() => setRegisterMethod('email')}
+                className={`p-2.5 rounded-xl border text-center font-semibold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  registerMethod === 'email'
+                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                }`}
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>{tAuth('registerWithEmail')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRegisterMethod('phone')}
+                className={`p-2.5 rounded-xl border text-center font-semibold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  registerMethod === 'phone'
+                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900'
+                }`}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>{tAuth('registerWithPhone')}</span>
+              </button>
+            </div>
+          </div>
+
           {/* Email & Phone Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {tAuth('emailLabel')}
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>
+                  {tAuth('emailLabel')}{' '}
+                  {registerMethod === 'email' ? (
+                    <span className="text-rose-500">*</span>
+                  ) : (
+                    <span className="text-xs font-normal text-slate-400">({tCommon('optional')})</span>
+                  )}
+                </span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -261,7 +348,7 @@ export default function RegisterPage() {
                 </div>
                 <input
                   type="email"
-                  required
+                  required={registerMethod === 'email'}
                   placeholder={tAuth('emailPlaceholder')}
                   autoComplete="email"
                   value={email}
@@ -272,8 +359,15 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {tAuth('phoneLabel')}
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>
+                  {tAuth('phoneLabel')}{' '}
+                  {registerMethod === 'phone' ? (
+                    <span className="text-rose-500">*</span>
+                  ) : (
+                    <span className="text-xs font-normal text-slate-400">({tCommon('optional')})</span>
+                  )}
+                </span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -281,7 +375,7 @@ export default function RegisterPage() {
                 </div>
                 <input
                   type="tel"
-                  required
+                  required={registerMethod === 'phone'}
                   autoComplete="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -589,6 +683,28 @@ export default function RegisterPage() {
             )}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white dark:bg-slate-900 px-3 text-slate-400 font-semibold">
+              {tAuth('or')}
+            </span>
+          </div>
+        </div>
+
+        {/* Continue with Google Button */}
+        <div className="w-full flex justify-center">
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+            text="continue_with"
+            disabled={loading}
+          />
+        </div>
 
         <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-sm text-slate-600 dark:text-slate-400">
           {tAuth('alreadyHaveAccount')}{' '}

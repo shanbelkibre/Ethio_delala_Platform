@@ -11,19 +11,31 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [devResetLink, setDevResetLink] = useState('');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus('loading');
     setMessage('');
+    setDevResetLink('');
 
     try {
-      const res = await authService.forgotPassword(email) as { success?: boolean; message?: string; error?: { message?: string } };
+      const res = await authService.forgotPassword(email) as {
+        success?: boolean;
+        message?: string;
+        data?: { resetLink?: string };
+        resetLink?: string;
+        error?: { message?: string };
+      };
 
       if (!res?.success) {
         setStatus('error');
         setMessage(res?.error?.message || res?.message || 'Failed to request password reset');
         return;
+      }
+
+      if (res?.data?.resetLink || res?.resetLink) {
+        setDevResetLink(res?.data?.resetLink || res?.resetLink || '');
       }
 
       setStatus('success');
@@ -62,6 +74,18 @@ export default function ForgotPasswordPage() {
                 <p>{message}</p>
               </div>
             </div>
+
+            {devResetLink && (
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-left space-y-1.5">
+                <span className="text-xs font-bold text-amber-800 dark:text-amber-300 block">Development Mode Reset Link:</span>
+                <a
+                  href={devResetLink}
+                  className="text-xs text-emerald-600 dark:text-emerald-400 font-mono break-all hover:underline block"
+                >
+                  {devResetLink}
+                </a>
+              </div>
+            )}
 
             <p className="text-xs text-slate-400 dark:text-slate-500">
               {t('didNotReceiveEmail')}

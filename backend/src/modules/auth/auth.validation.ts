@@ -15,8 +15,8 @@ export const registerSchema = z.object({
     middleName: z.string().optional().nullable(),
     lastName: z.string().optional().nullable(),
     name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+    email: z.string().email('Invalid email address').optional().or(z.literal('')),
+    phone: z.string().min(9, 'Phone number must be at least 9 digits').optional().or(z.literal('')),
     password: strongPasswordSchema,
     roles: z.array(z.nativeEnum(Role)).optional(),
     gender: z.string().optional().nullable(),
@@ -27,6 +27,16 @@ export const registerSchema = z.object({
     zone: z.string().optional().nullable(),
     wereda: z.string().optional().nullable(),
     kebele: z.string().optional().nullable(),
+  }).refine((data) => (data.email && data.email.trim().length > 0) || (data.phone && data.phone.trim().length > 0), {
+    message: 'Either email or phone number is required',
+    path: ['email'],
+  }),
+});
+
+export const googleAuthSchema = z.object({
+  body: z.object({
+    idToken: z.string().min(1, 'Google ID token is required'),
+    role: z.nativeEnum(Role).optional(),
   }),
 });
 

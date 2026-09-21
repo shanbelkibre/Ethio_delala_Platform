@@ -33,6 +33,8 @@ export const authService = {
     apiClient.post('/auth/verify-phone', data),
   sendOtp: (data: SendOtpInput | { phoneOrEmail: string }) =>
     apiClient.post('/auth/send-otp', data),
+  googleAuth: (data: { idToken: string; role?: string }) =>
+    apiClient.post<AuthResponse>('/auth/google', data),
 };
 
 export default authService;

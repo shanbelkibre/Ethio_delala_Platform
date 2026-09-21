@@ -5,8 +5,8 @@ export interface RegisterDTO {
   middleName?: string;
   lastName?: string;
   name?: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   password: string;
   roles?: Role[];
   gender?: string | null;
@@ -17,6 +17,11 @@ export interface RegisterDTO {
   zone?: string | null;
   wereda?: string | null;
   kebele?: string | null;
+}
+
+export interface GoogleAuthDTO {
+  idToken: string;
+  role?: Role;
 }
 
 export interface LoginDTO {

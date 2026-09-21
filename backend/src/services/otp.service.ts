@@ -13,11 +13,13 @@ export class OtpService {
     const otp = this.generateOtpCode();
     const key = `otp:${phoneOrEmail}`;
     await redisClient.set(key, otp, env.OTP_TTL_SECONDS);
-    logger.info(`📱 [OTP SIMULATION] Code for ${phoneOrEmail} is: ${otp}`);
 
     // If phoneOrEmail is an email address (or contains @), send via Gmail SMTP
     if (phoneOrEmail.includes('@')) {
+      logger.info(`📧 [EMAIL OTP DISPATCH] Sending OTP to ${phoneOrEmail}`);
       await EmailService.sendOtpEmail(phoneOrEmail, otp);
+    } else {
+      logger.info(`📱 [SMS OTP SIMULATION] Sent SMS to ${phoneOrEmail} with OTP: ${otp}`);
     }
 
     return otp;

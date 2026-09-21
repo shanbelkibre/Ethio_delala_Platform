@@ -9,6 +9,7 @@ import {
   sendOtpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  googleAuthSchema,
 } from './auth.validation';
 import { rateLimit } from '../../middleware/rate-limit.middleware';
 
@@ -18,6 +19,7 @@ const authRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
 router.post('/register', authRateLimiter, validateRequest(registerSchema), AuthController.register);
 router.post('/login', authRateLimiter, validateRequest(loginSchema), AuthController.login);
+router.post('/google', authRateLimiter, validateRequest(googleAuthSchema), AuthController.googleAuth);
 router.post('/verify-phone', validateRequest(verifyOtpSchema), AuthController.verifyPhone);
 router.post('/forgot-password', authRateLimiter, validateRequest(forgotPasswordSchema), AuthController.forgotPassword);
 router.post('/reset-password', authRateLimiter, validateRequest(resetPasswordSchema), AuthController.resetPassword);

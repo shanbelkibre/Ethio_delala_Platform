@@ -368,6 +368,13 @@
   "auth": {
     "loginTitle": "Sign In to Ethio Delala",
     "loginSubtitle": "Enter your credentials to access your account dashboard",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "registerWithEmail": "Register with Email",
+    "registerWithPhone": "Register with Phone",
+    "registerMethod": "Registration Method",
+    "otpSentToEmail": "We sent a 6-digit verification code to your email",
+    "otpSentToPhone": "We sent a 6-digit verification code via SMS to your phone",
     "registerTitle": "Create Your Account",
     "registerSubtitle": "Join Ethiopia's premier property rental and sales platform",
     "registeringAs": "I am registering as:",

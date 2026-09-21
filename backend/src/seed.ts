@@ -17,13 +17,13 @@ import {
 import { Decimal } from '@prisma/client/runtime/library';
 
 async function seed() {
-  console.log('🌱 Starting database seed...');
+  
 
   // ============================================================
   // 1. ROLES
   // ============================================================
 
-  console.log('Creating roles...');
+  
 
   const roleNames: RoleType[] = [
     RoleType.ADMIN,
@@ -50,7 +50,7 @@ async function seed() {
   // 2. ADMIN USER
   // ============================================================
 
-  console.log('Creating admin...');
+  
 
   const adminPassword = await PasswordService.hash('Admin@123456');
 
@@ -100,11 +100,7 @@ async function seed() {
   // ============================================================
   // 3. AGENT USER
   // ============================================================
-
-  console.log('Creating agent...');
-
   const agentPassword = await PasswordService.hash('Agent@123456');
-
   const agent = await prisma.user.upsert({
     where: {
       email: 'agent@ethiodellala.et',
@@ -153,11 +149,7 @@ async function seed() {
   // ============================================================
   // 4. OWNER USER
   // ============================================================
-
-  console.log('Creating owner...');
-
   const ownerPassword = await PasswordService.hash('Owner@123456');
-
   const owner = await prisma.user.upsert({
     where: {
       email: 'owner@ethiodellala.et',

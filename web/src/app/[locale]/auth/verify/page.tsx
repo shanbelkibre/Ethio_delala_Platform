@@ -12,6 +12,8 @@ function VerifyForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const target = searchParams.get('target') || '';
+  const typeParam = searchParams.get('type');
+  const isEmail = typeParam ? typeParam === 'email' : target.includes('@');
 
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -50,7 +52,8 @@ function VerifyForm() {
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">{t('verifyTitle')}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          {t('verifySubtitle')} <span className="font-semibold text-slate-800 dark:text-slate-200">{target}</span>
+          {isEmail ? t('otpSentToEmail') : t('otpSentToPhone')}:{' '}
+          <span className="font-semibold text-slate-800 dark:text-slate-200">{target}</span>
         </p>
       </div>
 

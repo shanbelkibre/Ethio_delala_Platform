@@ -49,3 +49,8 @@ export interface ResetPasswordInput {
 export interface RefreshTokenInput {
   refreshToken: string;
 }
+
+export interface GoogleAuthInput {
+  idToken: string;
+  role?: string;
+}
