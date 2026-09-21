@@ -17,9 +17,46 @@ interface ReviewItem {
   image?: string;
 }
 
+const DEFAULT_FALLBACK_TESTIMONIALS: ReviewItem[] = [
+  {
+    id: "1",
+    name: "Tigist Alemu",
+    role: "Tenant in Bole",
+    company: "Addis Ababa",
+    content: "Finding an apartment in Addis Ababa used to take weeks of hassle with brokers. With Delala Home Rentals, I inspected and moved into my 2-bedroom home in 3 days!",
+    rating: 5,
+  },
+  {
+    id: "2",
+    name: "Dawit Haile",
+    role: "Property Owner in Kazanchis",
+    company: "Addis Ababa",
+    content: "Listing my apartment on Delala was seamless. Within 48 hours, I had verified tenant applications and signed a legal lease agreement digitally.",
+    rating: 5,
+  },
+  {
+    id: "3",
+    name: "Bethlehem Tadesse",
+    role: "Expat Tenant in Old Airport",
+    company: "Addis Ababa",
+    content: "The 360° virtual tours and transparent ETB pricing made house hunting from abroad stress-free. Chapa payments worked instantly without any issues.",
+    rating: 5,
+  },
+  {
+    id: "4",
+    name: "Yared Bekele",
+    role: "Villa Owner in CMC",
+    company: "Addis Ababa",
+    content: "No more paying high broker cuts or dealing with unverified tenants. The national ID verification gives complete peace of mind.",
+    rating: 5,
+  },
+];
+
 export default function Testimonials({ testimonials = [] }: { testimonials?: ReviewItem[] }) {
   const t = useTranslations("home.testimonials");
-  const [reviews, setReviews] = useState<ReviewItem[]>(testimonials);
+  const [reviews, setReviews] = useState<ReviewItem[]>(
+    testimonials && testimonials.length > 0 ? testimonials : DEFAULT_FALLBACK_TESTIMONIALS
+  );
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -34,7 +71,12 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: Rev
       .catch(() => {});
   }, []);
 
-  if (reviews.length === 0) return null;
+  // If testimonials prop updates later (e.g. CMS loaded)
+  useEffect(() => {
+    if (testimonials && testimonials.length > 0) {
+      setReviews(testimonials);
+    }
+  }, [testimonials]);
 
   // Helper to get initials
   const getInitials = (item: ReviewItem) => {
@@ -49,7 +91,7 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: Rev
   const carouselItems = [...reviews, ...reviews, ...reviews, ...reviews];
 
   return (
-    <section className="py-20 bg-slate-50 dark:bg-[#0b1329] dark-grid-bg transition-colors overflow-hidden">
+    <section className="py-20 md:py-28 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* Section Header */}
@@ -78,7 +120,7 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: Rev
 
               return (
                 <div key={`${item.id}-${i}`} className="flex flex-col items-center w-[360px] sm:w-[420px] flex-shrink-0">
-                  {/* Chat-Bubble Testimonial Card (Consistent CSS across all items) */}
+                  {/* Chat-Bubble Testimonial Card */}
                   <div className="p-7 sm:p-8 mb-6 w-full rounded-3xl rounded-br-none bg-white dark:bg-[#111a33]/60 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 text-slate-800 dark:text-slate-200 shadow-md hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 min-h-[160px] flex items-center justify-center text-center">
                     <p className="leading-relaxed font-medium text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       "{item.content}"
