@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { env } from './env';
+import { logger } from '../utils/logger';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -27,7 +28,7 @@ export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
     } catch (err: any) {
       lastError = err;
       if (err?.code && RECONNECTABLE.includes(err.code)) {
-        console.warn(`[DB] Connection lost (${err.code}). Reconnecting... attempt ${attempt}/${MAX_RETRIES}`);
+        logger.warn(`[DB] Connection lost (${err.code}). Reconnecting... attempt ${attempt}/${MAX_RETRIES}`);
         try { await prisma.$disconnect(); } catch (_) {}
         await new Promise((r) => setTimeout(r, attempt * 1000));
         try { await prisma.$connect(); } catch (_) {}
@@ -42,9 +43,9 @@ export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
 export async function connectDatabase(): Promise<void> {
   try {
     await prisma.$connect();
-    console.log('PostgreSQL database connected successfully via Prisma.');
+    logger.info('PostgreSQL database connected successfully via Prisma.');
   } catch (error) {
-    console.error('Database connection failed:', error);
+    logger.error('Database connection failed:', error);
   }
 }
 

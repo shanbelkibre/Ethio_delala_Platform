@@ -342,7 +342,17 @@
     },
     "partners": {
       "title": "Partner Companies",
-      "subtitle": "Institutional partners supporting our ecosystem."
+      "subtitle": "Institutional partners supporting our ecosystem.",
+      "partner1Title": "INSA",
+      "partner1Desc": "Information Network Security Administration ensuring national security and Fayda digital ID verification.",
+      "partner2Title": "Safaricom Ethiopia",
+      "partner2Desc": "Nationwide high-speed telecommunications and M-PESA mobile money integration for instant rent payouts.",
+      "partner3Title": "Commercial Bank of Ethiopia",
+      "partner3Desc": "Ethiopia's premier state-owned commercial bank facilitating direct landlord deposits and secure transfers.",
+      "partner4Title": "Ethio Telecom",
+      "partner4Desc": "Nationwide digital connectivity and Telebirr payment integration with automated SMS confirmations.",
+      "partner5Title": "Chapa Financial",
+      "partner5Desc": "Bank-grade digital payment gateway securing first-month rents, security deposits, and digital leases."
     },
     "vendorCta": {
       "badge": "B2B Portal",

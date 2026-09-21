@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
+import { logger } from '../utils/logger';
 
 export class EmailService {
   private static transporter = nodemailer.createTransport({
@@ -35,11 +36,10 @@ export class EmailService {
         subject: `Your Delala Platform OTP Code: ${otpCode}`,
         html: htmlTemplate,
       });
-      console.log(` [EMAIL OTP SENT] Successfully sent OTP ${otpCode} to ${toEmail}`);
+      logger.info(`[EMAIL OTP SENT] Successfully sent OTP to ${toEmail}`);
       return true;
     } catch (error) {
-      console.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
-      
+      logger.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
       return false;
     }
   }
@@ -68,10 +68,10 @@ export class EmailService {
         subject: `Reset Your Ethio Delala Password`,
         html: htmlTemplate,
       });
-      console.log(`[PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
+      logger.info(`[PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
       return true;
     } catch (error) {
-      console.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
+      logger.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
       return false;
     }
   }

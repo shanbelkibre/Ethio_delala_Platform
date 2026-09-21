@@ -3,20 +3,18 @@
   "version": "1.0.0",
   "description": "Node.js REST API main backend for Ethiopian House Rental Platform",
   "main": "dist/server.js",
-  "scripts": {
-    "dev": "nodemon",
-    "dev:tsnd": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "seed": "ts-node src/seed.ts"
-  },
+ "scripts": {
+  "dev": "nodemon --exec tsx src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "prisma:generate": "prisma generate",
+  "prisma:push": "prisma db push",
+  "seed": "tsx src/seed.ts"
+},
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@types/nodemailer": "^8.0.1",
     "@types/swagger-jsdoc": "^6.0.4",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
@@ -32,7 +30,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.25",
@@ -42,9 +39,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.14",
     "prisma": "^5.22.0",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
   "nodemonConfig": {
@@ -56,7 +51,14 @@
       "src/**/*.spec.ts",
       "node_modules"
     ],
-    "exec": "ts-node src/server.ts",
+    "exec": "tsx src/server.ts",
     "delay": 500
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "@scarf/scarf@1.4.0": true,
+    "esbuild@0.28.2": true,
+    "prisma@5.22.0": true
   }
 }

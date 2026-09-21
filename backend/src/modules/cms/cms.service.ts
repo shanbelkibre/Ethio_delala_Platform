@@ -1,4 +1,5 @@
 import { prisma } from '../../prisma';
+import { logger } from '../../utils/logger';
 
 export const defaultCmsConfig = {
   cms_navbar: {
@@ -101,7 +102,7 @@ export class CmsService {
         ...dbConfig,
       };
     } catch (err) {
-      console.error('Error fetching CMS config from DB, using fallback:', err);
+      logger.error('Error fetching CMS config from DB, using fallback:', err);
       return defaultCmsConfig;
     }
   }

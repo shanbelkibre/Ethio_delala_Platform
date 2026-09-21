@@ -1,5 +1,6 @@
 import { prisma } from '../../config/database';
 import { NotificationType } from '@prisma/client';
+import { logger } from '../../utils/logger';
 
 export interface SendNotificationOptions {
   userId: string;
@@ -46,6 +47,6 @@ export class NotificationService {
   }
 
   private static dispatchChannel(channel: string, userId: string, title: string, message: string) {
-    console.log(`🔔 [NOTIFICATION PROVIDER SIMULATION] Channel: ${channel} | User: ${userId} | Title: "${title}" | Message: "${message}"`);
+    logger.info(`[NOTIFICATION SIMULATION] Channel: ${channel} | User: ${userId} | Title: "${title}"`);
   }
 }

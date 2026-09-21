@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { env } from './env';
+import { logger } from '../utils/logger';
 
 export interface StorageConfig {
   uploadDir: string;
@@ -25,5 +26,5 @@ export function ensureStorageDirectories(): void {
     fs.mkdirSync(storageConfig.privateUploadDir, { recursive: true });
   }
 
-  console.log('✅ Storage directories verified.');
+  logger.info('Storage directories verified.');
 }

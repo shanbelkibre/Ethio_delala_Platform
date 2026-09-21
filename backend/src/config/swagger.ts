@@ -162,6 +162,4 @@ export function setupSwagger(app: Express): void {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   });
-
-  console.log(`?? Swagger API Documentation available at http://localhost:${env.PORT}/api-docs`);
 }

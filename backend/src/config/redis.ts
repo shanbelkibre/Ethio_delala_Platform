@@ -1,4 +1,5 @@
 import { env } from './env';
+import { logger } from '../utils/logger';
 
 /**
  * Cache/Redis interface abstraction.
@@ -36,5 +37,5 @@ class RedisCacheService {
 export const redisClient = new RedisCacheService();
 
 export async function connectRedis(): Promise<void> {
-  console.log(`✅ Cache/Redis abstraction initialized (${env.REDIS_URL}).`);
+  logger.info(`Cache/Redis abstraction initialized (${env.REDIS_URL}).`);
 }

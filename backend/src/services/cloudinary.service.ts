@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import { logger } from '../utils/logger';
 
 // Configure Cloudinary using environmental variables
 cloudinary.config({
@@ -32,7 +33,7 @@ export class CloudinaryService {
       if (fs.existsSync(localPath)) {
         fs.unlinkSync(localPath);
       }
-      console.error('Cloudinary upload failure:', error);
+      logger.error('Cloudinary upload failure:', error);
       throw new Error('Failed to upload asset to storage provider');
     }
   }

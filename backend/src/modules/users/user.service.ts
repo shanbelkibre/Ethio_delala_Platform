@@ -10,6 +10,7 @@ import {
 } from './user.types';
 import { parsePagination, formatPaginatedMeta } from '../../utils/pagination';
 import { Role } from '../../constants/roles';
+import { logger } from '../../utils/logger';
 
 export class UserService {
   static async getProfile(userId: string): Promise<UserResponse> {
@@ -61,7 +62,7 @@ export class UserService {
     const maskedRef = `FAYDA-ETH-${cleanId.slice(0, 3)}****${cleanId.slice(-4)}`;
 
     const updated = await UserRepository.verifyNationalId(userId, maskedRef);
-    console.log(`🆔 [FAYDA NATIONAL ID VERIFIED] User ${user.email} verified with ref ${maskedRef}`);
+    logger.info(`[FAYDA NATIONAL ID VERIFIED] User ${user.email} verified with ref ${maskedRef}`);
 
     return this.mapToResponse(updated);
   }

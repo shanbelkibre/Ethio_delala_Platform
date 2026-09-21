@@ -7,6 +7,7 @@ import routes from './routes';
 import { errorHandler } from './middleware/error.middleware';
 import { notFoundHandler } from './middleware/not-found.middleware';
 import { setupSwagger } from './config/swagger';
+import { logger } from './utils/logger';
 
 export function createApp(): Express {
   const app = express();
@@ -22,7 +23,7 @@ export function createApp(): Express {
     res.on('finish', () => {
       const duration = Date.now() - start;
       if (req.originalUrl !== '/favicon.ico') {
-        console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+        logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
       }
     });
     next();

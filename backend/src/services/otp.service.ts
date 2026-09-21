@@ -1,6 +1,7 @@
 import { redisClient } from '../config/redis';
 import { env } from '../config/env';
 import { EmailService } from './email.service';
+import { logger } from '../utils/logger';
 
 export class OtpService {
   static generateOtpCode(): string {
@@ -12,7 +13,7 @@ export class OtpService {
     const otp = this.generateOtpCode();
     const key = `otp:${phoneOrEmail}`;
     await redisClient.set(key, otp, env.OTP_TTL_SECONDS);
-    console.log(`📱 [OTP SIMULATION] Code for ${phoneOrEmail} is: ${otp}`);
+    logger.info(`📱 [OTP SIMULATION] Code for ${phoneOrEmail} is: ${otp}`);
 
     // If phoneOrEmail is an email address (or contains @), send via Gmail SMTP
     if (phoneOrEmail.includes('@')) {

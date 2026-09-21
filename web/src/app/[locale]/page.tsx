@@ -61,8 +61,9 @@ import { defaultCmsConfig } from "@/lib/cms";
 interface PremiumCardProps {
   stepOrBadge?: string;
   badgeColorClass?: string;
-  icon: LucideIcon;
-  iconBgClass: string;
+  icon?: LucideIcon;
+  logo?: string;
+  iconBgClass?: string;
   title: string;
   description: string;
   barBgClass: string;
@@ -75,6 +76,7 @@ export function PremiumCard({
   stepOrBadge,
   badgeColorClass = "text-emerald-500 dark:text-emerald-400",
   icon: Icon,
+  logo,
   iconBgClass,
   title,
   description,
@@ -93,14 +95,20 @@ export function PremiumCard({
     >
       <div className="w-full bg-white dark:bg-[#0e162e] border border-slate-200/90 dark:border-slate-800/90 rounded-[28px] p-7 sm:p-8 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
         <div>
-          {/* Vibrant Icon Box */}
+          {/* Vibrant Icon or Partner Logo Box */}
           <div
             className={cn(
-              "w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-6 shadow-md group-hover:scale-110 transition-transform duration-300",
-              iconBgClass
+              "rounded-2xl flex items-center justify-center mb-6 shadow-md group-hover:scale-105 transition-transform duration-300 overflow-hidden",
+              logo
+                ? "w-40 h-20 bg-white p-2 border border-slate-200/90 dark:border-slate-700/80 shadow-sm"
+                : cn("w-14 h-14", iconBgClass || "bg-emerald-600 text-white")
             )}
           >
-            <Icon className="w-6 h-6" />
+            {logo ? (
+              <img src={logo} alt={title} className="w-full h-full object-contain" />
+            ) : Icon ? (
+              <Icon className="w-6 h-6 text-white" />
+            ) : null}
           </div>
 
           {/* Badge / Step Text (e.g. STEP 01) */}
@@ -409,7 +417,7 @@ function ScrollHorizontalSection() {
   };
 
   return (
-    <section className="py-8 md:py-10 text-slate-900 dark:text-white transition-colors">
+    <section className="pt-2 md:pt-4 pb-8 md:pb-10 text-slate-900 dark:text-white transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="space-y-3 max-w-2xl">
@@ -528,48 +536,7 @@ function AboutUsSection() {
           />
         </div>
 
-        {/* Services Pills */}
-        <div className="space-y-3 pt-2 text-center">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            {t("services")}
-          </h4>
-          <ul className="flex flex-wrap justify-center gap-3 text-sm font-semibold text-slate-900 dark:text-white">
-            {[t("residentialRentals"), t("tenantRelocation"), t("digitalLeases")].map((s: string, i: number) => (
-              <li
-                key={i}
-                className="flex items-center gap-2.5 bg-white dark:bg-[#0e162e] px-5 py-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm"
-              >
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>{s}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
 
-        {/* Contact & Action Button */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-6 pt-4">
-          <div className="text-center sm:text-left">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 block">
-              {t("contact247")}
-            </span>
-            <a
-              href="tel:+251911819145"
-              className="text-2xl font-black text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 block mt-0.5 transition-colors"
-            >
-              +251 911 819 145
-            </a>
-          </div>
-
-          <Link href="/auth/register">
-            <Button
-              size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-sm transition-all shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {t("findYourHomeNow")}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
       </div>
     </section>
   );
@@ -630,10 +597,6 @@ function LandlordSellerCtaSection() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white">
             {t("landlordCta.title")}
           </h2>
-
-          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            {t("landlordCta.subtitle")}
-          </p>
         </div>
 
         {/* 4 Cards Exactly matching Image 2 */}
@@ -651,27 +614,6 @@ function LandlordSellerCtaSection() {
               idx={i}
             />
           ))}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-10">
-          <Link href="/auth/register">
-            <Button
-              size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-sm sm:text-base flex items-center gap-2 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 transition-all cursor-pointer"
-            >
-              <Plus className="h-5 w-5 text-white" /> {t("landlordCta.listFree")} <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
-
-          <Link href="/properties">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-bold px-7 py-4 rounded-2xl text-sm sm:text-base cursor-pointer"
-            >
-              {t("landlordCta.marketRates")}
-            </Button>
-          </Link>
         </div>
       </div>
     </section>
@@ -750,11 +692,27 @@ function HowItWorksSection() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        {/* Unified Action Buttons in One Line */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-12">
           <Link href="/auth/register">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-600/25 hover:-translate-y-0.5 group cursor-pointer">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-600/25 hover:-translate-y-0.5 group cursor-pointer flex items-center gap-2">
               {t("startRentingToday")}
-              <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
+
+          <Link href="/auth/register">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-2xl text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/25 hover:-translate-y-0.5 transition-all cursor-pointer">
+              <Plus className="h-4 w-4 text-white" /> {t("landlordCta.listFree")} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <Link href="/properties">
+            <Button
+              variant="outline"
+              className="border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 font-bold px-7 py-3.5 rounded-2xl text-sm cursor-pointer"
+            >
+              {t("landlordCta.marketRates")}
             </Button>
           </Link>
         </div>
@@ -937,49 +895,82 @@ function StatsCounterSection({ counterData }: StatsCounterSectionProps) {
 
 // --- 3C: PARTNER COMPANIES SECTION ---
 interface PartnersSectionProps {
-  partners: { name: string; logo: string }[];
+  partners?: { name: string; logo: string }[];
 }
 
 function PartnersSection({ partners }: PartnersSectionProps) {
   const t = useTranslations("home.partners");
 
+  const partnerCards = [
+    {
+      step: "01",
+      title: t("partner1Title"),
+      desc: t("partner1Desc"),
+      logo: "/logos/insa.png",
+      badgeColor: "text-blue-500 dark:text-blue-400",
+      barBg: "bg-blue-500",
+    },
+    {
+      step: "02",
+      title: t("partner2Title"),
+      desc: t("partner2Desc"),
+      logo: "/logos/safaricom.png",
+      badgeColor: "text-emerald-500 dark:text-emerald-400",
+      barBg: "bg-emerald-500",
+    },
+    {
+      step: "03",
+      title: t("partner3Title"),
+      desc: t("partner3Desc"),
+      logo: "/logos/cbe.png",
+      badgeColor: "text-purple-500 dark:text-purple-400",
+      barBg: "bg-purple-500",
+    },
+    {
+      step: "04",
+      title: t("partner4Title"),
+      desc: t("partner4Desc"),
+      logo: "/logos/ethio.png",
+      badgeColor: "text-cyan-500 dark:text-cyan-400",
+      barBg: "bg-cyan-500",
+    },
+    {
+      step: "05",
+      title: t("partner5Title"),
+      desc: t("partner5Desc"),
+      logo: "/logos/chapa.png",
+      badgeColor: "text-amber-500 dark:text-amber-400",
+      barBg: "bg-amber-500",
+    },
+  ];
+
   return (
-    <section className="py-8 md:py-10 overflow-hidden text-slate-900 dark:text-white transition-colors">
-      <div className="max-w-7xl mx-auto px-4 mb-8 text-center space-y-3">
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-          {t("title")}
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
-          {t("subtitle")}
-        </p>
-      </div>
+    <section className="py-8 md:py-10 text-slate-900 dark:text-white transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto mb-12 text-center space-y-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t("title")}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+            {t("subtitle")}
+          </p>
+        </div>
 
-      <div className="relative overflow-hidden w-full">
-        <div className="absolute top-0 left-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-slate-50 dark:from-[#0b1329] to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-0 right-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-slate-50 dark:from-[#0b1329] to-transparent z-10 pointer-events-none" />
-
-        <motion.div
-          className="flex gap-6 w-max"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{
-            duration: 25,
-            ease: "linear",
-            repeat: Infinity,
-          }}
-        >
-          {[...partners, ...partners, ...partners].map((partner, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0 w-52 h-24 bg-white dark:bg-[#0e162e] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-center shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-300 group"
-            >
-              <img
-                src={partner.logo}
-                alt={partner.name}
-                className="max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
+        {/* 5 Cards matching the target design for all sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          {partnerCards.map((p, idx) => (
+            <PremiumCard
+              key={idx}
+              stepOrBadge={`PARTNER ${p.step}`}
+              badgeColorClass={p.badgeColor}
+              logo={p.logo}
+              title={p.title}
+              description={p.desc}
+              barBgClass={p.barBg}
+              idx={idx}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -1245,10 +1236,10 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 1. DIV 1: HERO & FEATURED ETHIOPIAN HOME RENTALS                           */}
       {/* ========================================================================= */}
-      <div id="div-1-hero-and-featured" className="w-full relative my-8 md:my-14 space-y-4">
+      <div id="div-1-hero-and-featured" className="w-full relative mt-2 mb-12 md:mt-4 md:mb-16 space-y-2">
         {/* HERO BANNER (Find & Rent Your Next Dream Home in Ethiopia) */}
         <section
-          className={`relative overflow-hidden px-4 pt-6 pb-10 text-slate-900 dark:text-white sm:px-6 lg:pt-10 lg:pb-14 transition-colors ${
+          className={`relative overflow-hidden px-4 pt-4 pb-4 text-slate-900 dark:text-white sm:px-6 lg:pt-6 lg:pb-6 transition-colors ${
             !hero.backgroundType || hero.backgroundType === "animation" ? "gradient-hero" : ""
           }`}
           style={hero.backgroundType === "color" ? { backgroundColor: hero.backgroundColor } : {}}
