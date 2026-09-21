@@ -78,6 +78,7 @@ export function SearchableSelect({
       searchInputRef.current.focus();
     }
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset search query and focused index when dropdown closes
       setSearchQuery("");
       setFocusedIndex(-1);
     }

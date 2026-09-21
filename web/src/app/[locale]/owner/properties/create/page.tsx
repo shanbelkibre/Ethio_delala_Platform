@@ -8,7 +8,7 @@ import { profileService } from '@/features/profile';
 import { uploadService } from '@/features/upload';
 import dynamic from 'next/dynamic';
 
-const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
+const MapPicker = dynamic(() => import('@/components/property/MapPicker'), { ssr: false });
 
 export default function CreatePropertyPage() {
   const router = useRouter();

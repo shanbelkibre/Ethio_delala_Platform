@@ -8,7 +8,7 @@ import { propertyService, type Property } from '@/features/properties';
 import { MapPin, ShieldCheck, Bed, Bath, Maximize } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
+const MapView = dynamic(() => import('@/components/property/MapView'), { ssr: false });
 
 export default function PropertyDetailPage() {
   const t = useTranslations('property');
@@ -37,7 +37,7 @@ export default function PropertyDetailPage() {
   if (!property) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center px-4">
       <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('propertyNotFound')}</h1>
-      <Link href="/public/properties" className="mt-4 text-emerald-600 hover:underline">{t('backToListings')}</Link>
+      <Link href="/properties" className="mt-4 text-emerald-600 hover:underline">{t('backToListings')}</Link>
     </div>
   );
 

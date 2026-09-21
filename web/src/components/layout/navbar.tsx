@@ -26,7 +26,7 @@ import {
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/hooks/useAuthStore';
-import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 
 // ============================================================================
 // MODULAR REUSABLE NAVBAR STYLE PRESETS (Senior Frontend Design Tokens)
@@ -62,6 +62,18 @@ const navStyles = {
   btnLogout:
     'flex w-full items-center gap-3 px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors',
 };
+
+function ProfileAvatarIcon({ className = 'h-9 w-9', avatarUrl, name }: { className?: string; avatarUrl?: string; name?: string }) {
+  return (
+    <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-slate-100 dark:bg-slate-800', className)}>
+      <img
+        src={avatarUrl || '/images/profile.png'}
+        alt={name || 'User profile'}
+        className="h-full w-full object-cover rounded-full"
+      />
+    </div>
+  );
+}
 
 // ============================================================================
 // REUSABLE SUB-COMPONENTS
@@ -108,13 +120,14 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
   const publicLinks = [
     { href: '/', label: tNav('home'), icon: Home },
-    { href: '/public/properties', label: tNav('properties'), icon: Building2 },
-    { href: '/public/about', label: tNav('about'), icon: Info },
+    { href: '/properties', label: tNav('properties'), icon: Building2 },
+    { href: '/about', label: tNav('about'), icon: Info },
     { href: '/#services', label: tNav('services'), icon: Wrench },
-    { href: '/public/contact', label: tNav('contact'), icon: MessageSquare },
+    { href: '/contact', label: tNav('contact'), icon: MessageSquare },
   ];
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Client hydration mount flag
     setMounted(true);
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -189,16 +202,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     dashboardHref = '/owner/dashboard';
   }
 
-  // Profile Avatar Icon
-  const ProfileAvatarIcon = ({ className = 'h-9 w-9' }: { className?: string }) => (
-    <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-slate-100 dark:bg-slate-800', className)}>
-      <img
-        src={user?.avatarUrl || '/images/profile.png'}
-        alt={user?.name || 'User profile'}
-        className="h-full w-full object-cover rounded-full"
-      />
-    </div>
-  );
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
@@ -253,7 +257,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                 aria-label="Account menu"
                 aria-expanded={profileMenuOpen}
               >
-                <ProfileAvatarIcon className="h-full w-full" />
+                <ProfileAvatarIcon className="h-full w-full" avatarUrl={user?.avatarUrl} name={user?.name} />
               </button>
 
               {/* Account Profile Dropdown Menu */}
@@ -262,7 +266,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                   {/* Authenticated User Header Card */}
                   <div className="px-4 py-3 border-b border-slate-150 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 rounded-t-2xl">
                     <div className="flex items-center gap-3">
-                      <ProfileAvatarIcon className="h-10 w-10" />
+                      <ProfileAvatarIcon className="h-10 w-10" avatarUrl={user?.avatarUrl} name={user?.name} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                           {user.name || 'User'}
@@ -394,7 +398,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
           {mounted && isAuthenticated && user ? (
             <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <ProfileAvatarIcon className="h-9 w-9" />
+                <ProfileAvatarIcon className="h-9 w-9" avatarUrl={user?.avatarUrl} name={user?.name} />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                     {user.name || 'User'}

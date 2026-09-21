@@ -27,9 +27,9 @@ export function Footer() {
         <div>
           <h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-            <li><Link href="/public/properties" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('properties')}</Link></li>
-            <li><Link href="/public/about" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('about')}</Link></li>
-            <li><Link href="/public/contact" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('contact')}</Link></li>
+            <li><Link href="/properties" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('properties')}</Link></li>
+            <li><Link href="/about" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('about')}</Link></li>
+            <li><Link href="/contact" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{tNav('contact')}</Link></li>
           </ul>
         </div>
 

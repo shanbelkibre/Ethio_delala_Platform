@@ -32,6 +32,7 @@ export function useProperties(initialFilters: PropertyFilters = { page: 1, limit
   }, [filters]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Asynchronously fetch properties on mount and filter update
     fetchProperties();
   }, [fetchProperties]);
 

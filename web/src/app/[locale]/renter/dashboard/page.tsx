@@ -48,7 +48,7 @@ export default function RenterDashboardPage() {
             );
           })}
         </div>
-        <Link href="/public/properties"
+        <Link href="/properties"
           className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-colors inline-block">
           {tProp('browseProperties')}
         </Link>

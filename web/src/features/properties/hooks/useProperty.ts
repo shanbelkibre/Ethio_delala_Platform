@@ -30,6 +30,7 @@ export function useProperty(id: string | undefined) {
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Asynchronously fetch property details on mount and id update
     fetchProperty();
   }, [fetchProperty]);
 

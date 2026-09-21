@@ -15,7 +15,7 @@ export function PropertyCard({ property: p }: PropertyCardProps) {
 
   return (
     <Link
-      href={`/public/properties/${p.id}`}
+      href={`/properties/${p.id}`}
       className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 transition-shadow flex flex-col"
     >
       <div className="bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-950/40 dark:to-teal-950/40 h-48 flex items-center justify-center relative overflow-hidden">

@@ -48,7 +48,7 @@ export default function RenterFavoritesPage() {
             </div>
             <p className="text-lg font-bold">{t('noSavedProperties')}</p>
             <Link
-              href="/public/properties"
+              href="/properties"
               className="mt-4 inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors"
             >
               {tProp('browseProperties')}

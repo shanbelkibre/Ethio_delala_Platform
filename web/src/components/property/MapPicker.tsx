@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useId } from 'react';
 import L from 'leaflet';
 
 interface MapPickerProps {
@@ -9,8 +9,17 @@ interface MapPickerProps {
 }
 
 export default function MapPicker({ value, onChange }: MapPickerProps) {
-  const containerId = useRef(`map-picker-${Math.round(Math.random() * 1e9)}`);
-  const [coords, setCoords] = useState<[number, number]>([9.03, 38.74]);
+  const generatedId = useId();
+  const containerId = `map-picker-${generatedId.replace(/:/g, '')}`;
+  const [coords, setCoords] = useState<[number, number]>(() => {
+    if (value) {
+      const match = value.match(/query=([-0-9.]+),([-0-9.]+)/);
+      if (match) {
+        return [parseFloat(match[1]), parseFloat(match[2])];
+      }
+    }
+    return [9.03, 38.74];
+  });
   const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
@@ -20,21 +29,11 @@ export default function MapPicker({ value, onChange }: MapPickerProps) {
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     document.head.appendChild(link);
 
-    // 2. Parse initial coordinates
-    let initialLat = 9.03;
-    let initialLng = 38.74;
-    if (value) {
-      const match = value.match(/query=([-0-9.]+),([-0-9.]+)/);
-      if (match) {
-        initialLat = parseFloat(match[1]);
-        initialLng = parseFloat(match[2]);
-        setCoords([initialLat, initialLng]);
-      }
-    }
+    // 2. Initial coordinates
+    const [initialLat, initialLng] = coords;
 
     // 3. Fix icon markers
-    // @ts-ignore
-    delete L.Icon.Default.prototype._getIconUrl;
+    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -42,7 +41,7 @@ export default function MapPicker({ value, onChange }: MapPickerProps) {
     });
 
     // 4. Initialize map synchronously (clears container collision since remove() is synchronous)
-    const map = L.map(containerId.current).setView([initialLat, initialLng], 13);
+    const map = L.map(containerId).setView([initialLat, initialLng], 13);
     mapRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -71,7 +70,8 @@ export default function MapPicker({ value, onChange }: MapPickerProps) {
         mapRef.current = null;
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerId]);
 
   return (
     <div className="space-y-2">
@@ -82,7 +82,7 @@ export default function MapPicker({ value, onChange }: MapPickerProps) {
         </span>
       </div>
       <div 
-        id={containerId.current} 
+        id={containerId} 
         className="h-80 w-full rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner overflow-hidden z-10"
       />
     </div>

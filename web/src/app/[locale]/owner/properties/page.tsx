@@ -85,7 +85,7 @@ export default function OwnerPropertiesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <Link href={`/public/properties/${p.id}`} className="text-emerald-600 hover:underline font-bold">
+                      <Link href={`/properties/${p.id}`} className="text-emerald-600 hover:underline font-bold">
                         {tCommon('viewDetails')}
                       </Link>
                     </td>
