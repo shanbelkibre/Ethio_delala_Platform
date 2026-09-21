@@ -150,6 +150,7 @@ async function seed() {
   // 4. OWNER USER
   // ============================================================
   const ownerPassword = await PasswordService.hash('Owner@123456');
+
   const owner = await prisma.user.upsert({
     where: {
       email: 'owner@ethiodellala.et',

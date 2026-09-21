@@ -11,6 +11,13 @@ import {
   Tag,
   Bell,
   MessageSquare,
+  Users,
+  ShieldCheck,
+  CreditCard,
+  FileEdit,
+  ClipboardList,
+  Flag,
+  UserCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,9 +31,18 @@ export default function DashboardSidebar({ role: propRole, className }: Dashboar
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
 
+  // Determine role with route-first precedence, then prop, then user store
   const role =
     propRole ||
-    (user?.roles?.includes('ADMIN')
+    (pathname.includes('/management/admin')
+      ? 'ADMIN'
+      : pathname.includes('/management/agent')
+      ? 'AGENT'
+      : pathname.includes('/owner')
+      ? 'OWNER'
+      : pathname.includes('/renter')
+      ? 'RENTER'
+      : user?.roles?.includes('ADMIN')
       ? 'ADMIN'
       : user?.roles?.includes('AGENT')
       ? 'AGENT'
@@ -35,64 +51,189 @@ export default function DashboardSidebar({ role: propRole, className }: Dashboar
       : 'RENTER');
 
   // Role-specific navigation mapping
-  const navItems = [
-    {
-      label: t('dashboard'),
-      href:
-        role === 'OWNER'
-          ? '/owner/dashboard'
-          : role === 'AGENT'
-          ? '/management/agent/dashboard'
-          : role === 'ADMIN'
-          ? '/management/admin/dashboard'
-          : '/renter/dashboard',
-      icon: LayoutDashboard,
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-    },
-    {
-      label: t('profileSettings'),
-      href: role === 'OWNER' ? '/owner/profile' : '/renter/profile',
-      icon: User,
-      iconColor: 'text-slate-400 dark:text-slate-500',
-    },
-    {
-      label: role === 'RENTER' ? t('savedProperties') : t('myProperties'),
-      href:
-        role === 'OWNER'
-          ? '/owner/properties'
-          : role === 'AGENT'
-          ? '/management/agent/dashboard'
-          : role === 'ADMIN'
-          ? '/management/admin/dashboard'
-          : '/renter/favorites',
-      icon: Building2,
-      iconColor: 'text-emerald-500',
-    },
-    {
-      label: t('rentalRequests'),
-      href: role === 'OWNER' ? '/owner/rental-requests' : '/renter/rental-requests',
-      icon: FileText,
-      iconColor: 'text-indigo-500',
-    },
-    {
-      label: t('saleRequests'),
-      href: role === 'OWNER' ? '/owner/sale-requests' : '/renter/sale-requests',
-      icon: Tag,
-      iconColor: 'text-blue-500',
-    },
-    {
-      label: t('notifications'),
-      href: role === 'OWNER' ? '/owner/notifications' : '/renter/notifications',
-      icon: Bell,
-      iconColor: 'text-amber-500',
-    },
-    {
-      label: t('messages'),
-      href: role === 'OWNER' ? '/owner/messages' : '/renter/messages',
-      icon: MessageSquare,
-      iconColor: 'text-emerald-500',
-    },
-  ];
+  let navItems: Array<{
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    iconColor: string;
+  }> = [];
+
+  if (role === 'ADMIN') {
+    navItems = [
+      {
+        label: t('dashboard'),
+        href: '/management/admin/dashboard',
+        icon: LayoutDashboard,
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+      },
+      {
+        label: t('userManagement'),
+        href: '/management/admin/users',
+        icon: Users,
+        iconColor: 'text-blue-500 dark:text-blue-400',
+      },
+      {
+        label: t('propertyListings'),
+        href: '/management/admin/properties',
+        icon: Building2,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+      {
+        label: t('identityVerifications'),
+        href: '/management/admin/verification',
+        icon: ShieldCheck,
+        iconColor: 'text-purple-500 dark:text-purple-400',
+      },
+      {
+        label: t('paymentAudits'),
+        href: '/management/admin/payments',
+        icon: CreditCard,
+        iconColor: 'text-amber-500 dark:text-amber-400',
+      },
+      {
+        label: t('cmsContent'),
+        href: '/management/cms/dashboard',
+        icon: FileEdit,
+        iconColor: 'text-indigo-500 dark:text-indigo-400',
+      },
+      {
+        label: t('profileSettings'),
+        href: '/renter/profile',
+        icon: User,
+        iconColor: 'text-slate-400 dark:text-slate-500',
+      },
+    ];
+  } else if (role === 'AGENT') {
+    navItems = [
+      {
+        label: t('dashboard'),
+        href: '/management/agent/dashboard',
+        icon: LayoutDashboard,
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+      },
+      {
+        label: t('assignedProperties'),
+        href: '/management/agent/properties',
+        icon: Building2,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+      {
+        label: t('clientRequests'),
+        href: '/management/agent/requests',
+        icon: ClipboardList,
+        iconColor: 'text-blue-500 dark:text-blue-400',
+      },
+      {
+        label: t('regionalUsers'),
+        href: '/management/agent/users',
+        icon: Users,
+        iconColor: 'text-indigo-500 dark:text-indigo-400',
+      },
+      {
+        label: t('inspectionReports'),
+        href: '/management/agent/reports',
+        icon: Flag,
+        iconColor: 'text-rose-500 dark:text-rose-400',
+      },
+      {
+        label: t('agentProfile'),
+        href: '/management/agent/profile',
+        icon: UserCheck,
+        iconColor: 'text-amber-500 dark:text-amber-400',
+      },
+    ];
+  } else if (role === 'OWNER') {
+    navItems = [
+      {
+        label: t('dashboard'),
+        href: '/owner/dashboard',
+        icon: LayoutDashboard,
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+      },
+      {
+        label: t('profileSettings'),
+        href: '/owner/profile',
+        icon: User,
+        iconColor: 'text-slate-400 dark:text-slate-500',
+      },
+      {
+        label: t('myProperties'),
+        href: '/owner/properties',
+        icon: Building2,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+      {
+        label: t('rentalRequests'),
+        href: '/owner/rental-requests',
+        icon: FileText,
+        iconColor: 'text-indigo-500 dark:text-indigo-400',
+      },
+      {
+        label: t('saleRequests'),
+        href: '/owner/sale-requests',
+        icon: Tag,
+        iconColor: 'text-blue-500 dark:text-blue-400',
+      },
+      {
+        label: t('notifications'),
+        href: '/owner/notifications',
+        icon: Bell,
+        iconColor: 'text-amber-500 dark:text-amber-400',
+      },
+      {
+        label: t('messages'),
+        href: '/owner/messages',
+        icon: MessageSquare,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+    ];
+  } else {
+    // RENTER
+    navItems = [
+      {
+        label: t('dashboard'),
+        href: '/renter/dashboard',
+        icon: LayoutDashboard,
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+      },
+      {
+        label: t('profileSettings'),
+        href: '/renter/profile',
+        icon: User,
+        iconColor: 'text-slate-400 dark:text-slate-500',
+      },
+      {
+        label: t('savedProperties'),
+        href: '/renter/favorites',
+        icon: Building2,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+      {
+        label: t('rentalRequests'),
+        href: '/renter/rental-requests',
+        icon: FileText,
+        iconColor: 'text-indigo-500 dark:text-indigo-400',
+      },
+      {
+        label: t('saleRequests'),
+        href: '/renter/sale-requests',
+        icon: Tag,
+        iconColor: 'text-blue-500 dark:text-blue-400',
+      },
+      {
+        label: t('notifications'),
+        href: '/renter/notifications',
+        icon: Bell,
+        iconColor: 'text-amber-500 dark:text-amber-400',
+      },
+      {
+        label: t('messages'),
+        href: '/renter/messages',
+        icon: MessageSquare,
+        iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+    ];
+  }
 
   return (
     <aside
@@ -104,7 +245,13 @@ export default function DashboardSidebar({ role: propRole, className }: Dashboar
       <nav className="space-y-1.5" aria-label="Dashboard Navigation">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/renter/dashboard' && item.href !== '/owner/dashboard');
+          const isActive =
+            pathname === item.href ||
+            (pathname.startsWith(item.href) &&
+              item.href !== '/renter/dashboard' &&
+              item.href !== '/owner/dashboard' &&
+              item.href !== '/management/admin/dashboard' &&
+              item.href !== '/management/agent/dashboard');
 
           return (
             <Link

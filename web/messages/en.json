@@ -70,7 +70,17 @@
     "notifications": "Notifications",
     "messages": "Messages",
     "verification": "ID Verification",
-    "subscriptions": "Subscriptions"
+    "subscriptions": "Subscriptions",
+    "userManagement": "User Management",
+    "propertyListings": "Property Listings",
+    "identityVerifications": "Identity Verifications",
+    "paymentAudits": "Payment Audits",
+    "cmsContent": "CMS & Landing Content",
+    "assignedProperties": "Assigned Properties",
+    "clientRequests": "Client Requests",
+    "regionalUsers": "Regional Users",
+    "inspectionReports": "Inspection Reports",
+    "agentProfile": "Agent Profile & Area"
   },
   "profile": {
     "title": "Account & Profile Settings",

@@ -70,7 +70,17 @@
     "notifications": "ማሳወቂያዎች",
     "messages": "መልዕክቶች",
     "verification": "የመታወቂያ ማረጋገጫ",
-    "subscriptions": "የፓኬጅ ምዝገባዎች"
+    "subscriptions": "የፓኬጅ ምዝገባዎች",
+    "userManagement": "የተጠቃሚዎች አስተዳደር",
+    "propertyListings": "የንብረቶች ቁጥጥር",
+    "identityVerifications": "የማንነት ማረጋገጫዎች",
+    "paymentAudits": "የክፍያ ኦዲት",
+    "cmsContent": "የመነሻ ገጽ ይዘት",
+    "assignedProperties": "የተመደቡ ንብረቶች",
+    "clientRequests": "የደንበኛ ጥያቄዎች",
+    "regionalUsers": "የአካባቢ ተጠቃሚዎች",
+    "inspectionReports": "የፍተሻ ሪፖርቶች",
+    "agentProfile": "የወኪል መገለጫ እና ክልል"
   },
   "profile": {
     "title": "የመለያ እና የመገለጫ ቅንብሮች",
