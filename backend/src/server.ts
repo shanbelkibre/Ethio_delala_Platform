@@ -12,10 +12,10 @@ async function startServer() {
     await connectRedis();
 
     const server = app.listen(env.PORT, () => {
-      logger.info(`🚀 Ethiopian Property Platform API running on port ${env.PORT}`);
-      logger.info(`🔗 Base URL: http://localhost:${env.PORT}${env.API_PREFIX}`);
-      logger.info(`🏥 Health Check: http://localhost:${env.PORT}${env.API_PREFIX}/health`);
-      logger.info(`📚 Swagger API Docs: http://localhost:${env.PORT}/api-docs`);
+      logger.info(`Ethiopian Property Platform API running on port ${env.PORT}`);
+      logger.info(`Base URL: http://localhost:${env.PORT}${env.API_PREFIX}`);
+      logger.info(`Health Check: http://localhost:${env.PORT}${env.API_PREFIX}/health`);
+      logger.info(`Swagger API Docs: http://localhost:${env.PORT}/api-docs`);
     });
 
     const shutdown = async (signal: string) => {

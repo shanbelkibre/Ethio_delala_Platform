@@ -35,6 +35,8 @@ export const authService = {
     apiClient.post('/auth/send-otp', data),
   googleAuth: (data: { idToken: string; role?: string }) =>
     apiClient.post<AuthResponse>('/auth/google', data),
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiClient.post<{ message: string }>('/auth/change-password', data),
 };
 
 export default authService;

@@ -21,6 +21,7 @@ import {
   X,
   ShieldCheck,
   ShieldAlert,
+  KeyRound,
   LucideIcon,
 } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
@@ -299,45 +300,21 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                     </div>
                   </div>
 
-                  {/* Role-Specific Account Actions */}
+                  {/* Clean Profile Menu Actions */}
                   <div className="py-1.5 text-xs font-medium space-y-0.5">
-                    {isRenter && (
-                      <>
-                        <DropdownItem href="/renter/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/profile" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/favorites" icon={Heart} iconColor="text-rose-500" label="Favorites" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/notifications" icon={Bell} iconColor="text-amber-500" label="Notifications" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/renter/messages" icon={MessageSquare} iconColor="text-emerald-500" label="Messages" onClick={() => setProfileMenuOpen(false)} />
-                      </>
-                    )}
-
-                    {isOwner && (
-                      <>
-                        <DropdownItem href="/owner/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/profile" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/properties" icon={Building2} iconColor="text-emerald-500" label="My Properties" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/rental-requests" icon={FileText} iconColor="text-indigo-500" label="Rental Requests" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/sale-requests" icon={Tag} iconColor="text-blue-500" label="Sale Requests" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/notifications" icon={Bell} iconColor="text-amber-500" label="Notifications" onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/owner/messages" icon={MessageSquare} iconColor="text-emerald-500" label="Messages" onClick={() => setProfileMenuOpen(false)} />
-                      </>
-                    )}
-
-                    {isAgent && (
-                      <>
-                        <DropdownItem href="/management/agent/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/management/agent/dashboard" icon={Building2} iconColor="text-blue-500" label="Properties Queue" onClick={() => setProfileMenuOpen(false)} />
-                      </>
-                    )}
-
-                    {isAdmin && (
-                      <>
-                        <DropdownItem href="/management/admin/dashboard" icon={LayoutDashboard} iconColor="text-emerald-600 dark:text-emerald-400" label={tNav('dashboard')} onClick={() => setProfileMenuOpen(false)} />
-                        <DropdownItem href="/management/admin/dashboard" icon={User} label={tNav('profileSettings')} onClick={() => setProfileMenuOpen(false)} />
-                      </>
-                    )}
+                    <DropdownItem
+                      href={isOwner ? '/owner/profile' : '/renter/profile'}
+                      icon={User}
+                      label={tNav('profileSettings')}
+                      onClick={() => setProfileMenuOpen(false)}
+                    />
+                    <DropdownItem
+                      href={`${isOwner ? '/owner/profile' : '/renter/profile'}?tab=password`}
+                      icon={KeyRound}
+                      iconColor="text-amber-500"
+                      label={tNav('changePassword')}
+                      onClick={() => setProfileMenuOpen(false)}
+                    />
                   </div>
 
                   {/* Sign Out Action */}

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { validateRequest } from '../../middleware/validation.middleware';
+import { authenticate } from '../../middleware/auth.middleware';
 import {
   registerSchema,
   loginSchema,
@@ -10,6 +11,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   googleAuthSchema,
+  changePasswordSchema,
 } from './auth.validation';
 import { rateLimit } from '../../middleware/rate-limit.middleware';
 
@@ -25,5 +27,6 @@ router.post('/forgot-password', authRateLimiter, validateRequest(forgotPasswordS
 router.post('/reset-password', authRateLimiter, validateRequest(resetPasswordSchema), AuthController.resetPassword);
 router.post('/refresh', validateRequest(refreshTokenSchema), AuthController.refreshToken);
 router.post('/send-otp', authRateLimiter, validateRequest(sendOtpSchema), AuthController.sendOtp);
+router.post('/change-password', authenticate, validateRequest(changePasswordSchema), AuthController.changePassword);
 
 export default router;

@@ -421,5 +421,28 @@ export class AuthService {
 
     return { message: 'Password has been reset successfully. You can now log in.' };
   }
+
+  static async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    const isMatch = await PasswordService.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      throw new BadRequestError('Incorrect current password');
+    }
+
+    const passwordHash = await PasswordService.hash(newPassword);
+
+    await withReconnect(() =>
+      prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      })
+    );
+
+    return { message: 'Password has been updated successfully' };
+  }
 }
 
