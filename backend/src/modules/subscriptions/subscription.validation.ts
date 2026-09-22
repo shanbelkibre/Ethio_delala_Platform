@@ -10,6 +10,17 @@ export const createPlanSchema = z.object({
   }),
 });
 
+export const updatePlanSchema = z.object({
+  body: z.object({
+    name: z.string().min(2).optional(),
+    price: z.number().min(0).optional(),
+    durationDays: z.number().positive().optional(),
+    maxListings: z.number().positive().optional(),
+    features: z.array(z.string()).optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
 export const subscribeSchema = z.object({
   body: z.object({
     planId: z.string().min(1, 'Plan ID is required'),

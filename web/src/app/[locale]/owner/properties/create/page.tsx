@@ -35,23 +35,6 @@ export default function CreatePropertyPage() {
   const [backImage, setBackImage] = useState<File | null>(null);
   const [additionalImages, setAdditionalImages] = useState<FileList | null>(null);
 
-  // House License / Karta Government doc
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const [kartaDocument, setKartaDocument] = useState<File | null>(null);
-
-  useEffect(() => {
-    // Fetch profile to see if user is already verified
-    profileService.getMe()
-      .then((res: { success?: boolean; data?: { user?: { isIdentityVerified?: boolean }; isIdentityVerified?: boolean } }) => {
-        if (res?.success && res.data) {
-          setUserProfile(res.data.user || res.data);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const isVerified = Boolean(userProfile?.isIdentityVerified);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -73,28 +56,8 @@ export default function CreatePropertyPage() {
       return;
     }
 
-    // Check House License document is selected (Only required if NOT already verified/submitted)
-    if (!kartaDocument && !isVerified) {
-      setError('Government Karta / House License document is required for unverified accounts.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      // 1. Upload House License (Karta) only if selected
-      if (kartaDocument) {
-        const licenseFormData = new FormData();
-        licenseFormData.append('document', kartaDocument);
-        licenseFormData.append('licenseNumber', licenseNumber || `KARTA-${Date.now()}`);
-        const licenseRes = await verificationService.uploadOwnerLicense(licenseFormData);
-        if (!licenseRes.success) {
-          setError('House Karta upload failed: ' + licenseRes.message);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // 2. Upload Property Images to Cloudinary
+      // Upload Property Images to Cloudinary
       const uploadedUrls: string[] = [];
       const imageFilesToUpload = [frontImage, backImage];
       if (additionalImages) {
@@ -120,7 +83,7 @@ export default function CreatePropertyPage() {
         }
       }
 
-      // 3. Create property payload
+      // Create property payload
       const payload = {
         title,
         description,
@@ -138,7 +101,7 @@ export default function CreatePropertyPage() {
 
       const res = await propertyService.createProperty(payload);
       if (res.success) {
-        setSuccess('Property and Karta license submitted successfully! Redirecting...');
+        setSuccess('Property submitted successfully! Redirecting...');
         setTimeout(() => {
           router.push('/owner/properties');
         }, 1500);
@@ -254,28 +217,6 @@ export default function CreatePropertyPage() {
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-350 mb-1">Description</label>
             <textarea required rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief description of property highlights, facilities, and surroundings..."
               className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-150 text-sm focus:outline-none" />
-          </div>
-
-          {/* House License / Karta Government doc */}
-          <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl space-y-4">
-            <div>
-              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm">House License / Karta Document</h3>
-              {isVerified && (
-                <p className="text-xs text-emerald-600 font-semibold mt-1">✓ Your account has verified land licenses. Uploading Karta is optional.</p>
-              )}
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Karta License Number</label>
-                <input type="text" required={!isVerified} value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} placeholder="Karta Reg Number"
-                  className="w-full px-3 py-2 border rounded-xl bg-white dark:bg-slate-900 border-slate-250 dark:border-slate-800 text-slate-850 dark:text-slate-150 text-xs focus:outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Upload Karta File (PDF/Image)</label>
-                <input type="file" required={!isVerified} accept="image/*,application/pdf" onChange={(e) => setKartaDocument(e.target.files?.[0] || null)}
-                  className="w-full px-3 py-2 border rounded-xl bg-white dark:bg-slate-900 border-slate-250 dark:border-slate-800 text-slate-850 dark:text-slate-150 text-xs focus:outline-none" />
-              </div>
-            </div>
           </div>
 
           {/* Specific Images Requirements */}

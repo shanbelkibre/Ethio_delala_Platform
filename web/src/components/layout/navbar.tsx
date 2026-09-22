@@ -65,13 +65,29 @@ const navStyles = {
 };
 
 function ProfileAvatarIcon({ className = 'h-9 w-9', avatarUrl, name }: { className?: string; avatarUrl?: string; name?: string }) {
+  const [loadError, setLoadError] = useState(false);
+
+  const getFullUrl = (url?: string) => {
+    if (!url) return '/images/profile.png';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const initial = (name?.[0] || 'U').toUpperCase();
+
   return (
-    <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-slate-100 dark:bg-slate-800', className)}>
-      <img
-        src={avatarUrl || '/images/profile.png'}
-        alt={name || 'User profile'}
-        className="h-full w-full object-cover rounded-full"
-      />
+    <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-xs select-none', className)}>
+      {!loadError && (avatarUrl || '/images/profile.png') ? (
+        <img
+          src={getFullUrl(avatarUrl)}
+          alt=""
+          onError={() => setLoadError(true)}
+          className="h-full w-full object-cover rounded-full"
+        />
+      ) : (
+        <span>{initial}</span>
+      )}
     </div>
   );
 }
@@ -154,6 +170,12 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     };
   }, []);
 
+  // Close menus on route change
+  useEffect(() => {
+    setProfileMenuOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
+
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
@@ -185,6 +207,11 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const isAgent = user?.roles?.includes('AGENT');
   const isAdmin = user?.roles?.includes('ADMIN');
 
+  const isPortalRoute =
+    pathname.startsWith('/management') ||
+    pathname.startsWith('/owner') ||
+    pathname.startsWith('/renter');
+
   let roleLabel = tRoles('renter');
   let roleBadgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
   let dashboardHref = '/renter/dashboard';
@@ -203,7 +230,19 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     dashboardHref = '/owner/dashboard';
   }
 
+  const profileHref = isAdmin
+    ? '/management/admin/profile'
+    : isAgent
+    ? '/management/agent/profile'
+    : isOwner
+    ? '/owner/profile'
+    : '/renter/profile';
 
+  const verificationHref = isOwner
+    ? '/owner/verification'
+    : isAdmin
+    ? '/management/admin/verification'
+    : '/renter/profile?tab=verification';
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
@@ -226,18 +265,20 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
           </div>
         </Link>
 
-        {/* Public Website Navigation (Discovery Links) */}
-        <nav className="hidden items-center gap-1 lg:flex">
-          {publicLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={navStyles.navLink(isLinkActive(link.href))}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Public Website Navigation (Discovery Links) - Hidden on Management/Portal Routes */}
+        {!isPortalRoute && (
+          <nav className="hidden items-center gap-1 lg:flex">
+            {publicLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={navStyles.navLink(isLinkActive(link.href))}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         {/* Right Header Section: Language Switcher + Auth Links + Theme Toggle */}
         <div className="flex items-center gap-1 sm:gap-2">
@@ -289,7 +330,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                         </span>
                       ) : (
                         <Link
-                          href={isOwner ? '/owner/verification' : '/renter/profile'}
+                          href={verificationHref}
                           onClick={() => setProfileMenuOpen(false)}
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 transition-colors"
                         >
@@ -303,13 +344,13 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                   {/* Clean Profile Menu Actions */}
                   <div className="py-1.5 text-xs font-medium space-y-0.5">
                     <DropdownItem
-                      href={isOwner ? '/owner/profile' : '/renter/profile'}
+                      href={profileHref}
                       icon={User}
                       label={tNav('profileSettings')}
                       onClick={() => setProfileMenuOpen(false)}
                     />
                     <DropdownItem
-                      href={`${isOwner ? '/owner/profile' : '/renter/profile'}?tab=password`}
+                      href={`${profileHref}?tab=password`}
                       icon={KeyRound}
                       iconColor="text-amber-500"
                       label={tNav('changePassword')}
@@ -391,20 +432,22 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
             </div>
           ) : null}
 
-          {/* Public Navigation in Mobile */}
-          <div className="space-y-1">
-            {publicLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={navStyles.mobileNavLink(isLinkActive(link.href))}
-              >
-                <link.icon className="h-4 w-4 text-slate-500" />
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {/* Public Navigation in Mobile - Hidden on Management/Portal Routes */}
+          {!isPortalRoute && (
+            <div className="space-y-1">
+              {publicLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={navStyles.mobileNavLink(isLinkActive(link.href))}
+                >
+                  <link.icon className="h-4 w-4 text-slate-500" />
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Mobile Language Switcher */}
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">

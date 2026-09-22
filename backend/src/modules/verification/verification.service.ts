@@ -52,6 +52,11 @@ export class VerificationService {
     return { identities, licenses: [] };
   }
 
+  static async getAllSubmissions() {
+    const identityDocuments = await VerificationRepository.getAllIdentityDocs();
+    return { identityDocuments };
+  }
+
   private static async triggerAiPrecheck(entityType: string, entityId: string) {
     // Simulated AI Document Pre-check (calculates initial risk score based on document heuristic)
     const riskScore = Math.floor(Math.random() * 20); // Low risk score (0-20) for standard submission

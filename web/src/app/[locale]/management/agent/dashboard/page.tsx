@@ -9,12 +9,14 @@ import { agentService, type AgentDashboardStats } from '@/features/agent';
 
 export default function AgentDashboardPage() {
   const t = useTranslations('agent');
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated } = useAuthStore();
   const router = useRouter();
   const [stats, setStats] = useState<AgentDashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     if (!isAuthenticated || (!user?.roles?.includes('AGENT') && !user?.roles?.includes('ADMIN'))) {
       router.push('/auth/login');
       return;
@@ -26,9 +28,15 @@ export default function AgentDashboardPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [isAuthenticated, user, router]);
+  }, [hasHydrated, isAuthenticated, user, router]);
 
-  if (!user) return null;
+  if (!hasHydrated || !user) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4">

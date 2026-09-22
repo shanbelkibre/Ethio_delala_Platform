@@ -68,5 +68,25 @@ class AuthController {
             next(error);
         }
     }
+    static async googleAuth(req, res, next) {
+        try {
+            const result = await auth_service_1.AuthService.googleAuth(req.body);
+            (0, response_1.sendSuccess)(res, result, 'Google authentication successful');
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+    static async changePassword(req, res, next) {
+        try {
+            const userId = req.user.userId;
+            const { currentPassword, newPassword } = req.body;
+            const result = await auth_service_1.AuthService.changePassword(userId, currentPassword, newPassword);
+            (0, response_1.sendSuccess)(res, result, 'Password has been successfully updated');
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }
 exports.AuthController = AuthController;

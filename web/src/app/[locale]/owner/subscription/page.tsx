@@ -24,8 +24,8 @@ export default function OwnerSubscriptionPage() {
       // fallback mock plans if backend doesn't have any seeded yet
       setPlans([
         { id: 'basic', name: 'Basic Plan', price: 100, durationDays: 30, maxListings: 3, features: ['List up to 3 properties', 'Standard visibility', 'Email notifications'] },
-        { id: 'standard', name: 'Standard Plan', price: 300, durationDays: 30, maxListings: 10, features: ['List up to 10 properties', 'Karta Document badge', 'Priority search sorting'] },
-        { id: 'premium', name: 'Premium Plan', price: 500, durationDays: 30, maxListings: 100, features: ['List up to 100 properties', 'Karta Document verification priority', 'Promoted property badges'] },
+        { id: 'standard', name: 'Standard Plan', price: 300, durationDays: 30, maxListings: 10, features: ['List up to 10 properties', 'Verified Owner badge', 'Priority search sorting'] },
+        { id: 'premium', name: 'Premium Plan', price: 500, durationDays: 30, maxListings: 100, features: ['List up to 100 properties', 'Fast-track listing approval', 'Promoted property badges'] },
       ]);
     } finally { setLoading(false); }
   }

@@ -71,6 +71,9 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
   const [kebele, setKebele] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [isIdentityVerified, setIsIdentityVerified] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [imgError, setImgError] = useState(false);
 
   // Profile submission state
   const [profileSaving, setProfileSaving] = useState(false);
@@ -87,6 +90,13 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const getImageUrl = (url?: string | null) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   // Fetch current user data
   useEffect(() => {
     apiClient
@@ -97,7 +107,9 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
           setName(u.name || '');
           setEmail(u.email || '');
           setPhone(u.phone || '');
-          setProfileImageUrl(u.profile?.profileImageUrl || u.avatarUrl || '');
+          const img = u.profile?.profileImageUrl || u.avatarUrl || '';
+          setProfileImageUrl(img);
+          setImgError(false);
           setIsIdentityVerified(Boolean(u.isIdentityVerified || u.identityVerification?.nationalIdVerified));
 
           if (u.profile) {
@@ -121,6 +133,59 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
         setLoadingProfile(false);
       });
   }, []);
+
+  // Handle Avatar Upload
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Please select a valid image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Image must be smaller than 5MB.');
+      return;
+    }
+
+    setAvatarUploading(true);
+    setAvatarError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const response = await fetch(`${apiUrl}/users/me/avatar`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${useAuthStore.getState().accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data?.success && data?.data?.avatarUrl) {
+        const newUrl = data.data.avatarUrl;
+        setProfileImageUrl(newUrl);
+        setImgError(false);
+        // Update auth store avatar
+        if (authUser) {
+          setAuth(
+            { ...authUser, avatarUrl: newUrl },
+            useAuthStore.getState().accessToken || '',
+            useAuthStore.getState().refreshToken || ''
+          );
+        }
+      } else {
+        setAvatarError(data?.error?.message || data?.message || 'Failed to upload avatar.');
+      }
+    } catch (err: any) {
+      setAvatarError(err?.message || 'Failed to upload avatar. Please try again.');
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   // Handle Profile Update
   async function handleProfileSubmit(e: React.FormEvent) {
@@ -193,8 +258,8 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
     }
 
     try {
-      const res = await authService.changePassword({ currentPassword, newPassword });
-      if (!res?.success) {
+      const res = (await authService.changePassword({ currentPassword, newPassword })) as any;
+      if (res && res.success === false) {
         setPasswordError(res?.error?.message || res?.message || 'Failed to update password');
         return;
       }
@@ -291,6 +356,55 @@ export default function UserProfileSettings({ role }: UserProfileSettingsProps) 
               <span>{profileError}</span>
             </div>
           )}
+
+          {/* Avatar Upload */}
+          <div className="flex items-center gap-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="relative shrink-0">
+              <div className="h-20 w-20 rounded-full overflow-hidden ring-4 ring-emerald-100 dark:ring-emerald-950/50 bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-black text-xl select-none">
+                {profileImageUrl && !imgError ? (
+                  <img
+                    src={getImageUrl(profileImageUrl)}
+                    alt=""
+                    onError={() => setImgError(true)}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>
+                    {(firstName?.[0] || name?.[0] || 'U').toUpperCase()}
+                    {(lastName?.[0] || '').toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <label
+                htmlFor="avatar-upload"
+                className={`absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md cursor-pointer transition-colors ${
+                  avatarUploading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                title="Upload photo"
+              >
+                {avatarUploading ? (
+                  <div className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <Camera className="h-3.5 w-3.5" />
+                )}
+              </label>
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                disabled={avatarUploading}
+                className="sr-only"
+                onChange={handleAvatarUpload}
+              />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{name || 'Profile Photo'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">JPG, PNG or WebP · Max 5MB</p>
+              {avatarError && (
+                <p className="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">{avatarError}</p>
+              )}
+            </div>
+          </div>
 
           {/* Personal Info Card */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-xs space-y-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/hooks/useAuthStore';
@@ -12,12 +12,28 @@ import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { user, isAuthenticated, hasHydrated, setAuth } = useAuthStore();
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    if (isAuthenticated && user) {
+      if (user.roles?.includes('ADMIN')) {
+        router.replace('/management/admin/dashboard');
+      } else if (user.roles?.includes('AGENT')) {
+        router.replace('/management/agent/dashboard');
+      } else if (user.roles?.includes('OWNER')) {
+        router.replace('/owner/dashboard');
+      } else {
+        router.replace('/renter/dashboard');
+      }
+    }
+  }, [hasHydrated, isAuthenticated, user, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

@@ -15,6 +15,8 @@ router.use(auth_middleware_1.authenticate);
 router.get('/my-subscription', (0, role_middleware_1.authorizeRoles)(roles_1.Role.OWNER, roles_1.Role.ADMIN), subscription_controller_1.SubscriptionController.getMySubscription);
 router.post('/subscribe', (0, role_middleware_1.authorizeRoles)(roles_1.Role.OWNER, roles_1.Role.ADMIN), (0, validation_middleware_1.validateRequest)(subscription_validation_1.subscribeSchema), subscription_controller_1.SubscriptionController.subscribe);
 router.post('/confirm-payment', subscription_controller_1.SubscriptionController.confirmPayment);
-// Admin-only Plan Management Endpoint
+// Admin-only Plan Management Endpoints
+router.get('/all-plans', (0, role_middleware_1.authorizeRoles)(roles_1.Role.ADMIN), subscription_controller_1.SubscriptionController.getAllPlans);
 router.post('/plans', (0, role_middleware_1.authorizeRoles)(roles_1.Role.ADMIN), (0, validation_middleware_1.validateRequest)(subscription_validation_1.createPlanSchema), subscription_controller_1.SubscriptionController.createPlan);
+router.patch('/plans/:id', (0, role_middleware_1.authorizeRoles)(roles_1.Role.ADMIN), (0, validation_middleware_1.validateRequest)(subscription_validation_1.updatePlanSchema), subscription_controller_1.SubscriptionController.updatePlan);
 exports.default = router;

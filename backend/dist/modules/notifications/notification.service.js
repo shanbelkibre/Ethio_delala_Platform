@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
 const database_1 = require("../../config/database");
 const client_1 = require("@prisma/client");
+const logger_1 = require("../../utils/logger");
 class NotificationService {
     static async send(options) {
         // 1. Create database notification record
@@ -35,7 +36,7 @@ class NotificationService {
         });
     }
     static dispatchChannel(channel, userId, title, message) {
-        console.log(`🔔 [NOTIFICATION PROVIDER SIMULATION] Channel: ${channel} | User: ${userId} | Title: "${title}" | Message: "${message}"`);
+        logger_1.logger.info(`[NOTIFICATION SIMULATION] Channel: ${channel} | User: ${userId} | Title: "${title}"`);
     }
 }
 exports.NotificationService = NotificationService;

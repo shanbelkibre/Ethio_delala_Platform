@@ -5,11 +5,9 @@ const password_service_1 = require("./services/password.service");
 const client_1 = require("@prisma/client");
 const library_1 = require("@prisma/client/runtime/library");
 async function seed() {
-    console.log('🌱 Starting database seed...');
     // ============================================================
     // 1. ROLES
     // ============================================================
-    console.log('Creating roles...');
     const roleNames = [
         client_1.RoleType.ADMIN,
         client_1.RoleType.AGENT,
@@ -28,7 +26,6 @@ async function seed() {
     // ============================================================
     // 2. ADMIN USER
     // ============================================================
-    console.log('Creating admin...');
     const adminPassword = await password_service_1.PasswordService.hash('Admin@123456');
     const admin = await database_1.prisma.user.upsert({
         where: {
@@ -70,7 +67,6 @@ async function seed() {
     // ============================================================
     // 3. AGENT USER
     // ============================================================
-    console.log('Creating agent...');
     const agentPassword = await password_service_1.PasswordService.hash('Agent@123456');
     const agent = await database_1.prisma.user.upsert({
         where: {
@@ -114,7 +110,6 @@ async function seed() {
     // ============================================================
     // 4. OWNER USER
     // ============================================================
-    console.log('Creating owner...');
     const ownerPassword = await password_service_1.PasswordService.hash('Owner@123456');
     const owner = await database_1.prisma.user.upsert({
         where: {

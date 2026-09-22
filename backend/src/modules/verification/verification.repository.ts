@@ -73,5 +73,18 @@ export class VerificationRepository {
       orderBy: { createdAt: 'asc' },
     });
   }
+
+  static async getAllIdentityDocs(): Promise<IdentityVerification[]> {
+    return prisma.identityVerification.findMany({
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }
 

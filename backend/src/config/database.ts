@@ -17,9 +17,9 @@ if (env.NODE_ENV !== 'production') {
   global.prisma = prisma;
 }
 
-// Wrap any Prisma call with automatic reconnect on P1017/P1001
+// Wrap any Prisma call with automatic reconnect on P1017/P1001/P2024
 export async function withReconnect<T>(fn: () => Promise<T>): Promise<T> {
-  const RECONNECTABLE = ['P1017', 'P1001'];
+  const RECONNECTABLE = ['P1017', 'P1001', 'P2024'];
   const MAX_RETRIES = 3;
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {

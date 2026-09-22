@@ -8,6 +8,7 @@ exports.ensureStorageDirectories = ensureStorageDirectories;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const env_1 = require("./env");
+const logger_1 = require("../utils/logger");
 exports.storageConfig = {
     uploadDir: env_1.env.UPLOAD_DIR,
     privateUploadDir: path_1.default.join(env_1.env.UPLOAD_DIR, 'private_documents'),
@@ -21,5 +22,5 @@ function ensureStorageDirectories() {
     if (!fs_1.default.existsSync(exports.storageConfig.privateUploadDir)) {
         fs_1.default.mkdirSync(exports.storageConfig.privateUploadDir, { recursive: true });
     }
-    console.log('✅ Storage directories verified.');
+    logger_1.logger.info('Storage directories verified.');
 }

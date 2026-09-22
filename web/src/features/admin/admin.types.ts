@@ -58,12 +58,19 @@ export interface AdminIdentityDoc {
     name?: string;
     email?: string;
     phone?: string;
+    avatarUrl?: string;
+    profile?: {
+      firstName?: string;
+      lastName?: string;
+      profileImageUrl?: string;
+    };
   };
   documentType?: string;
   documentNumber?: string;
   idType?: string;
   idNumber?: string;
   documentUrl?: string;
+  nationalIdVerified?: boolean;
   status: 'PENDING' | 'VERIFIED' | 'REJECTED';
   createdAt?: string;
 }

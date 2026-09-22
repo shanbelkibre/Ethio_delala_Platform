@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendOtpSchema = exports.refreshTokenSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.loginSchema = exports.registerSchema = exports.strongPasswordSchema = void 0;
+exports.changePasswordSchema = exports.sendOtpSchema = exports.refreshTokenSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.loginSchema = exports.googleAuthSchema = exports.registerSchema = exports.strongPasswordSchema = void 0;
 const zod_1 = require("zod");
 const roles_1 = require("../../constants/roles");
 exports.strongPasswordSchema = zod_1.z
@@ -16,8 +16,8 @@ exports.registerSchema = zod_1.z.object({
         middleName: zod_1.z.string().optional().nullable(),
         lastName: zod_1.z.string().optional().nullable(),
         name: zod_1.z.string().min(2, 'Name must be at least 2 characters').optional(),
-        email: zod_1.z.string().email('Invalid email address'),
-        phone: zod_1.z.string().min(10, 'Phone number must be at least 10 digits'),
+        email: zod_1.z.string().email('Invalid email address').optional().or(zod_1.z.literal('')),
+        phone: zod_1.z.string().min(9, 'Phone number must be at least 9 digits').optional().or(zod_1.z.literal('')),
         password: exports.strongPasswordSchema,
         roles: zod_1.z.array(zod_1.z.nativeEnum(roles_1.Role)).optional(),
         gender: zod_1.z.string().optional().nullable(),
@@ -28,6 +28,15 @@ exports.registerSchema = zod_1.z.object({
         zone: zod_1.z.string().optional().nullable(),
         wereda: zod_1.z.string().optional().nullable(),
         kebele: zod_1.z.string().optional().nullable(),
+    }).refine((data) => (data.email && data.email.trim().length > 0) || (data.phone && data.phone.trim().length > 0), {
+        message: 'Either email or phone number is required',
+        path: ['email'],
+    }),
+});
+exports.googleAuthSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        idToken: zod_1.z.string().min(1, 'Google ID token is required'),
+        role: zod_1.z.nativeEnum(roles_1.Role).optional(),
     }),
 });
 exports.loginSchema = zod_1.z.object({
@@ -61,5 +70,11 @@ exports.refreshTokenSchema = zod_1.z.object({
 exports.sendOtpSchema = zod_1.z.object({
     body: zod_1.z.object({
         phoneOrEmail: zod_1.z.string().min(1, 'Phone or email is required'),
+    }),
+});
+exports.changePasswordSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        currentPassword: zod_1.z.string().min(1, 'Current password is required'),
+        newPassword: exports.strongPasswordSchema,
     }),
 });

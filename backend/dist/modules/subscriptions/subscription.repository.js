@@ -20,7 +20,29 @@ class SubscriptionRepository {
         return database_1.prisma.subscriptionPlan.findUnique({ where: { id } });
     }
     static async getActivePlans() {
-        return database_1.prisma.subscriptionPlan.findMany({ where: { isActive: true } });
+        return database_1.prisma.subscriptionPlan.findMany({ where: { isActive: true }, orderBy: { price: 'asc' } });
+    }
+    static async getAllPlans() {
+        return database_1.prisma.subscriptionPlan.findMany({ orderBy: { createdAt: 'desc' } });
+    }
+    static async updatePlan(id, data) {
+        const updateData = {};
+        if (data.name !== undefined)
+            updateData.name = data.name;
+        if (data.price !== undefined)
+            updateData.price = new client_1.Prisma.Decimal(data.price);
+        if (data.durationDays !== undefined)
+            updateData.durationDays = data.durationDays;
+        if (data.maxListings !== undefined)
+            updateData.maxListings = data.maxListings;
+        if (data.features !== undefined)
+            updateData.features = data.features;
+        if (data.isActive !== undefined)
+            updateData.isActive = data.isActive;
+        return database_1.prisma.subscriptionPlan.update({
+            where: { id },
+            data: updateData,
+        });
     }
     static async createSubscription(data) {
         return database_1.prisma.subscription.create({ data, include: { plan: true } });

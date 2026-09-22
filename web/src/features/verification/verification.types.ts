@@ -20,12 +20,3 @@ export interface OwnerLicenseVerification {
   reviewedAt?: string;
   createdAt: string;
 }
-
-export interface PropertyKartaVerification {
-  id: string;
-  propertyId: string;
-  kartaDocumentUrl: string;
-  status: VerificationStatus;
-  reviewedAt?: string;
-  createdAt: string;
-}

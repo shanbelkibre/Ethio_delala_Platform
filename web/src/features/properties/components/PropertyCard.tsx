@@ -5,23 +5,38 @@ import { useTranslations } from 'next-intl';
 import { Building2 } from 'lucide-react';
 import { Property } from '../property.types';
 
+import React, { useState } from 'react';
+
 interface PropertyCardProps {
   property: Property;
 }
 
 export function PropertyCard({ property: p }: PropertyCardProps) {
   const t = useTranslations('property');
+  const [imgError, setImgError] = useState(false);
   const primaryImage = p.images?.find((img) => img.isPrimary)?.url || p.images?.[0]?.url;
+
+  const getFullImgUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const backendBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
 
   return (
     <Link
       href={`/properties/${p.id}`}
-      className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 transition-shadow flex flex-col"
+      className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 transition-shadow flex flex-col group"
     >
       <div className="bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-950/40 dark:to-teal-950/40 h-48 flex items-center justify-center relative overflow-hidden">
-        {primaryImage ? (
+        {primaryImage && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={primaryImage} alt={p.title} className="w-full h-full object-cover" />
+          <img
+            src={getFullImgUrl(primaryImage)}
+            alt={p.title}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         ) : (
           <Building2 className="w-12 h-12 text-emerald-600/50 dark:text-emerald-400/40" />
         )}

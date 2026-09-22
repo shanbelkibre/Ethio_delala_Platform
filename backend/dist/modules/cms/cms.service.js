@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CmsService = exports.defaultCmsConfig = void 0;
 const prisma_1 = require("../../prisma");
+const logger_1 = require("../../utils/logger");
 exports.defaultCmsConfig = {
     cms_navbar: {
         siteName: "Delala Rentals",
@@ -104,7 +105,7 @@ class CmsService {
             };
         }
         catch (err) {
-            console.error('Error fetching CMS config from DB, using fallback:', err);
+            logger_1.logger.error('Error fetching CMS config from DB, using fallback:', err);
             return exports.defaultCmsConfig;
         }
     }

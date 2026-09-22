@@ -2,7 +2,7 @@ import { SubscriptionRepository } from './subscription.repository';
 import { prisma } from '../../config/database';
 import { NotFoundError, BadRequestError } from '../../utils/errors';
 import { defaultPaymentProvider } from '../payments/chapa-simulation.provider';
-import { CreatePlanDTO, SubscribeDTO } from './subscription.types';
+import { CreatePlanDTO, UpdatePlanDTO, SubscribeDTO } from './subscription.types';
 import { SubscriptionStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
 
 export class SubscriptionService {
@@ -18,6 +18,18 @@ export class SubscriptionService {
 
   static async getActivePlans() {
     return SubscriptionRepository.getActivePlans();
+  }
+
+  static async getAllPlans() {
+    return SubscriptionRepository.getAllPlans();
+  }
+
+  static async updatePlan(id: string, dto: UpdatePlanDTO) {
+    const existing = await SubscriptionRepository.findPlanById(id);
+    if (!existing) {
+      throw new NotFoundError('Subscription plan not found');
+    }
+    return SubscriptionRepository.updatePlan(id, dto);
   }
 
   static async getOwnerActiveSubscription(ownerId: string) {

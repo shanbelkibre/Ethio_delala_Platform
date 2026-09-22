@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import {
@@ -45,8 +45,24 @@ export default function RegisterPage() {
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { user, isAuthenticated, hasHydrated, setAuth } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    if (isAuthenticated && user) {
+      if (user.roles?.includes('ADMIN')) {
+        router.replace('/management/admin/dashboard');
+      } else if (user.roles?.includes('AGENT')) {
+        router.replace('/management/agent/dashboard');
+      } else if (user.roles?.includes('OWNER')) {
+        router.replace('/owner/dashboard');
+      } else {
+        router.replace('/renter/dashboard');
+      }
+    }
+  }, [hasHydrated, isAuthenticated, user, router]);
 
   // Core required fields
   const [selectedRole, setSelectedRole] = useState<SelectedRole>('RENTER');

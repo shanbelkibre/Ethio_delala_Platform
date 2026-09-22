@@ -59,6 +59,15 @@ export class VerificationController {
     }
   }
 
+  static async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const all = await VerificationService.getAllSubmissions();
+      sendSuccess(res, all, 'All verification submissions retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async reviewIdentity(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const docId = req.params.id;

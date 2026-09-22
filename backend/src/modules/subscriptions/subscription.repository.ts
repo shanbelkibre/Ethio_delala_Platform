@@ -28,7 +28,33 @@ export class SubscriptionRepository {
   }
 
   static async getActivePlans(): Promise<SubscriptionPlan[]> {
-    return prisma.subscriptionPlan.findMany({ where: { isActive: true } });
+    return prisma.subscriptionPlan.findMany({ where: { isActive: true }, orderBy: { price: 'asc' } });
+  }
+
+  static async getAllPlans(): Promise<SubscriptionPlan[]> {
+    return prisma.subscriptionPlan.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
+  static async updatePlan(id: string, data: {
+    name?: string;
+    price?: number;
+    durationDays?: number;
+    maxListings?: number;
+    features?: string[];
+    isActive?: boolean;
+  }): Promise<SubscriptionPlan> {
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.price !== undefined) updateData.price = new Prisma.Decimal(data.price);
+    if (data.durationDays !== undefined) updateData.durationDays = data.durationDays;
+    if (data.maxListings !== undefined) updateData.maxListings = data.maxListings;
+    if (data.features !== undefined) updateData.features = data.features;
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+
+    return prisma.subscriptionPlan.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   static async createSubscription(data: {

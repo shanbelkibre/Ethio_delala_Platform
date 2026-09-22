@@ -9,14 +9,21 @@ import { Building2, ClipboardList, Banknote, MessageSquare } from 'lucide-react'
 
 export default function OwnerDashboardPage() {
   const t = useTranslations('owner');
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!isAuthenticated) router.push('/auth/login');
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
-  if (!user) return null;
+  if (!hasHydrated || !user) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4">

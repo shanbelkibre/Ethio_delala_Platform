@@ -21,6 +21,25 @@ export class SubscriptionController {
     }
   }
 
+  static async getAllPlans(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const plans = await SubscriptionService.getAllPlans();
+      sendSuccess(res, plans, 'All subscription plans retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updatePlan(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const plan = await SubscriptionService.updatePlan(id, req.body);
+      sendSuccess(res, plan, 'Subscription plan updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getMySubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const ownerId = req.user!.userId;

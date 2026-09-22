@@ -6,10 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailService = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const env_1 = require("../config/env");
+const logger_1 = require("../utils/logger");
 class EmailService {
     static async sendOtpEmail(toEmail, otpCode) {
         const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded-lg: 12px; background-color: #ffffff;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
         <div style="text-align: center; margin-bottom: 24px;">
           <h2 style="color: #059669; margin: 0; font-size: 24px;">Delala Platform Verification</h2>
           <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Ethiopia's Premier Real Estate & Property Platform</p>
@@ -29,11 +30,12 @@ class EmailService {
                 subject: `Your Delala Platform OTP Code: ${otpCode}`,
                 html: htmlTemplate,
             });
-            console.log(` [EMAIL OTP SENT] Successfully sent OTP ${otpCode} to ${toEmail}`);
+            logger_1.logger.info(`[EMAIL OTP SENT] Successfully sent OTP to ${toEmail}`);
             return true;
         }
         catch (error) {
-            console.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
+            logger_1.logger.error(`[EMAIL OTP ERROR] Failed to send email to ${toEmail}:`, error);
+            logger_1.logger.info(`🔑 [EMAIL OTP FALLBACK] Code for ${toEmail} is: ${otpCode}`);
             return false;
         }
     }
@@ -60,11 +62,12 @@ class EmailService {
                 subject: `Reset Your Ethio Delala Password`,
                 html: htmlTemplate,
             });
-            console.log(`[PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
+            logger_1.logger.info(`[PASSWORD RESET EMAIL SENT] Successfully sent reset email to ${toEmail}`);
             return true;
         }
         catch (error) {
-            console.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
+            logger_1.logger.error(`[PASSWORD RESET EMAIL ERROR] Failed to send email to ${toEmail}:`, error);
+            logger_1.logger.info(`🔗 [PASSWORD RESET LINK FALLBACK] User: ${toEmail} | Link: ${resetLink} | Token: ${token}`);
             return false;
         }
     }
@@ -78,4 +81,7 @@ EmailService.transporter = nodemailer_1.default.createTransport({
         user: env_1.env.SMTP_EMAIL,
         pass: env_1.env.SMTP_PASSWORD,
     },
+    connectionTimeout: 5000, // 5 seconds max connection attempt
+    greetingTimeout: 5000,
+    socketTimeout: 5000,
 });

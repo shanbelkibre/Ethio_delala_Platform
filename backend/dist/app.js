@@ -13,6 +13,7 @@ const routes_1 = __importDefault(require("./routes"));
 const error_middleware_1 = require("./middleware/error.middleware");
 const not_found_middleware_1 = require("./middleware/not-found.middleware");
 const swagger_1 = require("./config/swagger");
+const logger_1 = require("./utils/logger");
 function createApp() {
     const app = (0, express_1.default)();
     // Security & Parsing Middlewares
@@ -25,7 +26,7 @@ function createApp() {
         res.on('finish', () => {
             const duration = Date.now() - start;
             if (req.originalUrl !== '/favicon.ico') {
-                console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+                logger_1.logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
             }
         });
         next();

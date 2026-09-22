@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.redisClient = void 0;
 exports.connectRedis = connectRedis;
 const env_1 = require("./env");
+const logger_1 = require("../utils/logger");
 /**
  * Cache/Redis interface abstraction.
  * Provides an in-memory fallback for local development if Redis client is not installed/connected.
@@ -34,5 +35,5 @@ class RedisCacheService {
 }
 exports.redisClient = new RedisCacheService();
 async function connectRedis() {
-    console.log(`✅ Cache/Redis abstraction initialized (${env_1.env.REDIS_URL}).`);
+    logger_1.logger.info(`Cache/Redis abstraction initialized (${env_1.env.REDIS_URL}).`);
 }

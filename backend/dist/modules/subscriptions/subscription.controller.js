@@ -22,6 +22,25 @@ class SubscriptionController {
             next(error);
         }
     }
+    static async getAllPlans(req, res, next) {
+        try {
+            const plans = await subscription_service_1.SubscriptionService.getAllPlans();
+            (0, response_1.sendSuccess)(res, plans, 'All subscription plans retrieved');
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+    static async updatePlan(req, res, next) {
+        try {
+            const { id } = req.params;
+            const plan = await subscription_service_1.SubscriptionService.updatePlan(id, req.body);
+            (0, response_1.sendSuccess)(res, plan, 'Subscription plan updated successfully');
+        }
+        catch (error) {
+            next(error);
+        }
+    }
     static async getMySubscription(req, res, next) {
         try {
             const ownerId = req.user.userId;

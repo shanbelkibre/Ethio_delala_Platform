@@ -19,6 +19,16 @@ class SubscriptionService {
     static async getActivePlans() {
         return subscription_repository_1.SubscriptionRepository.getActivePlans();
     }
+    static async getAllPlans() {
+        return subscription_repository_1.SubscriptionRepository.getAllPlans();
+    }
+    static async updatePlan(id, dto) {
+        const existing = await subscription_repository_1.SubscriptionRepository.findPlanById(id);
+        if (!existing) {
+            throw new errors_1.NotFoundError('Subscription plan not found');
+        }
+        return subscription_repository_1.SubscriptionRepository.updatePlan(id, dto);
+    }
     static async getOwnerActiveSubscription(ownerId) {
         return subscription_repository_1.SubscriptionRepository.findActiveSubscription(ownerId);
     }

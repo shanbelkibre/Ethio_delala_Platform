@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import UserProfileSettings from '@/components/profile/UserProfileSettings';
 
-export default function AgentProfilePage() {
+export default function CMSProfilePage() {
   return (
     <Suspense
       fallback={
@@ -12,7 +12,7 @@ export default function AgentProfilePage() {
         </div>
       }
     >
-      <UserProfileSettings role="AGENT" />
+      <UserProfileSettings role="ADMIN" />
     </Suspense>
   );
 }

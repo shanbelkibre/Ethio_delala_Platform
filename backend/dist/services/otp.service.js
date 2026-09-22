@@ -4,6 +4,7 @@ exports.OtpService = void 0;
 const redis_1 = require("../config/redis");
 const env_1 = require("../config/env");
 const email_service_1 = require("./email.service");
+const logger_1 = require("../utils/logger");
 class OtpService {
     static generateOtpCode() {
         // Generate a 6-digit random numeric OTP code
@@ -13,10 +14,13 @@ class OtpService {
         const otp = this.generateOtpCode();
         const key = `otp:${phoneOrEmail}`;
         await redis_1.redisClient.set(key, otp, env_1.env.OTP_TTL_SECONDS);
-        console.log(`📱 [OTP SIMULATION] Code for ${phoneOrEmail} is: ${otp}`);
         // If phoneOrEmail is an email address (or contains @), send via Gmail SMTP
         if (phoneOrEmail.includes('@')) {
+            logger_1.logger.info(`📧 [EMAIL OTP DISPATCH] Sending OTP to ${phoneOrEmail}`);
             await email_service_1.EmailService.sendOtpEmail(phoneOrEmail, otp);
+        }
+        else {
+            logger_1.logger.info(`📱 [SMS OTP SIMULATION] Sent SMS to ${phoneOrEmail} with OTP: ${otp}`);
         }
         return otp;
     }

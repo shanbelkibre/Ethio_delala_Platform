@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CloudinaryService = void 0;
 const cloudinary_1 = require("cloudinary");
 const fs_1 = __importDefault(require("fs"));
+const logger_1 = require("../utils/logger");
 // Configure Cloudinary using environmental variables
 cloudinary_1.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -35,7 +36,7 @@ class CloudinaryService {
             if (fs_1.default.existsSync(localPath)) {
                 fs_1.default.unlinkSync(localPath);
             }
-            console.error('Cloudinary upload failure:', error);
+            logger_1.logger.error('Cloudinary upload failure:', error);
             throw new Error('Failed to upload asset to storage provider');
         }
     }

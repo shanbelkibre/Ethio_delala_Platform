@@ -33,13 +33,8 @@ export class UserController {
         throw new BadRequestError('Avatar image file is required');
       }
 
-      let avatarUrl: string;
-      try {
-        avatarUrl = await CloudinaryService.uploadFile(req.file.path, 'avatars');
-      } catch {
-        // Fallback to local uploads path if Cloudinary is offline in dev
-        avatarUrl = `/uploads/${req.file.filename}`;
-      }
+      // CloudinaryService handles fallback to local storage automatically
+      const avatarUrl = await CloudinaryService.uploadFile(req.file.path, 'avatars');
 
       const updated = await UserService.updateProfile(userId, { profileImageUrl: avatarUrl });
       sendSuccess(res, { avatarUrl, user: updated }, 'Avatar uploaded successfully');

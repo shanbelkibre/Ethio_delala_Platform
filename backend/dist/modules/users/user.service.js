@@ -5,6 +5,7 @@ const user_repository_1 = require("./user.repository");
 const errors_1 = require("../../utils/errors");
 const pagination_1 = require("../../utils/pagination");
 const roles_1 = require("../../constants/roles");
+const logger_1 = require("../../utils/logger");
 class UserService {
     static async getProfile(userId) {
         const user = await user_repository_1.UserRepository.findById(userId);
@@ -45,7 +46,7 @@ class UserService {
         // Mask ID reference for privacy compliance (e.g. FAYDA-ETH-****5678)
         const maskedRef = `FAYDA-ETH-${cleanId.slice(0, 3)}****${cleanId.slice(-4)}`;
         const updated = await user_repository_1.UserRepository.verifyNationalId(userId, maskedRef);
-        console.log(`🆔 [FAYDA NATIONAL ID VERIFIED] User ${user.email} verified with ref ${maskedRef}`);
+        logger_1.logger.info(`[FAYDA NATIONAL ID VERIFIED] User ${user.email} verified with ref ${maskedRef}`);
         return this.mapToResponse(updated);
     }
     static async getUserById(userId) {

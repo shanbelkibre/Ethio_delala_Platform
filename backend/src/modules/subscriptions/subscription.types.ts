@@ -8,6 +8,15 @@ export interface CreatePlanDTO {
   features?: string[];
 }
 
+export interface UpdatePlanDTO {
+  name?: string;
+  price?: number;
+  durationDays?: number;
+  maxListings?: number;
+  features?: string[];
+  isActive?: boolean;
+}
+
 export interface SubscribeDTO {
   planId: string;
 }

@@ -73,10 +73,16 @@ export default function DashboardSidebar({ role: propRole, className }: Dashboar
         iconColor: 'text-blue-500 dark:text-blue-400',
       },
       {
-        label: t('propertyListings'),
+        label: t('manageProperties'),
         href: '/management/admin/properties',
         icon: Building2,
         iconColor: 'text-emerald-500 dark:text-emerald-400',
+      },
+      {
+        label: t('manageSubscriptions'),
+        href: '/management/admin/subscriptions',
+        icon: CreditCard,
+        iconColor: 'text-teal-500 dark:text-teal-400',
       },
       {
         label: t('identityVerifications'),
@@ -98,7 +104,7 @@ export default function DashboardSidebar({ role: propRole, className }: Dashboar
       },
       {
         label: t('profileSettings'),
-        href: '/renter/profile',
+        href: '/management/admin/profile',
         icon: User,
         iconColor: 'text-slate-400 dark:text-slate-500',
       },

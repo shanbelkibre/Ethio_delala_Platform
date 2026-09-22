@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.subscribeSchema = exports.createPlanSchema = void 0;
+exports.subscribeSchema = exports.updatePlanSchema = exports.createPlanSchema = void 0;
 const zod_1 = require("zod");
 exports.createPlanSchema = zod_1.z.object({
     body: zod_1.z.object({
@@ -9,6 +9,16 @@ exports.createPlanSchema = zod_1.z.object({
         durationDays: zod_1.z.number().positive().optional(),
         maxListings: zod_1.z.number().positive().optional(),
         features: zod_1.z.array(zod_1.z.string()).optional(),
+    }),
+});
+exports.updatePlanSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        name: zod_1.z.string().min(2).optional(),
+        price: zod_1.z.number().min(0).optional(),
+        durationDays: zod_1.z.number().positive().optional(),
+        maxListings: zod_1.z.number().positive().optional(),
+        features: zod_1.z.array(zod_1.z.string()).optional(),
+        isActive: zod_1.z.boolean().optional(),
     }),
 });
 exports.subscribeSchema = zod_1.z.object({

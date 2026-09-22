@@ -3,7 +3,7 @@ import { SubscriptionController } from './subscription.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { authorizeRoles } from '../../middleware/role.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
-import { createPlanSchema, subscribeSchema } from './subscription.validation';
+import { createPlanSchema, updatePlanSchema, subscribeSchema } from './subscription.validation';
 import { Role } from '../../constants/roles';
 
 const router = Router();
@@ -18,7 +18,9 @@ router.get('/my-subscription', authorizeRoles(Role.OWNER, Role.ADMIN), Subscript
 router.post('/subscribe', authorizeRoles(Role.OWNER, Role.ADMIN), validateRequest(subscribeSchema), SubscriptionController.subscribe);
 router.post('/confirm-payment', SubscriptionController.confirmPayment);
 
-// Admin-only Plan Management Endpoint
+// Admin-only Plan Management Endpoints
+router.get('/all-plans', authorizeRoles(Role.ADMIN), SubscriptionController.getAllPlans);
 router.post('/plans', authorizeRoles(Role.ADMIN), validateRequest(createPlanSchema), SubscriptionController.createPlan);
+router.patch('/plans/:id', authorizeRoles(Role.ADMIN), validateRequest(updatePlanSchema), SubscriptionController.updatePlan);
 
 export default router;

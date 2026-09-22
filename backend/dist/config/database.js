@@ -6,6 +6,7 @@ exports.connectDatabase = connectDatabase;
 exports.disconnectDatabase = disconnectDatabase;
 const client_1 = require("@prisma/client");
 const env_1 = require("./env");
+const logger_1 = require("../utils/logger");
 exports.prisma = global.prisma ||
     new client_1.PrismaClient({
         log: ['error', 'warn'],
@@ -25,7 +26,7 @@ async function withReconnect(fn) {
         catch (err) {
             lastError = err;
             if (err?.code && RECONNECTABLE.includes(err.code)) {
-                console.warn(`[DB] Connection lost (${err.code}). Reconnecting... attempt ${attempt}/${MAX_RETRIES}`);
+                logger_1.logger.warn(`[DB] Connection lost (${err.code}). Reconnecting... attempt ${attempt}/${MAX_RETRIES}`);
                 try {
                     await exports.prisma.$disconnect();
                 }
@@ -46,10 +47,10 @@ async function withReconnect(fn) {
 async function connectDatabase() {
     try {
         await exports.prisma.$connect();
-        console.log('PostgreSQL database connected successfully via Prisma.');
+        logger_1.logger.info('PostgreSQL database connected successfully via Prisma.');
     }
     catch (error) {
-        console.error('Database connection failed:', error);
+        logger_1.logger.error('Database connection failed:', error);
     }
 }
 async function disconnectDatabase() {

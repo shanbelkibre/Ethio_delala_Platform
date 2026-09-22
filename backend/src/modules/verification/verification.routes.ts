@@ -29,6 +29,7 @@ router.post(
 
 // Admin Review Endpoints
 router.get('/pending', authorizeRoles(Role.ADMIN), VerificationController.getPending);
+router.get('/all', authorizeRoles(Role.ADMIN), VerificationController.getAll);
 router.patch('/identity/:id/review', authorizeRoles(Role.ADMIN), validateRequest(reviewDocSchema), VerificationController.reviewIdentity);
 router.patch('/license/:id/review', authorizeRoles(Role.ADMIN), validateRequest(reviewDocSchema), VerificationController.reviewLicense);
 
