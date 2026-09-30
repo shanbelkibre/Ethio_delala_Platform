@@ -11,5 +11,5 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "NodeNext"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "prisma/seed.ts"]
 }

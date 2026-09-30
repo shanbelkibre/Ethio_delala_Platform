@@ -1,5 +1,5 @@
-import { prisma } from './config/database';
-import { PasswordService } from './services/password.service';
+import { prisma } from '../src/config/database';
+import { PasswordService } from '../src/services/password.service';
 import {
   RoleType,
   TransactionType,
@@ -17,13 +17,13 @@ import {
 import { Decimal } from '@prisma/client/runtime/library';
 
 async function seed() {
-  
+
 
   // ============================================================
   // 1. ROLES
   // ============================================================
 
-  
+
 
   const roleNames: RoleType[] = [
     RoleType.ADMIN,
@@ -50,7 +50,7 @@ async function seed() {
   // 2. ADMIN USER
   // ============================================================
 
-  
+
 
   const adminPassword = await PasswordService.hash('Admin@123456');
 
@@ -557,7 +557,7 @@ async function seed() {
   // 13. MESSAGES
   // ============================================================
 
-  
+
 
   const existingMessage = await prisma.message.findFirst({
     where: {
@@ -883,7 +883,7 @@ async function seed() {
     });
   }
 
-  
+
 }
 
 seed()

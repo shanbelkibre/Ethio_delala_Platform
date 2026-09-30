@@ -2,16 +2,46 @@ import { PrismaClient } from '@prisma/client';
 import { env } from './env';
 import { logger } from '../utils/logger';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-export const prisma =
-  global.prisma ||
-  new PrismaClient({
+const createPrismaClient = () => {
+  const baseClient = new PrismaClient({
     log: ['error', 'warn'],
   });
+
+  return baseClient.$extends({
+    query: {
+      $allOperations({ model, operation, args, query }) {
+        const MAX_RETRIES = 3;
+        const RECONNECTABLE = ['P1017', 'P1001', 'P2024'];
+
+        async function execute(attempt: number): Promise<any> {
+          try {
+            return await query(args);
+          } catch (err: any) {
+            if (attempt < MAX_RETRIES && err?.code && RECONNECTABLE.includes(err.code)) {
+              logger.warn(
+                `[DB Auto-Retry] ${err.code} on ${model || 'raw'}.${operation}. Retrying in ${(attempt + 1) * 800}ms (attempt ${attempt + 1}/${MAX_RETRIES})...`
+              );
+              await new Promise((r) => setTimeout(r, (attempt + 1) * 800));
+              return execute(attempt + 1);
+            }
+            throw err;
+          }
+        }
+
+        return execute(0);
+      },
+    },
+  });
+};
+
+type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: ExtendedPrismaClient | undefined;
+}
+
+export const prisma = global.prisma || createPrismaClient();
 
 if (env.NODE_ENV !== 'production') {
   global.prisma = prisma;
