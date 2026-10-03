@@ -38,7 +38,8 @@
     "pending": "Pending",
     "notFoundTitle": "Page Not Found",
     "notFoundSubtitle": "The page you are looking for does not exist.",
-    "goHome": "Go Home"
+    "goHome": "Go Home",
+    "optional": "Optional"
   },
   "nav": {
     "brandName": "Ethio Delala",
@@ -501,7 +502,8 @@
     "passwordChanged": "Password Changed",
     "goToSignIn": "Go to Sign In",
     "saveNewPassword": "Save New Password",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "confirmPassword": "Confirm Password"
   },
   "property": {
     "forRent": "For Rent",

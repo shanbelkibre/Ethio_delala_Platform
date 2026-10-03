@@ -38,7 +38,8 @@
     "pending": "በመጠባበቅ ላይ",
     "notFoundTitle": "ገጹ አልተገኘም",
     "notFoundSubtitle": "የፈለጉት ገጽ በስርዓቱ ውስጥ የለም ወይም ተወግዷል።",
-    "goHome": "ወደ መነሻ ገጽ ተመለስ"
+    "goHome": "ወደ መነሻ ገጽ ተመለስ",
+    "optional": "አማራጭ"
   },
   "nav": {
     "brandName": "ኢትዮ ደላላ",
