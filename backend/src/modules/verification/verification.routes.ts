@@ -6,10 +6,14 @@ import { uploadPrivate } from '../../middleware/upload.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { submitIdentitySchema, submitLicenseSchema, reviewDocSchema } from './verification.validation';
 import { Role } from '../../constants/roles';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
-router.use(authenticate); // Protected endpoints
+// Verification involves file uploads & DB writes — strict limit
+const verificationRateLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10 }); // 10 per hour
+
+router.use(verificationRateLimiter, authenticate);
 
 // User Submission Endpoints
 router.post(

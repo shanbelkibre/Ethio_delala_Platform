@@ -3,10 +3,14 @@ import { AdminController } from './admin.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { authorizeRoles } from '../../middleware/role.middleware';
 import { Role } from '../../constants/roles';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
-router.use(authenticate, authorizeRoles(Role.ADMIN));
+// Admin endpoints — moderate limit; only admins reach these anyway
+const adminRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });
+
+router.use(adminRateLimiter, authenticate, authorizeRoles(Role.ADMIN));
 
 router.get('/stats', AdminController.getStats);
 router.get('/audit-logs', AdminController.getAuditLogs);

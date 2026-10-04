@@ -12,11 +12,14 @@ import {
   getUsersQuerySchema,
 } from './user.validation';
 import { Role } from '../../constants/roles';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
+const userRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });
+
 // All routes require valid JWT authentication
-router.use(authenticate);
+router.use(userRateLimiter, authenticate);
 
 // Current Authenticated User Profile Endpoints
 router.get('/me', UserController.getMe);

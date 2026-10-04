@@ -5,10 +5,13 @@ import { authorizeRoles } from '../../middleware/role.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { createSaleRequestSchema, respondSaleRequestSchema } from './sale.validation';
 import { Role } from '../../constants/roles';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
-router.use(authenticate);
+const saleRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30 });
+
+router.use(saleRateLimiter, authenticate);
 
 router.post(
   '/request',

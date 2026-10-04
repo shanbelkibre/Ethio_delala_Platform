@@ -5,10 +5,13 @@ import { authorizeRoles } from '../../middleware/role.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { createRentalRequestSchema, respondRentalRequestSchema } from './rental.validation';
 import { Role } from '../../constants/roles';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
-router.use(authenticate);
+const rentalRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30 });
+
+router.use(rentalRateLimiter, authenticate);
 
 router.post(
   '/request',
