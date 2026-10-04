@@ -1329,7 +1329,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 2. DIV 2: MISSION, LANDLORD CTA & HOW IT WORKS (Decreased space inside)   */}
       {/* ========================================================================= */}
-      <div id="div-2-mission-landlord-howitworks" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8">
+      <div id="about" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8 scroll-mt-20">
         {/* 2A: ABOUT US (Your comfort, security & peace of mind is our mission!) */}
         <AboutUsSection />
 
@@ -1343,7 +1343,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 3. DIV 3: TAILORED EXPERIENCES, STATS & PARTNERS                          */}
       {/* ========================================================================= */}
-      <div id="div-3-experiences-stats-partners" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8">
+      <div id="services" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8 scroll-mt-20">
         {/* 3A: TAILORED EXPERIENCES (Tailored Experiences for Tenants, Landlords & Agents) */}
         <EcosystemPortalSection />
 
@@ -1368,7 +1368,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 5. DIV 5: CONVERSATION & SUPPORT                                          */}
       {/* ========================================================================= */}
-      <div id="div-5-conversation-and-support" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8">
+      <div id="contact" className="w-full relative my-16 md:my-24 space-y-6 md:space-y-8 scroll-mt-20">
         {/* 5A: CONTACT SECTION (Let's Start a Conversation) */}
         <ContactSection />
 

@@ -138,9 +138,9 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
   const publicLinks = [
     { href: '/', label: tNav('home'), icon: Home },
     { href: '/properties', label: tNav('properties'), icon: Building2 },
-    { href: '/about', label: tNav('about'), icon: Info },
+    { href: '/#about', label: tNav('about'), icon: Info },
     { href: '/#services', label: tNav('services'), icon: Wrench },
-    { href: '/contact', label: tNav('contact'), icon: MessageSquare },
+    { href: '/#contact', label: tNav('contact'), icon: MessageSquare },
   ];
 
   useEffect(() => {
@@ -192,6 +192,21 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
     setProfileMenuOpen(false);
     setMobileOpen(false);
     router.push('/auth/login');
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('/#')) {
+      const targetId = href.replace('/#', '');
+      const isHomePage = pathname === '/' || pathname === '';
+      if (isHomePage) {
+        e.preventDefault();
+        const elem = document.getElementById(targetId);
+        if (elem) {
+          elem.scrollIntoView({ behavior: 'smooth' });
+          window.history.pushState(null, '', href.replace('/', ''));
+        }
+      }
+    }
   };
 
   const isLinkActive = (href: string) => {
@@ -272,6 +287,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className={navStyles.navLink(isLinkActive(link.href))}
               >
                 {link.label}
@@ -439,7 +455,10 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    handleNavClick(e, link.href);
+                    setMobileOpen(false);
+                  }}
                   className={navStyles.mobileNavLink(isLinkActive(link.href))}
                 >
                   <link.icon className="h-4 w-4 text-slate-500" />
