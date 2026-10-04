@@ -96,7 +96,7 @@ export default function RegisterPage() {
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /\d/.test(password);
-  const hasSymbol = /[@$!%*?&#^()_+={}[\]:;"'<>,.?/~`|\\-]/.test(password);
+  const hasSymbol = /[@$!%*&#^()_+={}[\]:;"'<>,.?/~`|\\-]/.test(password);
   const isPasswordStrong = hasMinLength && hasLower && hasUpper && hasNumber && hasSymbol;
   const passwordsMatch = password.length > 0 && password === confirmPassword;
 
