@@ -3,17 +3,15 @@ import { SubscriptionController } from './subscription.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { authorizeRoles } from '../../middleware/role.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
-import { rateLimit } from '../../middleware/rate-limit.middleware';
 import { createPlanSchema, updatePlanSchema, subscribeSchema } from './subscription.validation';
 import { Role } from '../../constants/roles';
 import { rateLimit } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
-const subscriptionRateLimiter = rateLimit();
 
 // Rate limiters
-const publicRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });   // 60 req/15min
-const subscriptionRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }); // 20 req/15min
+const publicRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });
+const subscriptionRateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
 // Public Plan Listing Endpoint
 router.get('/plans', publicRateLimiter, SubscriptionController.getPlans);
