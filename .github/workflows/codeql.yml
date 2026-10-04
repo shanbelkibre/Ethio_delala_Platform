@@ -1,0 +1,70 @@
+# CodeQL Advanced Security Scanning
+# Configured for: TypeScript/JavaScript monorepo (Express backend + Next.js frontend)
+# Docs: https://docs.github.com/en/code-security/code-scanning
+
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  # Runs every Friday at 05:23 UTC — keeps security scan fresh weekly
+  schedule:
+    - cron: "23 5 * * 5"
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required: upload CodeQL results to GitHub Security tab
+      security-events: write
+      # Required: fetch CodeQL packs
+      packages: read
+      # Required for private repositories
+      actions: read
+      contents: read
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Node.js (required for TypeScript projects) ────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            web/package-lock.json
+
+      # ── 3. Install backend dependencies ────────────────────────────────────
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci --ignore-scripts
+
+      # ── 4. Install web dependencies ─────────────────────────────────────────
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci --ignore-scripts
+
+      # ── 5. Initialize CodeQL ────────────────────────────────────────────────
+      # Only javascript-typescript is needed — your project has no C/Java/Swift
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          build-mode: none
+          # security-extended: includes extra security queries beyond the defaults
+          # security-and-quality: also includes code quality checks
+          queries: security-extended,security-and-quality
+
+      # ── 6. Perform CodeQL Analysis ──────────────────────────────────────────
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
