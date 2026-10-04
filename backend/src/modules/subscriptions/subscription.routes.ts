@@ -14,15 +14,13 @@ const subscriptionRateLimiter = rateLimit();
 router.get('/plans', SubscriptionController.getPlans);
 
 // Authenticated Endpoints
-router.use(subscriptionRateLimiter, authenticate);
-
-router.get('/my-subscription', authorizeRoles(Role.OWNER, Role.ADMIN), SubscriptionController.getMySubscription);
-router.post('/subscribe', authorizeRoles(Role.OWNER, Role.ADMIN), validateRequest(subscribeSchema), SubscriptionController.subscribe);
-router.post('/confirm-payment', SubscriptionController.confirmPayment);
+router.get('/my-subscription', subscriptionRateLimiter, authenticate, authorizeRoles(Role.OWNER, Role.ADMIN), SubscriptionController.getMySubscription);
+router.post('/subscribe', subscriptionRateLimiter, authenticate, authorizeRoles(Role.OWNER, Role.ADMIN), validateRequest(subscribeSchema), SubscriptionController.subscribe);
+router.post('/confirm-payment', subscriptionRateLimiter, authenticate, SubscriptionController.confirmPayment);
 
 // Admin-only Plan Management Endpoints
-router.get('/all-plans', authorizeRoles(Role.ADMIN), SubscriptionController.getAllPlans);
-router.post('/plans', authorizeRoles(Role.ADMIN), validateRequest(createPlanSchema), SubscriptionController.createPlan);
-router.patch('/plans/:id', authorizeRoles(Role.ADMIN), validateRequest(updatePlanSchema), SubscriptionController.updatePlan);
+router.get('/all-plans', subscriptionRateLimiter, authenticate, authorizeRoles(Role.ADMIN), SubscriptionController.getAllPlans);
+router.post('/plans', subscriptionRateLimiter, authenticate, authorizeRoles(Role.ADMIN), validateRequest(createPlanSchema), SubscriptionController.createPlan);
+router.patch('/plans/:id', subscriptionRateLimiter, authenticate, authorizeRoles(Role.ADMIN), validateRequest(updatePlanSchema), SubscriptionController.updatePlan);
 
 export default router;
