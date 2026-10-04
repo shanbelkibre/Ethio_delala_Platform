@@ -14,7 +14,7 @@ const subscriptionRateLimiter = rateLimit();
 router.get('/plans', SubscriptionController.getPlans);
 
 // Authenticated Endpoints
-router.use(authenticate, subscriptionRateLimiter);
+router.use(subscriptionRateLimiter, authenticate);
 
 router.get('/my-subscription', authorizeRoles(Role.OWNER, Role.ADMIN), SubscriptionController.getMySubscription);
 router.post('/subscribe', authorizeRoles(Role.OWNER, Role.ADMIN), validateRequest(subscribeSchema), SubscriptionController.subscribe);
