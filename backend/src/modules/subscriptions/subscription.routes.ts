@@ -3,16 +3,18 @@ import { SubscriptionController } from './subscription.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { authorizeRoles } from '../../middleware/role.middleware';
 import { validateRequest } from '../../middleware/validation.middleware';
+import { rateLimit } from '../../middleware/rate-limit.middleware';
 import { createPlanSchema, updatePlanSchema, subscribeSchema } from './subscription.validation';
 import { Role } from '../../constants/roles';
 
 const router = Router();
+const subscriptionRateLimiter = rateLimit();
 
 // Public Plan Listing Endpoint
 router.get('/plans', SubscriptionController.getPlans);
 
 // Authenticated Endpoints
-router.use(authenticate);
+router.use(subscriptionRateLimiter, authenticate);
 
 router.get('/my-subscription', authorizeRoles(Role.OWNER, Role.ADMIN), SubscriptionController.getMySubscription);
 router.post('/subscribe', authorizeRoles(Role.OWNER, Role.ADMIN), validateRequest(subscribeSchema), SubscriptionController.subscribe);
