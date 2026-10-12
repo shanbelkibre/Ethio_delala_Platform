@@ -184,11 +184,13 @@ interface FeaturedPropertyCardProps {
   idx: number;
 }
 
-const getFullPropertyImgUrl = (url?: string) => {
-  if (!url) return '/images/residential_apartments.png';
+const getFullPropertyImgUrl = (url?: string): string | null => {
+  if (!url) return null;
+  // If already absolute, return as-is
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  const backendBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
-  return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  // Use Next.js rewrite proxy: /uploads/* -> backend /uploads/*
+  // This avoids CORS and works both in dev and production
+  return url.startsWith('/') ? url : `/${url}`;
 };  
 
 export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProps) {
@@ -201,14 +203,30 @@ export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProp
       className="bg-white dark:bg-[#0e162e] border border-slate-200/90 dark:border-slate-800/90 rounded-[28px] overflow-hidden shadow-sm hover:shadow-2xl hover:border-emerald-500/40 hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group"
     >
       <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-        <img
-          src={getFullPropertyImgUrl(house.image)}
-          alt={house.title}
-          onError={(e) => {
-            e.currentTarget.src = '/images/residential_apartments.png';
-          }}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+        {getFullPropertyImgUrl(house.image) ? (
+          <img
+            src={getFullPropertyImgUrl(house.image)!}
+            alt={house.title}
+            onError={(e) => {
+              // If backend image fails, hide img and show placeholder
+              e.currentTarget.style.display = 'none';
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                const placeholder = parent.querySelector('[data-no-img]') as HTMLElement | null;
+                if (placeholder) placeholder.style.display = 'flex';
+              }
+            }}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : null}
+        <div
+          data-no-img
+          style={{ display: getFullPropertyImgUrl(house.image) ? 'none' : 'flex' }}
+          className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 gap-2"
+        >
+          <HomeIcon className="h-10 w-10 opacity-40" />
+          <span className="text-[10px] font-semibold uppercase tracking-wide opacity-60">No Photo Yet</span>
+        </div>
         <div className="absolute top-3 left-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
           {house.badge}
         </div>
@@ -226,7 +244,9 @@ export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProp
             </span>
             <span className="text-base font-black text-emerald-700 dark:text-emerald-400 font-mono">
               {formatCurrency(house.pricePerMonth)}
-              <span className="text-[10px] font-normal text-slate-500"> {t("perMonth")}</span>
+              <span className="text-[10px] font-normal text-slate-500">
+                {house.badge === "For Sale" ? "" : ` ${t("perMonth")}`}
+              </span>
             </span>
           </div>
 
@@ -359,64 +379,51 @@ function ScrollHorizontalSection() {
     { value: "5", label: "5+ Bedrooms Villa", description: "Diplomatic Multi-Story Compound", icon: <Castle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> },
   ];
 
-  const featuredHousesList: FeaturedHouse[] = [
-    {
-      id: "h1",
-      title: t("h1Title"),
-      category: t("h1Category"),
-      city: "Addis Ababa",
-      neighborhood: t("h1Neighborhood"),
-      pricePerMonth: 65000,
-      bedrooms: 4,
-      bathrooms: 3,
-      areaSqm: 260,
-      image: "/images/penthouse_duplex.png",
-      description: t("h1Desc"),
-      badge: t("h1Badge"),
-    },
-    {
-      id: "h2",
-      title: t("h2Title"),
-      category: t("h2Category"),
-      city: "Addis Ababa",
-      neighborhood: t("h2Neighborhood"),
-      pricePerMonth: 85000,
-      bedrooms: 5,
-      bathrooms: 4,
-      areaSqm: 380,
-      image: "/images/villas_family_homes.png",
-      description: t("h2Desc"),
-      badge: t("h2Badge"),
-    },
-    {
-      id: "h3",
-      title: t("h3Title"),
-      category: t("h3Category"),
-      city: "Addis Ababa",
-      neighborhood: t("h3Neighborhood"),
-      pricePerMonth: 38000,
-      bedrooms: 2,
-      bathrooms: 2,
-      areaSqm: 130,
-      image: "/images/residential_apartments.png",
-      description: t("h3Desc"),
-      badge: t("h3Badge"),
-    },
-    {
-      id: "h4",
-      title: t("h4Title"),
-      category: t("h4Category"),
-      city: "Addis Ababa",
-      neighborhood: t("h4Neighborhood"),
-      pricePerMonth: 22000,
-      bedrooms: 1,
-      bathrooms: 1,
-      areaSqm: 65,
-      image: "/images/studio_flat.png",
-      description: t("h4Desc"),
-      badge: t("h4Badge"),
-    },
-  ];
+  const [propertiesList, setPropertiesList] = useState<FeaturedHouse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    propertyService
+      .getPublicProperties({ limit: 8 })
+      .then((res: any) => {
+        const rawList: any[] = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.properties)
+          ? res.data.properties
+          : Array.isArray(res)
+          ? res
+          : [];
+
+        const mapped: FeaturedHouse[] = rawList.map((p: any) => {
+          const primaryImg =
+            p.images?.find((img: any) => img.isPrimary)?.url ||
+            p.images?.[0]?.url ||
+            "";
+          return {
+            id: p.id,
+            title: p.title || "Ethiopian Property",
+            category: p.propertyType || "Residential",
+            city: p.city || "Addis Ababa",
+            neighborhood: p.areaName || p.city || "Addis Ababa",
+            pricePerMonth: Number(p.price) || 0,
+            bedrooms: Number(p.bedrooms) || 0,
+            bathrooms: Number(p.bathrooms) || 0,
+            areaSqm: Number(p.areaSqMeters) || 0,
+            image: primaryImg,
+            description: p.description || "",
+            badge: p.transactionType === "SALE" ? "For Sale" : "Verified Rental",
+          };
+        });
+        setPropertiesList(mapped);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching real properties from database:", err);
+        setPropertiesList([]);
+        setLoading(false);
+      });
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -428,7 +435,7 @@ function ScrollHorizontalSection() {
   };
 
   return (
-    <section className="pt-2 md:pt-4 pb-8 md:pb-10 text-slate-900 dark:text-white transition-colors">
+    <section id="properties" className="scroll-mt-20 pt-2 md:pt-4 pb-8 md:pb-10 text-slate-900 dark:text-white transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="space-y-3 max-w-2xl">
@@ -453,11 +460,42 @@ function ScrollHorizontalSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredHousesList.map((house, idx) => (
-            <FeaturedPropertyCard key={house.id} house={house} t={t} idx={idx} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-[#0e162e] border border-slate-200/90 dark:border-slate-800/90 rounded-[28px] overflow-hidden shadow-sm animate-pulse flex flex-col justify-between"
+              >
+                <div className="h-48 w-full bg-slate-200 dark:bg-slate-800" />
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-4 w-1/3 bg-slate-200 dark:bg-slate-800 rounded-md" />
+                    <div className="h-5 w-3/4 bg-slate-200 dark:bg-slate-800 rounded-md" />
+                    <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded-md" />
+                  </div>
+                  <div className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : propertiesList.length === 0 ? (
+          <div className="py-16 px-6 rounded-[28px] border border-dashed border-slate-300 dark:border-slate-800 bg-white/50 dark:bg-[#0e162e]/40 text-center flex flex-col items-center justify-center">
+            <Building2 className="h-10 w-10 text-slate-400 mb-3" />
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+              No properties available in database yet
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+              Add new listings to have them showcased here automatically.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {propertiesList.map((house, idx) => (
+              <FeaturedPropertyCard key={house.id} house={house} t={t} idx={idx} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-10 space-y-4">
           <form
@@ -1311,7 +1349,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* RIGHT SIDE: HUMAN HERO IMAGE PORTRAIT SHOWCASE */}
+              {/* RIGHT SIDE: HERO PORTRAIT */}
               <div className="lg:col-span-5 relative mt-6 lg:mt-0 flex items-center justify-center">
                 <div className="relative mx-auto max-w-md sm:max-w-lg">
                   <img
@@ -1321,7 +1359,7 @@ export default function HomePage() {
                   />
 
                   {/* Verified Partner Badge */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full text-center shrink-0">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full text-center shrink-0 shadow-lg">
                     <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                       <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                       {t("verifiedHost")}
