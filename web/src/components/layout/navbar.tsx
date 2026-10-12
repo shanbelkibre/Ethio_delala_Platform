@@ -137,7 +137,7 @@ export function Navbar({ cmsNavbar = {} }: NavbarProps) {
 
   const publicLinks = [
     { href: '/', label: tNav('home'), icon: Home },
-    { href: '/properties', label: tNav('properties'), icon: Building2 },
+    { href: '/#properties', label: tNav('properties'), icon: Building2 },
     { href: '/#about', label: tNav('about'), icon: Info },
     { href: '/#services', label: tNav('services'), icon: Wrench },
     { href: '/#contact', label: tNav('contact'), icon: MessageSquare },
