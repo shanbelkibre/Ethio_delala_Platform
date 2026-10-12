@@ -50,6 +50,7 @@ import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableS
 import Testimonials from "@/components/home/Testimonials";
 import Chatbot from "@/components/home/Chatbot";
 import ContactSection from "@/components/home/ContactSection";
+import { propertyService } from "@/features/properties";
 import { cmsService, type CmsConfig } from "@/features/cms";
 import { adminService } from "@/features/admin";
 import { defaultCmsConfig } from "@/lib/cms";
@@ -183,6 +184,13 @@ interface FeaturedPropertyCardProps {
   idx: number;
 }
 
+const getFullPropertyImgUrl = (url?: string) => {
+  if (!url) return '/images/residential_apartments.png';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const backendBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
+  return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+};  
+
 export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProps) {
   return (
     <motion.div
@@ -194,8 +202,11 @@ export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProp
     >
       <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img
-          src={house.image}
+          src={getFullPropertyImgUrl(house.image)}
           alt={house.title}
+          onError={(e) => {
+            e.currentTarget.src = '/images/residential_apartments.png';
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
@@ -243,7 +254,7 @@ export function FeaturedPropertyCard({ house, t, idx }: FeaturedPropertyCardProp
           </span>
         </div>
 
-        <Link href="/properties" className="block pt-1">
+        <Link href={`/properties/${house.id}`} className="block pt-1">
           <Button className="w-full bg-slate-900 dark:bg-slate-800 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer">
             <span>{t("viewDetails")}</span>
             <ArrowRight className="h-3.5 w-3.5" />
