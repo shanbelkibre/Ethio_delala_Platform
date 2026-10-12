@@ -163,3 +163,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📄 License
 
 This project is maintained for **Ethiopian House Rental PLC**.
+<!-- Platform Assets & Architecture Updated -->
